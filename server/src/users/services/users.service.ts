@@ -49,6 +49,14 @@ export class UsersService {
             const newUser = new this.userModel({
                 username: createUserDto.username,
                 password: createUserDto.password,
+                role: createUserDto.role,
+                uv_address: createUserDto.uv_address,
+                uv_phone: createUserDto. uv_phone,
+                uv_fullname: createUserDto.uv_fullname,
+                uv_major: createUserDto.uv_major,
+                com_name: createUserDto.com_name,
+                com_location: createUserDto.com_location,
+                com_phone: createUserDto.com_phone,
                 createdAt: new Date().getTime(),
             })
             return await newUser.save()
@@ -56,15 +64,16 @@ export class UsersService {
             throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
         }
     }
-    // Done
     async updateUser(updateUserDto: UpdateUserDto, id: string): Promise<User> {
         try {
-            const user = await this.getUser(id);
-            user.username = updateUserDto.username;
-            user.password = updateUserDto.password;
-            return await user.save();
+            
+            return await this.userModel.findByIdAndUpdate(id, {
+                com_name:updateUserDto.com_name,
+                com_location:updateUserDto.com_location,
+                com_phone: updateUserDto.com_phone,
+            });
         } catch (error) {
-            throw new HttpException('Error updating article', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
         }
     }
     // Done

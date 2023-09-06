@@ -1,7 +1,7 @@
 <template>
   <div class="ungvien">
-    <div style="display: flex;flex-direction: row;    justify-content: space-between; background-color: rgba(21, 19, 19, 0.877);
-">
+    <div
+      style=" display: flex;flex-direction: row;    justify-content: space-between; background-color: rgb(21, 19, 19);">
       <ul class="header">
         <li>
           <NuxtLink to="/ungvien/">Trang tin tổng hợp</NuxtLink>
@@ -10,20 +10,33 @@
           <NuxtLink to="/ungvien/companies">Tham khảo công ty</NuxtLink>
         </li>
         <li>
-          <NuxtLink to="/nhatuyendung/">Cho nhà tuyển dụng</NuxtLink>
+
         </li>
       </ul>
+
       <div class="account_setting">
+        <a-modal v-model:open="openModal" title="Basic Modal" @ok="handleOk">
+          <template #footer>
+            <a-button key="back" @click="handleCancel">Hủy</a-button>
+            <a-button key="submit" type="primary" @click="handleOk">Tiếp tục</a-button>
+          </template>
+          <p>Bạn cần đăng nhập với tài khoản của nhà tuyển dụng mới có thể truy cập được trang này. Bạn có muốn tiếp tục?
+          </p>
+        </a-modal>
         <span>
-          <div v-if="isLogin!='' && userLogin.hasOwnProperty('data')">
+          <span style=" font-weight: 300; color: goldenrod; text-decoration: none; cursor: pointer;" @click="gotoNTD" >Nhà tuyển
+            dụng</span>
+        </span>
+        <span>
+          <div v-if="isLogin != '' && userLogin.hasOwnProperty('data')">
             <a-dropdown>
               <template #overlay>
                 <a-menu>
-                  <a-menu-item key="1">
-                    <NuxtLink to="/ungvien/profile">Cập nhật thông tin tài khoản</NuxtLink>
+                  <a-menu-item key="1" @click="navigateTo('/ungvien/profile')">
+                    <span>Cập nhật thông tin tài khoản</span>
                   </a-menu-item>
-                  <a-menu-item key="2">
-                    <span @click="logout">Thoát</span>
+                  <a-menu-item key="2" @click="logout">
+                    <span>Thoát</span>
                   </a-menu-item>
                 </a-menu>
               </template>
@@ -52,21 +65,68 @@
 export default {
   data() {
     return {
-      isLogin: localStorage.getItem('loginUserID')?localStorage.getItem('loginUserID'):'',   
-      userLogin:{},
-      }
-    },
-    async mounted() {
-      if(this.isLogin!=''){
-        this.userLogin = await useFetch('http://localhost:8000/users/getUser/'+this.isLogin);
-        console.log("profile:",this.userLogin)
-      }
-    },
-  methods: {
-    logout(){
-      localStorage.removeItem("loginUserID");
-      navigateTo('/')
+      openModal: false,
+      fullName: '',
+      address: '',
+      major: '',
+      errorMsg: '',
+      open: false,
+      isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
+      userLogin: {},
     }
+  },
+  async mounted() {
+    if (this.isLogin != '') {
+      this.userLogin = await useFetch('http://localhost:8000/users/getUser/' + this.isLogin);
+      console.log("profile login:", this.userLogin)
+    }
+  },
+  methods: {
+    gotoNTD() {
+      if (!this.userLogin.hasOwnProperty('data') || this.userLogin.data.role == '1')
+        this.openModal = true;
+      else
+        navigateTo('/nhatuyendung')
+    },
+
+    handleOk() {
+      localStorage.removeItem("loginUserID");
+      navigateTo('/login')
+      this.openModal = false;
+    },
+    handleCancel() {
+      this.openModal = false;
+    },
+    logout() {
+      console.log("thoat")
+      localStorage.removeItem("loginUserID");
+      navigateTo('/login')
+    },
+    async capnhat(id) {
+      try {
+        await $fetch('http://localhost:8000/users/' + id, {
+          method: 'PATCH',
+          body: {
+            fullName: this.fullName,
+            address: this.address,
+            major: this.major
+          }
+        });
+
+        alert("cap nhat thanh cong")
+      } catch (error) {
+        this.errorMsg = 'Register failed, please try again!'
+      }
+
+    },
+    showDrawer() {
+      this.open = true;
+      console.log(this.userLogin.data)
+    },
+
+    onClose() {
+      this.open = false;
+    },
   },
 }
 </script>
@@ -108,7 +168,7 @@ export default {
   display: flex;
   align-items: center;
   // background-color: blue;
-  width: 10rem;
-  justify-content: center;
+  width: 20rem;
+  justify-content: space-between;
 }
 </style>

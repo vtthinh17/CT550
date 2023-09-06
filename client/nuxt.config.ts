@@ -2,10 +2,22 @@
 import { defineNuxtConfig } from 'nuxt/config'
 export default defineNuxtConfig(
   {
-    devtools: { enabled: false },
+    app: {
+      head: {
+        link: [
+          { rel: 'icon', type: 'image/x-icon', href: '/icons8-job-seeker-office-m-32.png' }
+        ]
+      }
+    },
+    devtools: { enabled: true },
+    sourcemap: {
+      server: true,
+      client: true
+    },
     modules: [
-      '@ant-design-vue/nuxt','@pinia/nuxt'
+      '@ant-design-vue/nuxt','@pinia/nuxt','vue3-carousel-nuxt'
     ],
+    
   }
 );
 

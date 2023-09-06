@@ -1,4 +1,7 @@
 <template>
+     <Head>
+      <Title>Việc làm Cần Thơ tổng hợp</Title>
+    </Head> 
     <nhatuyendungHeader />
     <slot />
     <Footer />

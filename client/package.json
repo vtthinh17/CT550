@@ -18,7 +18,10 @@
     "@ant-design/icons-vue": "^6.1.0",
     "@pinia/nuxt": "^0.4.11",
     "pinia": "^2.1.6",
-    "sass": "^1.64.2"
+    "sass": "^1.64.2",
+    "swiper": "^10.2.0",
+    "vue-carousel-3d": "^1.0.1",
+    "vue3-carousel-nuxt": "^1.1.0"
   },
   "overrides": {
     "vue": "latest"

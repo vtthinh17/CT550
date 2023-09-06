@@ -8,7 +8,7 @@
     </span>
     <div class="login">
         <h1>Login form</h1>
-        <form method="post" @submit.prevent="login">
+        <form method="post" @submit.prevent>
 
             <div class="field">
                 <label class="label">Email:</label>
@@ -25,14 +25,14 @@
                     <input type="password" class="input" name="password" v-model="password">
                 </div>
             </div>
-            <span v-if="this.errorMsg != ''" style="color: red;">
-                {{ this.errorMsg }}
-            </span>
+            
             <div class="control">
                 <button type="submit" class="button is-dark is-fullwidth" @click="dangnhap">Log In</button>
             </div>
         </form>
-
+        <span v-if="errorMsg" style="color: red;">
+                {{ errorMsg }}
+            </span>
         <div class="has-text-centered" style="margin-top: 20px">
             <p>
                 Don't have an account? <nuxt-link to="/register">Register</nuxt-link>
@@ -53,19 +53,9 @@ export default {
     },
 
     methods: {
-        async login() {
-            try {
-                console.log({
-                    email: this.email,
-                    password: this.password,
-                })
-
-            } catch (e) {
-                this.error = e.response.data.message;
-            }
-        },
         async dangnhap() {
-            try {
+            if(this.email != '' && this.password!=''){
+                try {
                 const res = await $fetch('http://localhost:8000/users/login', {
                     method: 'POST',
                     body: {
@@ -73,13 +63,22 @@ export default {
                         password: this.password,
                     }
                 })
-                console.log("dang nhap:", res);
                 localStorage.setItem("loginUserID", res._id)
                 // set loginUser profile to local storage or Pinia(global state)
-                navigateTo('/')
-            } catch (error) {
-                this.errorMsg = 'Login failed, please try again!'
-                console.log("loi:", error)
+                if(res.role=='1'){
+                    navigateTo('/ungvien')
+                }else if(res.role=='2'){
+                    navigateTo('/nhatuyendung')
+                }else{
+                    navigateTo('/admin')
+                }
+                
+                } catch (error) {
+                    this.errorMsg = 'Login failed, please try again!'
+                    console.log("loi:", error)
+                }
+            } else {
+                this.errorMsg = 'Empty please try input something!'
             }
 
         }
@@ -106,7 +105,7 @@ export default {
     .button {
         border-radius: 6px;
         width: 5rem;
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         height: 2rem;
 
     }

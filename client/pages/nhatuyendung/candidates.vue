@@ -1,6 +1,8 @@
 <template>
     <a-layout :name="nhatuyendung">
+      <nhatuyendungFilter />
         Danh sách ứng viên
+
     </a-layout>
 </template>
 

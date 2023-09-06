@@ -1,94 +1,210 @@
 <template>
-    
-       <span>
-        <NuxtLink to="/">
-              <left-circle-outlined :style="{fontSize: '1.5rem'}"/>
-        </NuxtLink>
-        <!-- <left-square-outlined :style="{fontSize: '1.5rem'}"/> -->
-    </span>
-      <div class="register">    
-        <h1>Register form</h1>   
-            <form method="post" @submit.prevent="login">
-              <div class="field">
-                <label class="label">Email</label>
-  
-                <div class="control">
-                  <input
-                    type="email"
-                    class="input"
-                    name="email"
-                    v-model="email"
-                  >
-                </div>
-              </div>
-  
-              <div class="field">
-                <label class="label">Password</label>
-  
-                <div class="control">
-                  <input
-                    type="password"
-                    class="input"
-                    name="password"
-                    v-model="password"
-                  >
-                </div>
-                <div class="control">
-                <button type="submit" class="button is-dark is-fullwidth" @click="dangky">Register</button>
-            </div>
-              </div>
-  
-             
-            </form>
-            <div class="has-text-centered" style="margin-top: 20px">
-            <p>
-                Already have an account? <nuxt-link to="/login">Login</nuxt-link>
-            </p>
+  <span>
+    <NuxtLink to="/">
+      <left-circle-outlined :style="{ fontSize: '1.5rem' }" />
+    </NuxtLink>
+    <!-- <left-square-outlined :style="{fontSize: '1.5rem'}"/> -->
+  </span>
+  <div class="register">
+    <h1>Register form</h1>
+    <div>
+      <h4>Bạn muốn đăng ký tài khoản?</h4>
+      <a-radio-group v-model:value="formRole" button-style="solid">
+        <a-radio-button value="1">Ứng viên</a-radio-button>
+        <a-radio-button value="2">Nhà tuyển dụng</a-radio-button>
+      </a-radio-group>
+    </div>
+    <form v-if="formRole == '1'" method="post" @submit.prevent>
+      <div class="field">
+        <label class="label">Email(<span style="color: red;">*</span>)</label>
+
+        <div class="control">
+          <input type="email" class="input" name="email" v-model="email">
         </div>
-          
+      </div>
+      <div class="field">
+        <label class="label">Password(<span style="color: red;">*</span>)</label>
+
+        <div class="control">
+          <input type="password" class="input" name="password" v-model="password">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Họ tên:</label>
+
+        <div class="control">
+          <input type="text" class="input" name="fullname" v-model="fullname">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Địa chỉ:</label>
+
+        <div class="control">
+          <input type="text" class="input" name="address" v-model="address">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Lĩnh vực:</label>
+
+        <div class="control">
+          <input type="text" class="input" name="major" v-model="major">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Số diện thoại:</label>
+
+        <div class="control">
+          <input type="string" class="input" name="phone" v-model="phone">
+        </div>
+      </div>
+      <div class="control">
+        <button type="submit" class="button is-dark is-fullwidth" @click="dangky">Đăng ký</button>
+      </div>
+      <div class="has-text-centered" style="margin-top: 20px">
+        <p>
+          Already have an account? <nuxt-link to="/login">Login</nuxt-link>
+        </p>
+      </div>
+    </form>
+    <!-- form cho nhà tuyển dụng -->
+    <form v-else method="post" @submit.prevent>
+      <div class="field">
+        <label class="label">Email(<span style="color: red;">*</span>)</label>
+
+        <div class="control">
+          <input type="email" class="input" name="email" v-model="email">
+        </div>
       </div>
 
-  </template>
+      <div class="field">
+        <label class="label">Password(<span style="color: red;">*</span>)</label>
+        <div class="control">
+          <input type="password" class="input" name="password" v-model="password">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Tên công ty</label>
+        <div class="control">
+          <input type="text" class="input" name="com_name" v-model="com_name">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Địa chỉ công ty</label>
+        <div class="control">
+          <input type="text" class="input" name="com_location" v-model="com_location">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Số điện thoại</label>
+        <div class="control">
+          <input type="text" class="input" name="com_phone" v-model="com_phone">
+        </div>
+      </div>
+      <div class="control">
+        <button type="submit" class="button is-dark is-fullwidth" @click="dangky">Đăng ký</button>
+      </div>
+      <div class="has-text-centered" style="margin-top: 20px">
+        <p>
+          Already have an account? <nuxt-link to="/login">Login</nuxt-link>
+        </p>
+      </div>
+    </form>
+  </div>
+
+
+
+  <span v-if="this.errorMsg != ''" style="color: red;">
+    {{ this.errorMsg }}
+  </span>
+  <span v-else>
+  </span>
+</template>
   
-  <script>
-  export default {
-    data() {
-      return {
-        email: '',
-        password: '',
-        error: null,
-      };
+<script>
+export default {
+  data() {
+    return {
+      formRole: '1',
+      errorMsg: '',
+      email: '',
+      password: '',
+      error: null,
+      fullname: '',
+      address: '',
+      major: '',
+      phone: '',
+      com_name:'',
+      com_location:'',
+      com_phone:''
+    };
+  },
+
+  methods: {
+    ValidateEmail(input) {
+      var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+      if (input.value.match(validRegex)) {
+        console.log("Valid email address!");
+        return true;
+      } else {
+        console.log("Invalid email address!");
+        return false;
+      }
     },
-  
-    methods: {
-      async login() {
+
+    async dangky() {
+      if (this.formRole == '1') {
         try {
-            console.log({
-                    email: this.email,
-                    password: this.password,
-                })
-        } catch (e) {
-          this.error = e.response.data.message;
+          await $fetch('http://localhost:8000/users/create', {
+            method: 'POST',
+            body: {
+              username: this.email,
+              password: this.password,
+              role:'1',
+              uv_fullname: this.fullname,
+              uv_address: this.address,
+              uv_major: this.major,
+              uv_phone: this.phone,
+            }
+          });
+          alert("Dang ky thanh cong")
+          this.email = '';
+          this.password = '';
+          navigateTo('/login')
+        } catch (error) {
+          this.errorMsg = 'Register failed, please try again!'
         }
-      },
-      async dangky() {
-            await $fetch('http://localhost:8000/users/create', {
-                method: 'POST',
-                body: {
-                    username: this.email,
-                    password: this.password,
-                }
-            });
-            alert("Dang ky thanh cong")
+      }else{
+        try {
+          await $fetch('http://localhost:8000/users/create', {
+            method: 'POST',
+            body: {
+              username: this.email,
+              password: this.password,
+              role:'2',
+              com_location: this.com_location,
+              com_name: this.com_name,
+              com_phone: this.com_phone,
+            }
+          });
+          alert("Dang ky thanh cong")
+          this.email = '';
+          this.password = '';
+          navigateTo('/login')
+        } catch (error) {
+          this.errorMsg = 'Register failed, please try again!'
         }
+      }
+
+
     },
-  };
-  </script>
-  <style lang="scss">
-  .register {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 24vh;
-  }
-  </style>
+  },
+};
+</script>
+<style lang="scss">
+.register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // margin-top: 15vh;
+}
+</style>
