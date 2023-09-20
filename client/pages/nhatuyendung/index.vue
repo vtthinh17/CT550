@@ -23,7 +23,7 @@
         </a-col>
       </a-row>
       <h1>Tin của tôi</h1>
-      <div v-if="companyPost.length>0" class="post_list">
+      <div v-if="companyPost.length" class="post_list">
         <div v-for="post in companyPost" class="job_item">
           <div style="display: flex; flex-direction: row; justify-content: space-around; margin-bottom: 1rem;">
             <span>
@@ -52,10 +52,10 @@
               <p v-if="post.job_salary.includes('tr', 'triệu,TR,TRIỆU')"> Mức lương: {{ post.job_salary }}</p>
               <p v-else>Mức lương: {{ post.job_salary }}tr</p>
 
-              <span class="xemhoso" @click="viewApply(post._id)">
+              <span class="xemhoso" @click="viewAppiedCandidates(post._id)">
                 <a-tooltip>
                   <template #title>Xem danh sách hồ sơ</template>
-                  <UserOutlined /> Hồ sơ đã nộp: {{ post.applied }}
+                  <UserOutlined /> Hồ sơ đã nộp: {{ post.applied.length }}
                 </a-tooltip>
               </span>
             </div>
@@ -98,21 +98,40 @@
         </template>
       </a-modal>
       <!-- Edit modal -->
-      <a-modal width="80%" v-model:open="modalEditOpen" title="Nội dung chi tiết bài đăng" @ok="handleOk">
-        <h2>Yêu cầu công việc</h2>
-        <textarea rows="5" style="width: 70vw;">
-          {{ selectedPost.data.job_requirement }}
-        </textarea>
-        <button @click="saveNewInfo">Save</button>
-        <h2>Quyền lợi</h2>
-        <textarea rows="5" style="width: 70vw;">
-          {{ selectedPost.data.job_benefit }}
-        </textarea>
-        <button @click="saveNewInfo">Save</button>
-
-        <template #footer>
-          <a-button key="back" @click="this.modalOpen = false">OK</a-button>
-        </template>
+      <a-modal v-model:open="modalEditOpen" title="Nội dung chi tiết bài đăng" @ok="handleAdd">
+        <a-form :label-col="labelCol" :wrapper-col="wrapperCol" layout="horizontal" :disabled="componentDisabled"
+          style="max-width: 600px">
+          <a-form-item label="Tên bài tuyển dụng">
+              {{selectedPost.data.job_title}} 
+              <EditOutlined @click="changeInfo" />
+            <!-- <input type="text" class="input" name="add_jobTitle" > -->
+          </a-form-item>
+          <a-form-item label="Mức lương">
+            {{selectedPost.data.job_title}} 
+              <EditOutlined @click="changeInfo" />
+            <!-- <input type="text" class="input" name="add_jobSalary" v-model="add_jobSalary"> -->
+          </a-form-item>
+          <a-form-item label="Hạn nộp">
+            {{selectedPost.data.deadline}} 
+            <input type="date" class="input" name="add_deadline" v-model="add_deadline">
+              <!-- <EditOutlined @click="changeInfo" /> -->
+            <!-- <input type="date" class="input" name="add_deadline" v-model="add_deadline"> -->
+          </a-form-item>
+          <a-form-item label="Yêu cầu công việc">
+            {{selectedPost.data.job_requirement}}
+            <EditOutlined @click="changeInfo" />
+            <!-- <textarea v-model="selectedPost.data.job_requirement" rows="4" cols="30">
+            </textarea> -->
+          </a-form-item>
+          <a-form-item label="Quyền lợi">
+            {{selectedPost.data.job_benefit}}
+            <EditOutlined @click="changeInfo" />
+            <!-- <textarea v-model="selectedPost.data.job_benefit" rows="4" cols="30">
+            </textarea> -->
+    
+          </a-form-item>
+        
+        </a-form>
       </a-modal>
       <!-- Add post form -->
       <a-modal v-model:open="open" title="Thêm tin tuyển dụng" @ok="handleAdd">
@@ -140,20 +159,6 @@
             </textarea>
             <!-- <a-textarea v-model:job_benefit="add_jobBenefit" :rows="3" /> -->
           </a-form-item>
-          <!-- <a-form-item label="Logo">
-            <a-upload v-model:logo="add_logo" list-type="picture" :max-count="1" action="http://localhost:3000/nhatuyendung/upload">
-              <a-button>
-                <upload-outlined></upload-outlined>
-                Upload
-              </a-button>
-            </a-upload>
-            <a-upload action="/upload.do" list-type="picture-card" v-model:logo="add_logo">
-              <div>
-                <PlusOutlined />
-                <div style="margin-top: 8px">Upload</div>
-              </div>
-            </a-upload>
-          </a-form-item> -->
         </a-form>
       </a-modal>
     </div>
@@ -257,6 +262,9 @@ export default {
     }
   },
   methods: {
+    changeInfo(){
+      console.log('click')
+    },
     openNotificationWithIcon(type) {
       notification[type]({
         placement: "topRight",
@@ -272,8 +280,8 @@ export default {
 
       });
     },
-    viewApply(postID) {
-      console.log("navigateTo('/nhatuyendung/posts/view/')" + postID)
+    viewAppiedCandidates(postID) {
+      navigateTo('/nhatuyendung/post/'+ postID) 
     },
     showDrawer() {
       this.open = true;
@@ -288,21 +296,23 @@ export default {
 
     async handleAdd() {
       try {
-        const res = await $fetch('http://localhost:8000/posts/create', {
+        console.log("before",this.userLogin._id)
+        const res =  await $fetch('http://localhost:8000/posts/create', {
           method: 'POST',
           body: {
-            com_created: this.userLogin.data._id,
             job_title: this.add_jobTitle,
-            job_salary: this.add_jobSalary,
-            deadline: this.add_deadline,
             job_requirement: this.add_jobRequirement,
             job_benefit: this.add_jobBenefit,
-            // logo: this.add_logo
+            com_created: this.userLogin._id,
+            job_salary: this.add_jobSalary,
+            deadline: this.add_deadline,
           }
         })
+        console.log("response them tin tuyen dung:",res)
         this.openNotificationWithIcon('success')
         this.open = false
       } catch (error) {
+        console.log(error)
         this.openNotificationWithIcon('error')
       }
 

@@ -2,20 +2,38 @@
     <a-layout :name="Ungvien">
         <div class="mainContent">
             <div>
-                <!-- <button @click="getData">get data</button> -->
                 <div class="searchBox">
                     <div style="display: flex; justify-content: center;">
+                        <span style="padding-top: 5px; padding-right: 10px;">Tìm kiếm bài đăng:</span>
                         <a-auto-complete v-model:value="value" :options="options" style="width: 30%"
-                            placeholder="input here" :filter-option="filterOption" />
+                            placeholder="Nhập tên bài tuyển dụng" :filter-option="filterOption" />
                         <a-tooltip title="search">
                             <a-button>
                                 <SearchOutlined />
                             </a-button>
                         </a-tooltip>
                     </div>
-                    <!-- <ungvienFilter /> -->
                 </div>
                 <hr>
+                <!-- filter -->
+                <div style="display: flex; justify-content: center;">
+                    <a-cascader class="filterOption" v-model:value="value" style="width: 30%" multiple
+                        max-tag-count="responsive" :options="filterOptions" placeholder="Lĩnh vực">
+                    </a-cascader>
+                    <a-cascader class="filterOption" v-model:value="value1" style="width: 10%" multiple
+                        max-tag-count="responsive" :options="filterOptions1" placeholder="Trình độ">
+                    </a-cascader>
+                    <a-cascader class="filterOption" v-model:value="value2" style="width: 20%" multiple
+                        max-tag-count="responsive" :options="filterOptions2" placeholder="Yêu cầu kinh nghiệm">
+                    </a-cascader>
+                    <a-cascader class="filterOption" v-model:value="value3" style="width: 20%" multiple
+                        max-tag-count="responsive" :options="filterOptions3" placeholder="Hình thức làm việc">
+                    </a-cascader>
+                    <button class="button-32" role="button" @click="getFilterOptions">Tìm kiếm</button>
+                </div>
+                <div>
+                </div>
+                <!-- list jobs -->
                 <div class="list-jobs">
                     <h2>Việc làm hot</h2>
                     <!-- display most view post -->
@@ -88,23 +106,42 @@
                         </a-col>
 
                     </a-row>
+                    <!-- Post from database -->
+                    <h2 class="job_type">Có thể ứng tuyển</h2>
+                    <a-row style="display: flex;justify-content: space-evenly;">
+                        <a-col :span="7" v-for="job in posts " class="job-item">
+                            <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
+                                <p style="color: #41cf37; font-weight: 550;">Job.Company</p>
+                                <a-card-meta v-bind:title="job.job_title"
+                                    v-bind:description="'Mức lương: ' + job.job_salary">
+                                </a-card-meta>
+                                <div v-if="job.deadline.includes('*')">
+                                    <a-card-meta v-bind:description=job.deadline>
+                                    </a-card-meta>
+                                </div>
+                                <div v-else>
+                                    <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline">
+                                    </a-card-meta>
+                                </div>
+                            </a-card>
+
+                        </a-col>
+
+                    </a-row>
+                    <!-- Pagination -->
                     <div class="pagination">
                         <a-pagination v-model:current="current" simple :total="50" />
                     </div>
-
+                    <!-- Selected Job info -->
                     <a-modal v-model:open="open" title="Job title" @ok="handleOk">
-                        <template #footer>
-                            <a-button key="back" @click="handleCancel">Close</a-button>
-                            <a-button key="submit" type="primary" :loading="loading" @click="handleSubmitCV">Nộp
-                                CV
-                            </a-button>
-                            <a-popconfirm title="Are you sure delete this task?" ok-text="Yes" cancel-text="No"
-                                @confirm="confirm" @cancel="cancel">
-                            </a-popconfirm>
-                        </template>
+                        <!-- {{console.log('chon',selectedJob)}} -->
                         <div>
-                            <div style="display: flex;justify-content: center;">
+                            <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
                                 <img alt="example" v-bind:src=selectedJob.logo[0] class="job-item_logo" />
+                            </div>
+                            <div v-else style="display: flex;justify-content: center;">
+                                <img alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
+                                    class="job-item_logo" />
                             </div>
                             <h4>Yêu cầu công việc:</h4>
                             <span v-for=" i  in  selectedJob.job_requirement ">
@@ -116,6 +153,35 @@
                                 {{ i }}
                             </span>
                         </div>
+                        <template #footer>
+                            <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
+                                return obj.userId === this.userLogin._id
+                            }).length > 0">
+                                <a-button key="back" @click="handleCancel">Close</a-button>
+                                <a-button disabled danger>Đã nộp</a-button>
+                            </div>
+                            <div v-else>
+                                <a-button key="back" @click="handleCancel">Close</a-button>
+                                <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary"
+                                    :loading="loading" @click="handleSubmitCV(selectedJob)">Nộp CV
+                                </a-button>
+                                <a-button v-else danger :loading="loading" @click="goToJobLink(selectedJob.job_links)">
+                                    Tham khảo
+                                </a-button>
+                            </div>
+                        </template>
+                    </a-modal>
+                    <!-- Model ask to create CV -->
+                    <a-modal v-model:open="openMessage" title="Bạn chưa có CV">
+                        <div>
+                            Tạo cv mới?+
+                        </div>
+                        <template #footer>
+                            <a-button key="back" @click="handleCancel">Close</a-button>
+                            <a-button key="submit" type="primary" :loading="loading" @click="handleCreateCV">Tạo
+                                CV
+                            </a-button>
+                        </template>
                     </a-modal>
                 </div>
             </div>
@@ -125,6 +191,7 @@
 </template>
 <script >
 import { Navigation, Pagination, A11y } from 'swiper/modules';
+import { notification } from 'ant-design-vue';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 // import 'swiper/css/scrollbar';
@@ -141,49 +208,150 @@ definePageMeta({
 })
 
 export default {
+
     components: {
         Swiper,
         SwiperSlide,
     },
     layout: 'ungvien',
     setup() {
+
+        const filterOptions = [
+            {
+                label: 'Kế toán',
+                value: 'kt',
+
+            },
+            {
+                label: 'Công nghệ thông tin',
+                value: 'cntt',
+
+            },
+            {
+                label: 'Du lịch',
+                value: 'dulich',
+
+            },
+            {
+                label: 'Sức khỏe',
+                value: 'suckhoe',
+
+            },
+        ];
+        const filterOptions1 = [
+            {
+                label: 'Tự do',
+                value: 'tudo',
+
+            },
+            {
+                label: 'Cao đẳng',
+                value: 'cntt',
+
+            },
+            {
+                label: 'Đại học',
+                value: 'dulich',
+
+            },
+
+        ];
+        const filterOptions2 = [
+            {
+                label: 'Chưa có kinh nghiệm',
+                value: 'tudo',
+
+            },
+            {
+                label: 'dưới 1 năm',
+                value: 'cntt',
+
+            },
+            {
+                label: '1 năm',
+                value: '1',
+
+            },
+            {
+                label: '2 năm',
+                value: '2',
+
+            },
+            {
+                label: '3 năm',
+                value: '3',
+
+            },
+
+        ];
+        const filterOptions3 = [
+            {
+                label: 'Toàn thời gian',
+                value: 'fulltime',
+
+            },
+            {
+                label: 'Bán thời gian',
+                value: 'part time',
+
+            },
+            {
+                label: 'Remote',
+                value: 'remote',
+
+            },
+
+
+        ];
         const filterOption = (input, option) => {
             return option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0;
         };
-        // const onSwiper = (swiper) => {
-        //     console.log(swiper);
-        // };
         const onSlideChange = () => {
             console.log('slide change');
         };
         return {
-            // onSwiper,
+
+            filterOptions,
+            filterOptions1,
+            filterOptions2,
+            filterOptions3,
             onSlideChange,
             filterOption,
             modules: [Navigation, Pagination, A11y],
-            // users
         };
     },
     data() {
         return {
+            inputValue: 0,
+            inputValue1: 1,
             slides: 7,
-            value: ref(),
+            value: '',
+            value1: '',
+            value2: '',
+            value3: '',
             open: false,
-            selectedJob: {},
+            openMessage: false,
+            selectedJob: false,
             options: [],
             data: [],
-            userLogin: {},
+            posts: [],
+            userLogin: false,
             isLogin: '',
+            mess: ''
         }
 
     },
+
     async mounted() {
-        if (this.isLogin != '') {
-            this.userLogin = await useFetch('http://localhost:8000/users/getUser/' + this.isLogin);
-            console.log("profile ung vien login:", this.userLogin)
+        if (process.client) {
+            this.isLogin = localStorage.getItem('loginUserID');
+            if (this.isLogin) {
+                this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
+                console.log("ung vien>>>  login:", this.userLogin);
+            }
         }
+        this.posts = await $fetch('http://localhost:8000/posts/getAllDisplay');
         this.data = myData;
-        // console.log(this.users)
         this.options = this.data.map((item) => {
             return {
                 ...item,
@@ -193,21 +361,83 @@ export default {
         });
     },
     methods: {
+        getFilterOptions() {
+            // try {
+            //     $fetch(`http://localhost:8000/posts/getPostByFilter?working_type=${hinhthuclamviec}&job_major=${linhvuc}&education=${trinhdo}`);
+            // } catch (error) {
+            //     console.log(error)
+            // }
+            console.log("get filter options",
+                {
+                    linhvuc:value,
+                    trinhdo:value1,
+                    yeucaukinhnghiem:value2,
+                    hinhthuclamviec:value3,
+                }
+            )
+        },
+        checkIsSubmit(selectedJob) {
+
+        },
+        goToJobLink(link) {
+            window.open(link);
+        },
+        openNotificationWithIcon(type) {
+            notification[type]({
+                placement: "topRight",
+                message: (type == 'success' ? 'Ứng tuyển thành công!' : (type == 'info' ? 'Info' : (type == 'warning' ? 'Cảnh báo' : 'Oops, đã có lỗi xảy ra'))),
+                description: (type == 'success' ?
+                    'Cảm ơn bạn đã sử dụng hệ thống của chúng tôi.'
+                    : (type == 'info'
+                        ? 'Info'
+                        : (type == 'warning'
+                            ? 'Cảnh báo'
+                            : 'Vui lòng thử lại sau.'))),
+            })
+
+        },
         getSearchList(value) {
             if (this.value.length > 0) {
-                console.log
             }
         },
         showModal(job) {
             this.selectedJob = job
             this.open = true;
         },
-
-        handleSubmitCV() {
-            if (this.userLogin.data.role == '1' && this.userLogin.data.hasOwnProperty('CV')) {
-                console.log("nop ok")
+        handleOk(job) {
+            this.openMessage = false;
+        },
+        handleCreateCV() {
+            navigateTo('ungvien/createCV')
+        },
+        async handleSubmitCV(selectedJob) {
+            if (this.userLogin.role == '1') {
+                // Chưa có CV => open modal tạo CV
+                if (!this.userLogin.cv) {
+                    this.openMessage = true
+                    // Có CV nhưng selectedJob muốn apply đã tồn tại userId => đã nộp 
+                } else if (selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
+                    return obj.userId === this.userLogin._id
+                }).length > 0) {
+                    alert("Đã nộp")
+                } else {
+                    try {
+                        await $fetch('http://localhost:8000/posts/applyJob/' + selectedJob._id, {
+                            method: 'PUT',
+                            body: {
+                                "userId": this.userLogin._id,
+                                "profile": this.userLogin.cv,
+                            }
+                        })
+                        this.openNotificationWithIcon('success')
+                        console.log("them cv vao selectedJob:", this.userLogin)
+                        this.open = false
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
             } else {
-                alert("Bạn chưa có CV")
+                alert("bạn cần đăng nhập với tài khoản ứng viên")
             }
 
             this.open = false;
@@ -215,6 +445,7 @@ export default {
 
         handleCancel() {
             this.open = false;
+            this.openMessage = false;
         },
         getSearchList() {
 
@@ -232,6 +463,45 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.button-32 {
+    background-color: #fff000;
+    border-radius: 12px;
+    color: #000;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 10px 15px;
+    text-align: center;
+    transition: 200ms;
+    width: 8%;
+    box-sizing: border-box;
+    border: 0;
+    font-size: 16px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.button-32:not(:disabled):hover,
+.button-32:not(:disabled):focus {
+    outline: 0;
+    background: #f4e603;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, .2), 0 3px 8px 0 rgba(0, 0, 0, .15);
+}
+
+.button-32:disabled {
+    filter: saturate(0.2) opacity(0.5);
+    -webkit-filter: saturate(0.2) opacity(0.5);
+    cursor: not-allowed;
+}
+
+.filterOption {
+    margin: 0 0.5rem;
+}
+
+.code-box-demo .ant-slider {
+    margin-bottom: 16px;
+}
+
 :deep(.slick-slide) {
     text-align: center;
     height: 160px;
@@ -304,5 +574,4 @@ body {
 
 // .sliderItem{
 //     background-color: red;
-// }
-</style>
+// }</style>

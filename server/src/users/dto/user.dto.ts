@@ -17,16 +17,36 @@ export class CreateUserDto {
 
 export class UpdateUserDto {
   id: string;
-  uv_address: string;
-  uv_phone: string;
-  uv_fullname: string;
-  uv_major: string;
-  com_name: string;
-  com_location: string;
+  address: string;
+  phone: string;
+  fullName: string;
+  major: string;
+  exp: string;
+  certificates: string;
+  brief_intro: string;
   com_phone: string;
+  com_location: string;
+  com_name: string;
+}
+
+export class InsertCVDto {
+  id: string;
+  fullName: string;
+  exp: string;
+  brief_intro: string;
+  education: string;
+  major: string;
+  address: string;
+  phone: string;
+  certificates: string;
 }
 
 export class LoginUserDto {
   username: string;
+  password: string;
+}
+
+export class ChangePasswordDto {
+  id: string;
   password: string;
 }

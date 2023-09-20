@@ -30,31 +30,10 @@
         </div>
       </div>
       <div class="field">
-        <label class="label">Họ tên:</label>
+        <label class="label">Nhập lại mật khẩu(<span style="color: red;">*</span>)</label>
 
         <div class="control">
-          <input type="text" class="input" name="fullname" v-model="fullname">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Địa chỉ:</label>
-
-        <div class="control">
-          <input type="text" class="input" name="address" v-model="address">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Lĩnh vực:</label>
-
-        <div class="control">
-          <input type="text" class="input" name="major" v-model="major">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Số diện thoại:</label>
-
-        <div class="control">
-          <input type="string" class="input" name="phone" v-model="phone">
+          <input type="password" class="input" name="cf_password" v-model="cf_password">
         </div>
       </div>
       <div class="control">
@@ -80,6 +59,13 @@
         <label class="label">Password(<span style="color: red;">*</span>)</label>
         <div class="control">
           <input type="password" class="input" name="password" v-model="password">
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Nhập lại mật khẩu(<span style="color: red;">*</span>)</label>
+
+        <div class="control">
+          <input type="password" class="input" name="cf_password" v-model="cf_password">
         </div>
       </div>
       <div class="field">
@@ -127,72 +113,75 @@ export default {
       formRole: '1',
       errorMsg: '',
       email: '',
+      cf_password: '',
       password: '',
       error: null,
       fullname: '',
       address: '',
       major: '',
       phone: '',
-      com_name:'',
-      com_location:'',
-      com_phone:''
+      com_name: '',
+      com_location: '',
+      com_phone: ''
     };
   },
 
   methods: {
-    ValidateEmail(input) {
-      var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-      if (input.value.match(validRegex)) {
-        console.log("Valid email address!");
-        return true;
-      } else {
-        console.log("Invalid email address!");
-        return false;
-      }
-    },
-
     async dangky() {
       if (this.formRole == '1') {
-        try {
-          await $fetch('http://localhost:8000/users/create', {
-            method: 'POST',
-            body: {
-              username: this.email,
-              password: this.password,
-              role:'1',
-              uv_fullname: this.fullname,
-              uv_address: this.address,
-              uv_major: this.major,
-              uv_phone: this.phone,
-            }
-          });
-          alert("Dang ky thanh cong")
-          this.email = '';
-          this.password = '';
-          navigateTo('/login')
-        } catch (error) {
-          this.errorMsg = 'Register failed, please try again!'
+        // check confirm password is matched?
+        if (this.password === this.cf_password) {
+          try {
+            await $fetch('http://localhost:8000/users/create', {
+              method: 'POST',
+              body: {
+                username: this.email,
+                password: this.password,
+                role: '1',
+                uv_fullname: this.fullname,
+                uv_address: this.address,
+                uv_major: this.major,
+                uv_phone: this.phone,
+              }
+            });
+            alert("Dang ky thanh cong")
+            this.email = '';
+            this.password = '';
+            navigateTo('/login')
+          } catch (error) {
+            this.errorMsg = 'Register failed, please try again!'
+          }
+        } else {
+          alert("mat khau ko trung khop")
         }
-      }else{
-        try {
-          await $fetch('http://localhost:8000/users/create', {
-            method: 'POST',
-            body: {
-              username: this.email,
-              password: this.password,
-              role:'2',
-              com_location: this.com_location,
-              com_name: this.com_name,
-              com_phone: this.com_phone,
-            }
-          });
-          alert("Dang ky thanh cong")
-          this.email = '';
-          this.password = '';
-          navigateTo('/login')
-        } catch (error) {
-          this.errorMsg = 'Register failed, please try again!'
+      }
+      // form.role==2
+      else {
+        // check confirm password is matched?
+        if (this.password === this.cf_password) {
+          try {
+            await $fetch('http://localhost:8000/users/create', {
+              method: 'POST',
+              body: {
+                username: this.email,
+                password: this.password,
+                role: '2',
+                com_location: this.com_location,
+                com_name: this.com_name,
+                com_phone: this.com_phone,
+              }
+            });
+            alert("Dang ky thanh cong")
+            this.email = '';
+            this.password = '';
+            navigateTo('/login')
+          } catch (error) {
+            this.errorMsg = 'Register failed, please try again!'
+          }
+        } else {
+          alert("mat khau khong trung khop")
         }
+
       }
 
 

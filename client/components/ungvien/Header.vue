@@ -9,11 +9,12 @@
         <li>
           <NuxtLink to="/ungvien/companies">Tham khảo công ty</NuxtLink>
         </li>
-        <li>
-
+        <!-- {{ console.log() }} -->
+        <li v-if="this.isLogin && userLogin.role=='1'">
+          <NuxtLink to="/ungvien/profile">Hồ sơ cá nhân</NuxtLink>
         </li>
       </ul>
-
+      <!-- {{ console.log("test",userLogin.username) }} -->
       <div class="account_setting">
         <a-modal v-model:open="openModal" title="Basic Modal" @ok="handleOk">
           <template #footer>
@@ -24,16 +25,15 @@
           </p>
         </a-modal>
         <span>
-          <span style=" font-weight: 300; color: goldenrod; text-decoration: none; cursor: pointer;" @click="gotoNTD" >Nhà tuyển
-            dụng</span>
+          <span style=" font-weight: 300; color: goldenrod; text-decoration: none; cursor: pointer;" @click="gotoNTD" >Nhà tuyển dụng</span>
         </span>
         <span>
-          <div v-if="isLogin != '' && userLogin.hasOwnProperty('data')">
+          <div v-if="userLogin.username">
             <a-dropdown>
               <template #overlay>
                 <a-menu>
-                  <a-menu-item key="1" @click="navigateTo('/ungvien/profile')">
-                    <span>Cập nhật thông tin tài khoản</span>
+                  <a-menu-item key="1" @click="showDrawer">
+                    <span>Đổi mật khẩu</span>
                   </a-menu-item>
                   <a-menu-item key="2" @click="logout">
                     <span>Thoát</span>
@@ -41,10 +41,46 @@
                 </a-menu>
               </template>
               <a-button>
-                <user-outlined />{{ this.userLogin.data.username }}
+                <user-outlined />{{ userLogin.username }}
                 <DownOutlined />
               </a-button>
             </a-dropdown>
+            <a-drawer :width="500" title="Đổi mật khẩu" placement="left"
+            v-model:open="openDrawer" @close="onClose">
+              <div style="display: flex; flex-direction: column;">
+                <!-- <h3>Đổi mật khẩu mới</h3> -->
+                <a-row style="margin: 4px 0;">
+                  <a-col :span="8">
+                    <label>Mật khẩu hiện tại:</label>
+                  </a-col>
+                  <a-col :span="16">
+                    <a-input-password v-model="currentPass" placeholder="Vui lòng nhập mật khẩu hiện tại" />
+                    <!-- <input type="password" v-model="currentPass"> -->
+                  </a-col>
+                </a-row>
+                <a-row style="margin: 4px 0;">
+                  <a-col :span="8">
+                    <label>Mật khẩu mới:</label>
+                  </a-col> 
+                  <a-col :span="16">
+                    <a-input-password v-model="newPassword" placeholder="Nhập mật khẩu mới" />
+                  </a-col>                               
+                </a-row>
+                <a-row style="margin: 4px 0;">
+                  <a-col :span="8">
+                    <label>Nhập lại mật khẩu mới:</label>
+                  </a-col>   
+                  <a-col :span="16">
+                    <a-input-password v-model="confirm_newPassword" placeholder="Nhập lại mật khẩu mới" />
+                  </a-col>                      
+                </a-row>
+              </div>
+
+              <template #footer>
+                <a-button style="margin-right: 8px" @click="onClose">Hủy</a-button>
+                <a-button type="primary" @click="changePassword(isLogin)">Lưu</a-button>
+              </template>
+            </a-drawer>
           </div>
           <div v-else>
             <NuxtLink to="/login">
@@ -66,24 +102,30 @@ export default {
   data() {
     return {
       openModal: false,
+      openDrawer: false,
       fullName: '',
       address: '',
       major: '',
       errorMsg: '',
-      open: false,
-      isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
+      isLogin: false,
       userLogin: {},
+      newPassword: '',
+      currentPass: '',
+      confirm_newPassword: ''
     }
   },
   async mounted() {
-    if (this.isLogin != '') {
-      this.userLogin = await useFetch('http://localhost:8000/users/getUser/' + this.isLogin);
-      console.log("profile login:", this.userLogin)
+    if (process.client) {
+      this.isLogin = localStorage.getItem('loginUserID');
+      if (this.isLogin) {
+        this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
+        console.log("header>>> ung vien login:", this.userLogin);
+      }
     }
   },
   methods: {
     gotoNTD() {
-      if (!this.userLogin.hasOwnProperty('data') || this.userLogin.data.role == '1')
+      if (!this.isLogin || this.userLogin.role=='1')
         this.openModal = true;
       else
         navigateTo('/nhatuyendung')
@@ -102,26 +144,38 @@ export default {
       localStorage.removeItem("loginUserID");
       navigateTo('/login')
     },
-    async capnhat(id) {
+    async changePassword(id) {
+      // console.log("123",this.userLogin.password)
+     if(this.currentPass!=this.userLogin.password){
+      alert("Mật khẩu hiện tại không trùng khớp")
+     }else if(this.newPassword!=this.confirm_newPassword){
+      alert("Nhập lại mật khẩu mới không trùng khớp")
+     }
+     else{
       try {
-        await $fetch('http://localhost:8000/users/' + id, {
-          method: 'PATCH',
+        await $fetch('http://localhost:8000/users/changePassword/' + id, {
+          method: 'PUT',
           body: {
-            fullName: this.fullName,
-            address: this.address,
-            major: this.major
+            password: this.newPassword,
           }
         });
-
-        alert("cap nhat thanh cong")
+        alert("cap nhat thanh cong, vui long dang nhap lai")
+        this.currentPass='';
+        this.newPassword='';
+        this.confirm_newPassword='';
+        this.open=false;
+        this.logout()
       } catch (error) {
+        console.log(error)
         this.errorMsg = 'Register failed, please try again!'
       }
+     }
 
     },
     showDrawer() {
-      this.open = true;
-      console.log(this.userLogin.data)
+      console.log("123")
+      this.openDrawer = true;
+      // console.log(this.userLogin.data)
     },
 
     onClose() {

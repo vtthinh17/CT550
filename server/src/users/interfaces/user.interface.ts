@@ -5,10 +5,16 @@ export interface User extends Document {
   password: string;
   createdAt: string;
   role: number;
-  uv_address: string;
-  uv_phone: string;
-  uv_fullname: string;
-  uv_major: string;
+  cv: {
+    fullName: string;
+    brief_intro: string;
+    education: string;
+    major: string;
+    address: string;
+    phone: string;
+    exp: string;
+    certificates: string;
+  };
   com_name: string;
   com_location: string;
   com_phone: string;

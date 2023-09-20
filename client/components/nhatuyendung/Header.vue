@@ -22,7 +22,7 @@
               <template #overlay>
                 <a-menu>
                   <a-menu-item key="1" @click="showDrawer">
-                    <span>Cập nhật thông tin tài khoản</span>
+                    <span>Đổi mật khẩu</span>
                   </a-menu-item>
                   <a-menu-item key="2" @click="logout">
                     <span>Thoát</span>
@@ -34,52 +34,40 @@
                 <DownOutlined />
               </a-button>
             </a-dropdown>
-            <a-drawer v-if="userLogin.role == '2'" :width="500" title="Company infomation" placement="left"
+            <a-drawer v-if="userLogin.role == '2'" :width="500" title="Đổi mật khẩu" placement="left"
               :open="open" @close="onClose">
-              <div>
-                <!-- <h3>Company infomation</h3> -->
-                <p>
-                  <b>Company name: </b> {{ userLogin.com_name }}
-                </p>
-                <p>
-                  <b>Address: </b>{{ userLogin.com_location }}
-                </p>
-                <p>
-                  <b>Số điện thoại: </b>{{ userLogin.com_phone }}
-                </p>
-              </div>
-              <hr>
-              <div>
-                <h3>Edit your profile</h3>
+              <div style="display: flex; flex-direction: column;">
+                <!-- <h3>Đổi mật khẩu mới</h3> -->
                 <a-row style="margin: 4px 0;">
                   <a-col :span="8">
-                    <label>Company name:</label>
+                    <label>Mật khẩu hiện tại:</label>
                   </a-col>
                   <a-col :span="16">
-                    <input type="text" v-model="newCompanyName">
+                    <a-input-password v-model="currentPass" placeholder="Vui lòng nhập mật khẩu hiện tại" />
+                    <!-- <input type="password" v-model="currentPass"> -->
                   </a-col>
                 </a-row>
                 <a-row style="margin: 4px 0;">
                   <a-col :span="8">
-                    <label>Address:</label>
+                    <label>Mật khẩu mới:</label>
                   </a-col> 
                   <a-col :span="16">
-                    <input type="text" v-model="newCompanyAddress">
+                    <a-input-password v-model="newPassword" placeholder="Nhập mật khẩu mới" />
                   </a-col>                               
                 </a-row>
                 <a-row style="margin: 4px 0;">
                   <a-col :span="8">
-                    <label>Phone:</label>
+                    <label>Nhập lại mật khẩu mới:</label>
                   </a-col>   
                   <a-col :span="16">
-                    <input type="text" v-model="newCompanyPhone">
+                    <a-input-password v-model="confirm_newPassword" placeholder="Nhập lại mật khẩu mới" />
                   </a-col>                      
                 </a-row>
               </div>
 
               <template #footer>
-                <a-button style="margin-right: 8px" @click="onClose">Cancel</a-button>
-                <a-button type="primary" @click="capnhat(isLogin)">Save</a-button>
+                <a-button style="margin-right: 8px" @click="onClose">Hủy</a-button>
+                <a-button type="primary" @click="changePassword(isLogin)">Lưu</a-button>
               </template>
             </a-drawer>
           </div>
@@ -101,12 +89,12 @@
 export default {
   data() {
     return {
-      isLogin: false,
+      isLogin: '',
       userLogin: false,
       open: false,
-      newCompanyAddress: '',
-      newCompanyName: '',
-      newCompanyPhone: ''
+      newPassword: '',
+      currentPass: '',
+      confirm_newPassword: ''
     }
   },
   async mounted() {
@@ -129,24 +117,32 @@ export default {
       this.open = true;
       console.log(this.userLogin.data)
     },
-    async capnhat(id) {
+    async changePassword(id) {
+      // console.log("123",this.userLogin.password)
+     if(this.currentPass!=this.userLogin.password){
+      alert("Mật khẩu hiện tại không trùng khớp")
+     }else if(this.newPassword!=this.confirm_newPassword){
+      alert("Nhập lại mật khẩu mới không trùng khớp")
+     }
+     else{
       try {
-        await $fetch('http://localhost:8000/users/' + id, {
-          method: 'PATCH',
+        await $fetch('http://localhost:8000/users/changePassword/' + id, {
+          method: 'PUT',
           body: {
-            com_name: this.newCompanyName,
-            com_location: this.newCompanyAddress,
-            com_phone: this.newCompanyPhone
+            password: this.newPassword,
           }
         });
-        alert("cap nhat thanh cong")
-        this.newCompanyName='';
-        this.newCompanyAddress='';
-        this.newCompanyPhone='';
+        alert("cap nhat thanh cong, vui long dang nhap lai")
+        this.currentPass='';
+        this.newPassword='';
+        this.confirm_newPassword='';
         this.open=false;
+        this.logout()
       } catch (error) {
+        console.log(error)
         this.errorMsg = 'Register failed, please try again!'
       }
+     }
 
     },
 

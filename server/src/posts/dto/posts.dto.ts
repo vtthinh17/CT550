@@ -29,3 +29,14 @@ export class UpdatePostDto {
   com_phone: string;
   createdAt: string;
 }
+
+export class ApplyJobDto {
+  userId: string;
+  profile: object;
+}
+
+export class FilterOptionsDto {
+  // job_major: string;
+  // salary_limit: string;
+  working_type: string;
+}

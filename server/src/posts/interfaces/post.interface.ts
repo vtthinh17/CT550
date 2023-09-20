@@ -7,8 +7,9 @@ export interface Post extends Document {
   logo: string;
   company: string;
   deadline: string;
-  applied: string;
+  applied: [];
   status: string;
+  working_type: string;
   job_description: string;
   job_benefit: string;
   job_salary: string;
