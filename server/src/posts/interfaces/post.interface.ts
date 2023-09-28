@@ -9,7 +9,10 @@ export interface Post extends Document {
   deadline: string;
   applied: [];
   status: string;
-  working_type: string;
+  major: string;
+  workingType: string;
+  expPrequire: string;
+  educationPrequire: string;
   job_description: string;
   job_benefit: string;
   job_salary: string;

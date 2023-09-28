@@ -11,13 +11,12 @@
                     <div style="box-shadow: rgba(3, 102, 214, 0.3) 0px 0px 0px 3px; width: 5rem; height: 5rem;">
                         <!-- <img style="width: 50%;" src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt=""> -->
                     </div>
-                    <a-upload v-model:logo="add_logo" list-type="picture" :max-count="1"
-                        action="http://localhost:3000/nhatuyendung/upload">
-                        <a-button>
-                            <upload-outlined></upload-outlined>
-                            Upload
-                        </a-button>
-                    </a-upload>
+                    <a-upload :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
+                            <a-button v-if="!fileList.length">
+                                <upload-outlined></upload-outlined>
+                                Select File
+                            </a-button>
+                        </a-upload>
 
 
                     <!-- <p>Upload image</p> -->
@@ -32,14 +31,13 @@
                         <a-row>
                             <a-col :span="8">Họ tên:</a-col>
                             <a-col :span="16">
-                                <input type="text" class="input" name="fullName" v-model="fullName"> 
+                                <input type="text" class="input" name="fullName" v-model="fullName">
                             </a-col>
                         </a-row>
                         <a-row>
 
                             <a-col :span="8">Học vấn</a-col>
-                            <a-col :span="16"><input type="text" class="input" name="education"
-                                    v-model="education"></a-col>
+                            <a-col :span="16"><input type="text" class="input" name="education" v-model="education"></a-col>
                         </a-row>
                         <a-row>
                             <a-col :span="8">Lĩnh vực</a-col>
@@ -47,8 +45,7 @@
                         </a-row>
                         <a-row>
                             <a-col :span="8">Địa chỉ liên hệ:</a-col>
-                            <a-col :span="16"><input type="text" class="input" name="address"
-                                    v-model="address"></a-col>
+                            <a-col :span="16"><input type="text" class="input" name="address" v-model="address"></a-col>
                         </a-row>
                         <a-row>
                             <a-col :span="8">Số điện thoại:</a-col>
@@ -93,10 +90,12 @@ export default {
 
     data() {
         return {
+            fileList: [],
+            fileBase64: null,
             open: false,
             isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
             userLogin: {},
-            fullName:'',
+            fullName: '',
             brief_intro: '',
             education: '',
             major: '',
@@ -118,12 +117,37 @@ export default {
         }
     },
     methods: {
+        beforeUpload(file) {
+            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+            if (!isJpgOrPng) {
+                message.error('You can only upload JPG file!');
+                return false;
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+                message.error('Image must smaller than 2MB!');
+                return false;
+            }
+            // message.success('Upload successfully');
+            this.fileList = [file];
+            const reader = new FileReader();
+            let app = this;
+            reader.addEventListener('load', (e) => {
+                app.fileBase64 = e.target.result;
+            });
+            reader.readAsDataURL(file);
+            return false;
+        },
+        handleRemove() {
+            this.fileList = [];
+        },
         async dangkyCV() {
-            if (this.userLogin.data.cv === undefined) {
+            if (this.userLogin.cv === undefined) {
                 try {
                     await $fetch('http://localhost:8000/users/insertCV/' + this.isLogin, {
                         method: 'PUT',
                         body: {
+                            avatar: this.fileBase64.slice(22),
                             fullName: this.fullName,
                             exp: this.exp,
                             brief_intro: this.brief_intro,
@@ -147,8 +171,8 @@ export default {
             this.users = await useFetch('http://localhost:8000/users/getAll');
             console.log(this.users)
         },
-        handleOk(){
-            this.open=false;
+        handleOk() {
+            this.open = false;
         }
     },
 

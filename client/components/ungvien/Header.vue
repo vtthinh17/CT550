@@ -9,12 +9,10 @@
         <li>
           <NuxtLink to="/ungvien/companies">Tham khảo công ty</NuxtLink>
         </li>
-        <!-- {{ console.log() }} -->
-        <li v-if="this.isLogin && userLogin.role=='1'">
+        <li v-if="this && this.isLogin && userLogin.role=='1'">
           <NuxtLink to="/ungvien/profile">Hồ sơ cá nhân</NuxtLink>
         </li>
       </ul>
-      <!-- {{ console.log("test",userLogin.username) }} -->
       <div class="account_setting">
         <a-modal v-model:open="openModal" title="Basic Modal" @ok="handleOk">
           <template #footer>
@@ -48,14 +46,12 @@
             <a-drawer :width="500" title="Đổi mật khẩu" placement="left"
             v-model:open="openDrawer" @close="onClose">
               <div style="display: flex; flex-direction: column;">
-                <!-- <h3>Đổi mật khẩu mới</h3> -->
                 <a-row style="margin: 4px 0;">
                   <a-col :span="8">
                     <label>Mật khẩu hiện tại:</label>
                   </a-col>
                   <a-col :span="16">
-                    <a-input-password v-model="currentPass" placeholder="Vui lòng nhập mật khẩu hiện tại" />
-                    <!-- <input type="password" v-model="currentPass"> -->
+                    <a-input-password v-model:value="currentPass" placeholder="Vui lòng nhập mật khẩu hiện tại" />
                   </a-col>
                 </a-row>
                 <a-row style="margin: 4px 0;">
@@ -63,7 +59,7 @@
                     <label>Mật khẩu mới:</label>
                   </a-col> 
                   <a-col :span="16">
-                    <a-input-password v-model="newPassword" placeholder="Nhập mật khẩu mới" />
+                    <a-input-password v-model:value="newPassword" placeholder="Nhập mật khẩu mới" />
                   </a-col>                               
                 </a-row>
                 <a-row style="margin: 4px 0;">
@@ -71,7 +67,7 @@
                     <label>Nhập lại mật khẩu mới:</label>
                   </a-col>   
                   <a-col :span="16">
-                    <a-input-password v-model="confirm_newPassword" placeholder="Nhập lại mật khẩu mới" />
+                    <a-input-password v-model:value="confirm_newPassword" placeholder="Nhập lại mật khẩu mới" />
                   </a-col>                      
                 </a-row>
               </div>
@@ -145,7 +141,7 @@ export default {
       navigateTo('/login')
     },
     async changePassword(id) {
-      // console.log("123",this.userLogin.password)
+      console.log("abc:",this.currentPass)
      if(this.currentPass!=this.userLogin.password){
       alert("Mật khẩu hiện tại không trùng khớp")
      }else if(this.newPassword!=this.confirm_newPassword){
@@ -160,9 +156,6 @@ export default {
           }
         });
         alert("cap nhat thanh cong, vui long dang nhap lai")
-        this.currentPass='';
-        this.newPassword='';
-        this.confirm_newPassword='';
         this.open=false;
         this.logout()
       } catch (error) {
@@ -173,9 +166,7 @@ export default {
 
     },
     showDrawer() {
-      console.log("123")
       this.openDrawer = true;
-      // console.log(this.userLogin.data)
     },
 
     onClose() {

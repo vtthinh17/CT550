@@ -7,7 +7,7 @@
           style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background-color: rgb(219, 213, 213);"
           class="gradient_item">
           Số bài đã đăng
-          <b>{{ companyPost.length }}</b>
+          <b>{{ getNewCompanyPosts.length }}</b>
           <!-- {{ console.log("so luong:", this.companyPost) }} -->
           <img src="" alt="">
         </a-col>
@@ -23,8 +23,8 @@
         </a-col>
       </a-row>
       <h1>Tin của tôi</h1>
-      <div v-if="companyPost.length" class="post_list">
-        <div v-for="post in companyPost" class="job_item">
+      <div v-if="getNewCompanyPosts.length" class="post_list">
+        <div v-for="post in getNewCompanyPosts" class="job_item">
           <div style="display: flex; flex-direction: row; justify-content: space-around; margin-bottom: 1rem;">
             <span>
               <p v-if="post.status == 0" style="background-color: rgb(240, 224, 131);margin-right: 1rem;">
@@ -98,39 +98,27 @@
         </template>
       </a-modal>
       <!-- Edit modal -->
-      <a-modal v-model:open="modalEditOpen" title="Nội dung chi tiết bài đăng" @ok="handleAdd">
+      <a-modal v-model:open="modalEditOpen" title="Chinh sua  bài đăng" @ok="changeInfo">
         <a-form :label-col="labelCol" :wrapper-col="wrapperCol" layout="horizontal" :disabled="componentDisabled"
           style="max-width: 600px">
           <a-form-item label="Tên bài tuyển dụng">
-              {{selectedPost.data.job_title}} 
-              <EditOutlined @click="changeInfo" />
-            <!-- <input type="text" class="input" name="add_jobTitle" > -->
+            <a-input v-model:value="selectedPost.data.job_title"></a-input>
           </a-form-item>
           <a-form-item label="Mức lương">
-            {{selectedPost.data.job_title}} 
-              <EditOutlined @click="changeInfo" />
-            <!-- <input type="text" class="input" name="add_jobSalary" v-model="add_jobSalary"> -->
+            <a-input v-model:value="selectedPost.data.job_salary"></a-input>
           </a-form-item>
           <a-form-item label="Hạn nộp">
-            {{selectedPost.data.deadline}} 
-            <input type="date" class="input" name="add_deadline" v-model="add_deadline">
-              <!-- <EditOutlined @click="changeInfo" /> -->
-            <!-- <input type="date" class="input" name="add_deadline" v-model="add_deadline"> -->
+            <input type="date" class="input" name="add_deadline" v-model="selectedPost.data.deadline">
+
           </a-form-item>
           <a-form-item label="Yêu cầu công việc">
-            {{selectedPost.data.job_requirement}}
-            <EditOutlined @click="changeInfo" />
-            <!-- <textarea v-model="selectedPost.data.job_requirement" rows="4" cols="30">
-            </textarea> -->
+            <a-textarea :rows="4" v-model:value="selectedPost.data.job_requirement"></a-textarea>
+
           </a-form-item>
           <a-form-item label="Quyền lợi">
-            {{selectedPost.data.job_benefit}}
-            <EditOutlined @click="changeInfo" />
-            <!-- <textarea v-model="selectedPost.data.job_benefit" rows="4" cols="30">
-            </textarea> -->
-    
+            <a-textarea :rows="4" v-model:value="selectedPost.data.job_benefit"></a-textarea>
           </a-form-item>
-        
+
         </a-form>
       </a-modal>
       <!-- Add post form -->
@@ -139,15 +127,24 @@
           style="max-width: 600px">
           <a-form-item label="Tên bài tuyển dụng">
             <input type="text" class="input" name="add_jobTitle" v-model="add_jobTitle">
-            <!-- <a-input v-model:job_title="add_jobTitle" name="add_jobTitle" /> -->
+          </a-form-item>
+          <a-form-item label="Linh vuc">
+            <input type="text" class="input" name="add_major" v-model="add_major">
+          </a-form-item>
+          <a-form-item label="Hinh thuc lam viec">
+            <input type="text" class="input" name="add_workingType" v-model="add_workingType">
+          </a-form-item>
+          <a-form-item label="Yeu cau kinh nghiem">
+            <input type="text" class="input" name="add_expPrequire" v-model="add_expPrequire">
+          </a-form-item>
+          <a-form-item label="Yeu cau trinh do">
+            <input type="text" class="input" name="add_educationPrequire" v-model="add_educationPrequire">
           </a-form-item>
           <a-form-item label="Mức lương">
             <input type="text" class="input" name="add_jobSalary" v-model="add_jobSalary">
-            <!-- <a-input v-model:job_salary="add_jobSalary" /> -->
           </a-form-item>
           <a-form-item label="Hạn nộp">
             <input type="date" class="input" name="add_deadline" v-model="add_deadline">
-            <!-- <a-date-picker v-model:deadline_apply="add_deadlineApply" /> -->
           </a-form-item>
           <a-form-item label="Yêu cầu công việc">
             <textarea v-model="add_jobRequirement" rows="4" cols="30">
@@ -235,6 +232,10 @@ export default {
   data() {
     return {
       com_created: '',
+      add_workingType: '',
+      add_expPrequire: '',
+      add_major: '',
+      add_educationPrequire: '',
       add_jobBenefit: '',
       add_jobTitle: '',
       add_jobRequirement: '',
@@ -256,14 +257,41 @@ export default {
       if (this.isLogin !== '') {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
         console.log("nha tuyen dung login profile:", this.userLogin);
-        this.companyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + this.isLogin);
-        console.log("getCompanyPost:",this.companyPost);
+        this.getCompanyPosts();
       }
     }
   },
   methods: {
-    changeInfo(){
-      console.log('click')
+    async changeInfo() {
+      try {
+        await $fetch('http://localhost:8000/posts/updatePost/' + this.selectedPost.data._id, {
+          method: 'PUT',
+          body: {
+            job_title: this.selectedPost.data.job_title,
+            job_salary: this.selectedPost.data.job_salary,
+            deadline: this.selectedPost.data.deadline,
+            job_requirement: this.selectedPost.data.job_requirement,
+            job_benefit: this.selectedPost.data.job_benefit,
+          }
+        })
+        alert("cap nhat post thanh cong")
+        this.modalEditOpen = false;
+        this.getCompanyPosts();
+      } catch (error) {
+        console.log(error)
+      }
+      // console.log('update new info', {
+      //   tenbai: this.selectedPost.data.job_title,
+      //   luong: this.selectedPost.data.job_salary,
+      //   hannop: this.selectedPost.data.deadline,
+      //   yeucau: this.selectedPost.data.job_requirement,
+      //   quyenloi: this.selectedPost.data.job_benefit,
+
+      // })
+    },
+    async getCompanyPosts() {
+      this.companyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + this.isLogin);
+      console.log("getCompanyPost:", this.companyPost);
     },
     openNotificationWithIcon(type) {
       notification[type]({
@@ -281,7 +309,7 @@ export default {
       });
     },
     viewAppiedCandidates(postID) {
-      navigateTo('/nhatuyendung/post/'+ postID) 
+      navigateTo('/nhatuyendung/post/' + postID)
     },
     showDrawer() {
       this.open = true;
@@ -296,10 +324,13 @@ export default {
 
     async handleAdd() {
       try {
-        console.log("before",this.userLogin._id)
-        const res =  await $fetch('http://localhost:8000/posts/create', {
+        const res = await $fetch('http://localhost:8000/posts/create', {
           method: 'POST',
           body: {
+            workingType: this.add_workingType,
+            expPrequire: this.add_expPrequire,
+            major: this.add_major,
+            educationPrequire: this.add_educationPrequire,
             job_title: this.add_jobTitle,
             job_requirement: this.add_jobRequirement,
             job_benefit: this.add_jobBenefit,
@@ -308,8 +339,9 @@ export default {
             deadline: this.add_deadline,
           }
         })
-        console.log("response them tin tuyen dung:",res)
+        console.log("response them tin tuyen dung:", res)
         this.openNotificationWithIcon('success')
+        this.getCompanyPosts();
         this.open = false
       } catch (error) {
         console.log(error)
@@ -352,6 +384,11 @@ export default {
       console.log("thoat")
       localStorage.removeItem("loginUserID");
       navigateTo('/login')
+    }
+  },
+  computed: {
+    getNewCompanyPosts() {
+      return this.companyPost;
     }
   }
 }

@@ -7,7 +7,7 @@
             </div>
         </div>
         <div>
-            <a-list size="large" bordered :data-source="companyPosts">
+            <a-list size="large" bordered :data-source="newPosts">
                 <template #header>
                     <div class="cls1">
                         <h4>Việc làm đang tuyển</h4>
@@ -16,7 +16,6 @@
 
                 <template #renderItem="{ item }">
                     <a-list-item @click="showModal(item)">
-                        {{ console.log("123", item) }}
 
                         <div style="width: 50%;">
                             <b> <b>{{ item.job_title }}</b></b>
@@ -29,54 +28,9 @@
                                 </p>
                             </div>
                         </div>
-                        <!-- selectjob info -->
-                        <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk">
-                            <div>
-                                {{ console.log("chon", selectedJob) }}
-                                <div style="display: flex;justify-content: center;">
-                                </div>
-                                <h4>Yêu cầu công việc:</h4>
-                                <span>
-                                    {{ selectedJob.job_requirement }}
-                                </span>
-
-                                <h4>Lợi ích:</h4>
-                                <span>
-                                    {{ selectedJob.job_benefit }}
-                                </span>
-                            </div>
-                            <template #footer>
-                                <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
-                                    return obj.userId === this.userLogin._id
-                                }).length > 0">
-                                    <a-button key="back" @click="handleCancel">Close</a-button>
-                                    <a-button disabled danger>Đã nộp</a-button>
-                                </div>
-                                <div v-else>
-                                    <a-button key="back" @click="handleCancel">Close</a-button>
-                                    <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary"
-                                        :loading="loading" @click="handleSubmitCV(selectedJob)">Nộp CV
-                                    </a-button>
-                                    <a-button v-else danger :loading="loading" @click="goToJobLink(selectedJob.job_links)">
-                                        Tham khảo
-                                    </a-button>
-                                </div>
-                            </template>
-                        </a-modal>
-
-
                     </a-list-item>
-                    <a-modal v-model:open="openMessage" title="Bạn chưa có CV">
-                        <div>
-                            Tạo cv mới?+
-                        </div>
-                        <template #footer>
-                            <a-button key="back" @click="handleCancel">Close</a-button>
-                            <a-button key="submit" type="primary" :loading="loading" @click="handleCreateCV">Tạo
-                                CV
-                            </a-button>
-                        </template>
-                    </a-modal>
+
+
 
                 </template>
 
@@ -85,6 +39,52 @@
                 </template> -->
             </a-list>
         </div>
+        <!-- selectjob info -->
+        <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk">
+            <div>
+                {{ console.log("selected job:", selectedJob) }}
+                <div style="display: flex;justify-content: center;">
+                </div>
+                <h4>Yêu cầu công việc:</h4>
+                <span>
+                    {{ selectedJob.job_requirement }}
+                </span>
+
+                <h4>Lợi ích:</h4>
+                <span>
+                    {{ selectedJob.job_benefit }}
+                </span>
+            </div>
+            <template #footer>
+                <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
+                    return obj.userId === this.userLogin._id
+                }).length > 0">
+                    <a-button key="back" @click="handleCancel">Close</a-button>
+                    <a-button disabled danger>Đã nộp</a-button>
+                </div>
+                <div v-else>
+                    <a-button key="back" @click="handleCancel">Close</a-button>
+                    <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary" :loading="loading"
+                        @click="handleSubmitCV(selectedJob)">Nộp CV
+                    </a-button>
+                    <a-button v-else danger :loading="loading" @click="goToJobLink(selectedJob.job_links)">
+                        Tham khảo
+                    </a-button>
+                </div>
+            </template>
+        </a-modal>
+        <!-- create CV if no CV -->
+        <a-modal v-model:open="openMessage" title="Bạn chưa có CV">
+            <div>
+                Tạo cv mới?+
+            </div>
+            <template #footer>
+                <a-button key="back" @click="handleCancel">Close</a-button>
+                <a-button key="submit" type="primary" :loading="loading" @click="handleCreateCV">Tạo
+                    CV
+                </a-button>
+            </template>
+        </a-modal>
 
     </a-layout>
 </template>
@@ -95,11 +95,6 @@ definePageMeta({
 })
 export default {
     layout: 'ungvien',
-    setup() {
-        // const selectCompany = await useFetch('http://localhost:8000/users/getUser/' + companyId)
-        // const companyPosts =  await useFetch('http://localhost:8000/posts/getCompanyPosts/' + companyId);
-        // console.log("123", selectCompany
-    },
 
     data() {
         return {
@@ -135,8 +130,7 @@ export default {
                 console.log("ung vien>>>  login:", this.userLogin);
             }
         }
-        const params = useRoute().params;
-        const companyId = params.companyId;
+        const companyId = useRoute().params.companyId;
         this.selectCompany = await $fetch('http://localhost:8000/users/getUser/' + companyId)
         this.companyPosts = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + companyId);
         console.log("getAllCompanies:", this.companyPosts);
@@ -144,6 +138,12 @@ export default {
 
     },
     methods: {
+        async reloadPosts() {
+            const newData =  await $fetch('http://localhost:8000/posts/getCompanyPosts/' + useRoute().params.companyId);
+            console.log('reload',newData)
+            this.companyPosts = newData
+            console.log('neww')
+        },
         goToJobLink(link) {
             window.open(link);
         },
@@ -183,6 +183,7 @@ export default {
                                 "profile": this.userLogin.cv,
                             }
                         })
+                        this.reloadPosts()
                         this.openNotificationWithIcon('success')
                         console.log("them cv vao selectedJob:", this.userLogin)
                         this.open = false
@@ -211,6 +212,11 @@ export default {
             this.open = false;
         },
     },
+    computed: {
+        newPosts() {
+            return this.companyPosts;
+        }
+    }
 }
 </script>
 

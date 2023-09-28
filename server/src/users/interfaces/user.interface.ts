@@ -6,6 +6,7 @@ export interface User extends Document {
   createdAt: string;
   role: number;
   cv: {
+    avatar: string;
     fullName: string;
     brief_intro: string;
     education: string;
@@ -18,4 +19,5 @@ export interface User extends Document {
   com_name: string;
   com_location: string;
   com_phone: string;
+  com_logo: string;
 }

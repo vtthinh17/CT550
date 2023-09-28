@@ -6,6 +6,10 @@ export class CreatePostDto {
   logo: string;
   deadline: string;
   company: string;
+  major: string;
+  workingType: string;
+  expPrequire: string;
+  educationPrequire: string;
   job_description: string;
   job_benefit: string;
   job_salary: string;
@@ -27,6 +31,7 @@ export class UpdatePostDto {
   job_salary: string;
   com_location: string;
   com_phone: string;
+  deadline: string;
   createdAt: string;
 }
 

@@ -17,17 +17,17 @@
                 <hr>
                 <!-- filter -->
                 <div style="display: flex; justify-content: center;">
-                    <a-cascader class="filterOption" v-model:value="value" style="width: 30%" multiple
-                        max-tag-count="responsive" :options="filterOptions" placeholder="Lĩnh vực">
+                    <a-cascader class="filterOption" v-model:value="filter_major" style="width: 30%" multiple
+                        max-tag-count="responsive" :options="filterOptions_major" placeholder="Lĩnh vực">
                     </a-cascader>
-                    <a-cascader class="filterOption" v-model:value="value1" style="width: 10%" multiple
-                        max-tag-count="responsive" :options="filterOptions1" placeholder="Trình độ">
+                    <a-cascader class="filterOption" v-model:value="filter_education" style="width: 10%" multiple
+                        max-tag-count="responsive" :options="filterOptions_education" placeholder="Trình độ">
                     </a-cascader>
-                    <a-cascader class="filterOption" v-model:value="value2" style="width: 20%" multiple
-                        max-tag-count="responsive" :options="filterOptions2" placeholder="Yêu cầu kinh nghiệm">
+                    <a-cascader class="filterOption" v-model:value="filter_expPrequire" style="width: 20%" multiple
+                        max-tag-count="responsive" :options="filterOptions_expPrequire" placeholder="Yêu cầu kinh nghiệm">
                     </a-cascader>
-                    <a-cascader class="filterOption" v-model:value="value3" style="width: 20%" multiple
-                        max-tag-count="responsive" :options="filterOptions3" placeholder="Hình thức làm việc">
+                    <a-cascader class="filterOption" v-model:value="filter_workingType" style="width: 20%" multiple
+                        max-tag-count="responsive" :options="filterOptions_workingType" placeholder="Hình thức làm việc">
                     </a-cascader>
                     <button class="button-32" role="button" @click="getFilterOptions">Tìm kiếm</button>
                 </div>
@@ -59,7 +59,7 @@
                         </swiper>
 
                     </a-row>
-                    <div v-if="this.loginUser != ''">
+                    <div v-if="isLogin">
                         <h2>Việc làm phù hợp với bạn</h2>
 
                         <a-row style="    margin: 0 1rem;">
@@ -109,7 +109,7 @@
                     <!-- Post from database -->
                     <h2 class="job_type">Có thể ứng tuyển</h2>
                     <a-row style="display: flex;justify-content: space-evenly;">
-                        <a-col :span="7" v-for="job in posts " class="job-item">
+                        <a-col :span="7" v-for="job in getPosts" class="job-item">
                             <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
                                 <p style="color: #41cf37; font-weight: 550;">Job.Company</p>
                                 <a-card-meta v-bind:title="job.job_title"
@@ -130,11 +130,11 @@
                     </a-row>
                     <!-- Pagination -->
                     <div class="pagination">
-                        <a-pagination v-model:current="current" simple :total="50" />
+                        <a-pagination @change="onChangePagination" v-model:current="current" :total="totalCount"
+                            show-less-items />
                     </div>
                     <!-- Selected Job info -->
                     <a-modal v-model:open="open" title="Job title" @ok="handleOk">
-                        <!-- {{console.log('chon',selectedJob)}} -->
                         <div>
                             <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
                                 <img alt="example" v-bind:src=selectedJob.logo[0] class="job-item_logo" />
@@ -194,11 +194,8 @@ import { Navigation, Pagination, A11y } from 'swiper/modules';
 import { notification } from 'ant-design-vue';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-// import 'swiper/css/scrollbar';
 import myData from '../../assets/data/data';
 import { SearchOutlined } from '@ant-design/icons-vue';
-// import Ungvien from './../../layouts/ungvien.vue'
-// import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons-vue';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 
 // Import Swiper styles
@@ -215,8 +212,7 @@ export default {
     },
     layout: 'ungvien',
     setup() {
-
-        const filterOptions = [
+        const filterOptions_major = [
             {
                 label: 'Kế toán',
                 value: 'kt',
@@ -238,7 +234,7 @@ export default {
 
             },
         ];
-        const filterOptions1 = [
+        const filterOptions_education = [
             {
                 label: 'Tự do',
                 value: 'tudo',
@@ -246,45 +242,45 @@ export default {
             },
             {
                 label: 'Cao đẳng',
-                value: 'cntt',
+                value: 'caodang',
 
             },
             {
                 label: 'Đại học',
-                value: 'dulich',
+                value: 'daihoc',
 
             },
 
         ];
-        const filterOptions2 = [
+        const filterOptions_expPrequire = [
             {
                 label: 'Chưa có kinh nghiệm',
-                value: 'tudo',
+                value: '0',
 
             },
             {
                 label: 'dưới 1 năm',
-                value: 'cntt',
+                value: 'under1y',
 
             },
             {
                 label: '1 năm',
-                value: '1',
+                value: '1y',
 
             },
             {
                 label: '2 năm',
-                value: '2',
+                value: '2y',
 
             },
             {
                 label: '3 năm',
-                value: '3',
+                value: '3y',
 
             },
 
         ];
-        const filterOptions3 = [
+        const filterOptions_workingType = [
             {
                 label: 'Toàn thời gian',
                 value: 'fulltime',
@@ -310,11 +306,10 @@ export default {
             console.log('slide change');
         };
         return {
-
-            filterOptions,
-            filterOptions1,
-            filterOptions2,
-            filterOptions3,
+            filterOptions_major,
+            filterOptions_education,
+            filterOptions_expPrequire,
+            filterOptions_workingType,
             onSlideChange,
             filterOption,
             modules: [Navigation, Pagination, A11y],
@@ -325,19 +320,21 @@ export default {
             inputValue: 0,
             inputValue1: 1,
             slides: 7,
-            value: '',
-            value1: '',
-            value2: '',
-            value3: '',
+            filter_education: '',
+            filter_major: '',
+            filter_expPrequire: '',
+            filter_workingType: '',
             open: false,
             openMessage: false,
             selectedJob: false,
             options: [],
             data: [],
-            posts: [],
+            postsApplyable: [],
             userLogin: false,
-            isLogin: '',
-            mess: ''
+            isLogin: false,
+            mess: '',
+            totalCount: 0,
+            current: 1
         }
 
     },
@@ -350,7 +347,8 @@ export default {
                 console.log("ung vien>>>  login:", this.userLogin);
             }
         }
-        this.posts = await $fetch('http://localhost:8000/posts/getAllDisplay');
+        this.clearOutDatePosts();
+        this.reloadPostApplyable();
         this.data = myData;
         this.options = this.data.map((item) => {
             return {
@@ -361,23 +359,29 @@ export default {
         });
     },
     methods: {
-        getFilterOptions() {
-            // try {
-            //     $fetch(`http://localhost:8000/posts/getPostByFilter?working_type=${hinhthuclamviec}&job_major=${linhvuc}&education=${trinhdo}`);
-            // } catch (error) {
-            //     console.log(error)
-            // }
-            console.log("get filter options",
-                {
-                    linhvuc:value,
-                    trinhdo:value1,
-                    yeucaukinhnghiem:value2,
-                    hinhthuclamviec:value3,
-                }
-            )
+        async  clearOutDatePosts(){
+          try {
+            await $fetch('http://localhost:8000/posts/getOutDatePosts', {method: 'PUT',})
+          } catch (error) {
+            console.log(error);
+          }
         },
-        checkIsSubmit(selectedJob) {
-
+        onChangePagination() {
+            this.reloadPostApplyable();
+        },
+        async reloadPostApplyable() {
+            const postData = await this.getFilterOptions();
+            console.log(postData.posts);
+            this.postsApplyable = postData.posts;
+            this.totalCount = postData.totalCount;
+        },
+        async getFilterOptions() {
+            try {
+                console.log(this.current);
+                return await $fetch(`http://localhost:8000/posts/getPostByFilter?currentPage=${this.current}&${this.filter_workingType[0] ? '&workingType=' + this.filter_workingType[0] : ''}${this.filter_major[0] ? '&major=' + this.filter_major[0] : ''}${this.filter_education[0] ? '&educationPrequire=' + this.filter_education[0] : ''}${this.filter_expPrequire[0] ? '&expPrequire=' + this.filter_expPrequire[0] : ''}`);
+            } catch (error) {
+                console.log(error)
+            }
         },
         goToJobLink(link) {
             window.open(link);
@@ -396,10 +400,6 @@ export default {
             })
 
         },
-        getSearchList(value) {
-            if (this.value.length > 0) {
-            }
-        },
         showModal(job) {
             this.selectedJob = job
             this.open = true;
@@ -408,7 +408,7 @@ export default {
             this.openMessage = false;
         },
         handleCreateCV() {
-            navigateTo('ungvien/createCV')
+            navigateTo('./createCV')
         },
         async handleSubmitCV(selectedJob) {
             if (this.userLogin.role == '1') {
@@ -430,6 +430,7 @@ export default {
                             }
                         })
                         this.openNotificationWithIcon('success')
+                        this.reloadPostApplyable();
                         console.log("them cv vao selectedJob:", this.userLogin)
                         this.open = false
                     } catch (error) {
@@ -447,18 +448,13 @@ export default {
             this.open = false;
             this.openMessage = false;
         },
-        getSearchList() {
-
-            this.options = this.data.map((item) => {
-                return {
-                    ...item,
-                    label: item.job_title,
-                    value: item.job_title
-                }
-            });
-        },
+       
     },
-
+    computed: {
+        getPosts() {
+            return this.postsApplyable;
+        }
+    }
 }
 </script>
 
@@ -574,4 +570,5 @@ body {
 
 // .sliderItem{
 //     background-color: red;
-// }</style>
+// }
+</style>

@@ -29,7 +29,8 @@
       <a-col v-for="company in propertyComputed" :span="7">
         <a-card hoverable class="cardItem" @click="gotoCompanyInfo(company)">
           <div class="khungAvatar">
-            <img class="com_img" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" alt="">
+            <!-- {{ console.log(company) }} -->
+            <img class="com_img" v-bind:src="company.com_logo" alt="">
           </div>
           <b>
             {{ company.com_name }}

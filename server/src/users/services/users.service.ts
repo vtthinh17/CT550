@@ -6,10 +6,7 @@ import { User } from '../interfaces/user.interface';
 import { InjectModel } from '@nestjs/mongoose'
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectModel('User') private readonly userModel: Model<User>
-    ) { }
-    // Use: Login, Get user to view profile
+    constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
     async getUser(id: string): Promise<User> {
         try {
             const user = await this.userModel.findById(id);
@@ -31,7 +28,6 @@ export class UsersService {
             .catch((err) => console.log(err));
     };
 
-    // Use: Login, Get user to view profile
     async login(loginUserDto: LoginUserDto): Promise<User> {
         try {
             const user = await this.userModel.findOne(loginUserDto);
@@ -43,7 +39,7 @@ export class UsersService {
             throw new HttpException('Error get user', HttpStatus.BAD_REQUEST);
         }
     };
-    // Done
+
     getAllUsers() {
         return this.userModel.find({})
             .then((user) => {
@@ -53,7 +49,7 @@ export class UsersService {
                 (err) => console.log(err)
             )
     };
-    // Use: Register
+
     async createUser(createUserDto: CreateUserDto): Promise<User> {
         try {
             const newUser = new this.userModel({
@@ -74,12 +70,14 @@ export class UsersService {
             throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
         }
     }
+
     async updateUser(updateUserDto: UpdateUserDto, id: string): Promise<User> {
         try {
 
             return await this.userModel.findByIdAndUpdate(id, {
                 $set: {
                     "cv": {
+                        avatar: updateUserDto.avatar,
                         fullName: updateUserDto.fullName,
                         exp: updateUserDto.exp,
                         brief_intro: updateUserDto.brief_intro,
@@ -95,24 +93,40 @@ export class UsersService {
             throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
         }
     }
+
     async updateCompany(updateUserDto: UpdateUserDto, id: string): Promise<User> {
         try {
-
-            return await this.userModel.findByIdAndUpdate(id, {
-                $set: {
-                    com_location:updateUserDto.com_location,
-                    com_name:updateUserDto.com_name,
-                    com_phone:updateUserDto.com_phone,
+            if (updateUserDto.about === '') {
+                return await this.userModel.findByIdAndUpdate(id, {
+                    $set: {
+                        com_logo: updateUserDto.com_logo,
+                        com_location: updateUserDto.com_location,
+                        com_name: updateUserDto.com_name,
+                        com_phone: updateUserDto.com_phone,
+                    }
                 }
+                );
+            } else {
+                return await this.userModel.findByIdAndUpdate(id, {
+                    $set: {
+                        com_logo: updateUserDto.com_logo,
+                        com_location: updateUserDto.com_location,
+                        com_name: updateUserDto.com_name,
+                        com_phone: updateUserDto.com_phone,
+                        about: updateUserDto.about
+                    }
+                }
+                );
             }
-            );
+
         } catch (error) {
             throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
         }
     }
-    async increaseTotalPosts(id: string){
+
+    async increaseTotalPosts(id: string) {
         try {
-            return await this.userModel.findByIdAndUpdate(id, { $inc: { totalPost: 1,} }
+            return await this.userModel.findByIdAndUpdate(id, { $inc: { totalPost: 1, } }
             );
         } catch (error) {
             throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
@@ -121,10 +135,11 @@ export class UsersService {
 
     async insertCV(insertCVDto: InsertCVDto, id: string): Promise<User> {
         try {
-            
+
             return await this.userModel.findByIdAndUpdate(id, {
                 $set: {
                     "cv": {
+                        avatar: insertCVDto.avatar,
                         fullName: insertCVDto.fullName,
                         exp: insertCVDto.exp,
                         brief_intro: insertCVDto.brief_intro,
@@ -142,7 +157,7 @@ export class UsersService {
             throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
         }
     }
-    // Done
+
     async deleteUser(id: string): Promise<any> {
         try {
             return this.userModel.deleteOne({ "_id": id });
@@ -150,6 +165,7 @@ export class UsersService {
             throw new HttpException('Error deleting article', HttpStatus.BAD_REQUEST);
         }
     }
+
     getAllCompanies() {
         return this.userModel
             .find({ role: '2' })
@@ -158,6 +174,7 @@ export class UsersService {
             })
             .catch((err) => console.log(err));
     }
+
     async changePassword(changePasswordDto: ChangePasswordDto, id: string): Promise<User> {
         try {
 

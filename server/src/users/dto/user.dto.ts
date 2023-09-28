@@ -17,10 +17,13 @@ export class CreateUserDto {
 
 export class UpdateUserDto {
   id: string;
+  com_logo: string;
+  avatar: string;
   address: string;
   phone: string;
   fullName: string;
   major: string;
+  about: string;
   exp: string;
   certificates: string;
   brief_intro: string;
@@ -32,6 +35,7 @@ export class UpdateUserDto {
 export class InsertCVDto {
   id: string;
   fullName: string;
+  avatar: string;
   exp: string;
   brief_intro: string;
   education: string;
