@@ -65,7 +65,25 @@ export class UsersController {
         return await this.userService.insertCV(insertCVDto, id);
         // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
     }
-
+    @Put('insertEducation/:id')
+    async insertEdu(@Body() insertCVDto: InsertCVDto, @Param('id') id: string) {
+        // const user = await this.userService.getUser(id);
+        return await this.userService.insertEducation(insertCVDto, id);
+        // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
+    }
+    @Put('removeEducationInfo/:id')
+    async removeEducationInfo(@Body() eduId: string, @Param('id') id: string) {
+        // const user = await this.userService.getUser(id);
+        return await this.userService.removeEducationInfo(id, eduId);
+        // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
+    }
+    
+    @Put('insertDegree/:id')
+    async insertDegree(@Body() insertCVDto: InsertCVDto, @Param('id') id: string) {
+        // const user = await this.userService.getUser(id);
+        return await this.userService.insertDegree(insertCVDto, id);
+        // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
+    }
     @Put('changePassword/:id')
     async changePassword(@Body() changePasswordDto: ChangePasswordDto, @Param('id') id: string) {
         // const user = await this.userService.getUser(id);
@@ -73,6 +91,9 @@ export class UsersController {
         // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
     }
 
-
+    @Put('unfollow/:userId')
+    async unfollow(@Body() data: any, @Param('userId') userId: string) {
+        return await this.userService.unfollow(userId, data.unfollowId);
+    }
 
 }

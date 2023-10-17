@@ -32,6 +32,10 @@ export class UpdatePostDto {
   com_location: string;
   com_phone: string;
   deadline: string;
+  workingType: string;
+  major: string;
+  expPrequire: string;
+  educationPrequire: string;
   createdAt: string;
 }
 

@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { Controller, Get, Post, Body, Param, Put, Query } from '@nestjs/common';
 import { PostsService } from '../services/posts.service';
-import { UsersService } from 'src/users/services/users.service';
+// import { UsersService } from 'src/users/services/users.service';
 import { CreatePostDto, ApplyJobDto, UpdatePostDto } from '../dto/posts.dto';
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postService: PostsService,private readonly userService: UsersService) { }
+  constructor(private readonly postService: PostsService) { }
   @Get('getPost/:id')
   getPost(@Param('id') id: string) {
     return this.postService.getPost(id);
@@ -13,6 +13,10 @@ export class PostsController {
   @Get('getCompanyPosts/:id')
   getCompanyPosts(@Param('id') id: string) {
     return this.postService.getCompanyPosts(id);
+  }
+  @Get('getCompanyDisplayPosts/:id')
+  getCompanyDisplayPosts(@Param('id') id: string) {
+    return this.postService.getCompanyDisplayPosts(id);
   }
   @Get('getPostByFilter')
   getFilterPosts(@Query('currentPage') currentPage: number, @Query('workingType') workingType: string, @Query('expPrequire') expPrequire: string, @Query('educationPrequire') educationPrequire: string, @Query('major') major: string,) {
@@ -44,8 +48,6 @@ export class PostsController {
   }
   @Put('updatePost/:id')
     async updatePost(@Body() updatePostDto: UpdatePostDto, @Param('id') id: string) {
-        // const user = await this.userService.getUser(id);
         return await this.postService.updatePost(updatePostDto, id);
-        // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
     }
 }

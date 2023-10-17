@@ -6,13 +6,17 @@ export class CreateUserDto {
   password: string;
   @IsNotEmpty()
   role: number;
-  uv_address: string;
-  uv_phone: string;
-  uv_fullname: string;
-  uv_major: string;
+  // uv_address: string;
+  // uv_phone: string;
+  // uv_fullname: string;
   com_name: string;
   com_location: string;
   com_phone: string;
+  taxNumber: string;
+  cv: {
+    education: [];
+    degreeList: [];
+  };
 }
 
 export class UpdateUserDto {
@@ -25,11 +29,21 @@ export class UpdateUserDto {
   major: string;
   about: string;
   exp: string;
-  certificates: string;
   brief_intro: string;
+  graded: string;
+  province: string;
+  school: string;
+  start: string;
+  end: string;
+  sex: string;
+  level: string;
+  birthday: string;
+  certificates: string;
   com_phone: string;
   com_location: string;
   com_name: string;
+  degreeName: string;
+  result: string;
 }
 
 export class InsertCVDto {
@@ -38,11 +52,20 @@ export class InsertCVDto {
   avatar: string;
   exp: string;
   brief_intro: string;
-  education: string;
+  graded: string;
+  province: string;
+  school: string;
   major: string;
+  start: string;
+  end: string;
+  sex: string;
+  level: string;
+  birthday: string;
   address: string;
   phone: string;
   certificates: string;
+  degreeName: string;
+  result: string;
 }
 
 export class LoginUserDto {

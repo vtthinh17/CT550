@@ -1,43 +1,84 @@
 <template>
     <a-layout :name="Ungvien">
-        <div>
-            <div style="display:flex; justify-content: center;">
-                <img src="https://vieclamcantho.com.vn/public/upload/nhatuyendung/cong-ty-tnhh-giai-phap-phan-mem-doanh-nghiep-5s1521690510587.jpg"
-                    alt="">
-            </div>
+        <a-row style="margin-top: 1rem;">
+            <!-- Logo -->
+            <a-col :span="8">
+                <div style="display:flex; justify-content: center;">
+                    <img v-if="selectCompany.com_logo" style="width: 40%;" v-bind:src="selectCompany.com_logo" alt="">
+                    <img v-else src="https://cdn-icons-png.flaticon.com/128/1607/1607966.png" alt="">
+                </div>
+
+            </a-col>
+            <a-col :span="16">
+                <h2 style="color:blue">{{ selectCompany.com_name }}</h2>
+                <b>MST: {{ selectCompany.taxNumber }}</b>
+                <p v-if="selectCompany.com_location">
+                    <PhoneOutlined /> Địa chỉ: {{ selectCompany.com_location }}
+                </p>
+                <p v-else>
+                    <PhoneOutlined /> Địa chỉ: Chưa cập nhật
+                </p>
+                <!-- SDT -->
+                <p v-if="selectCompany.com_phone">
+                    <PhoneOutlined /> SDT: {{ selectCompany.com_phone }}
+                </p>
+                <p v-else>
+                    <PhoneOutlined /> SDT: Chưa cập nhật
+                </p>
+
+                <div style="color:blue">
+
+                </div>
+            </a-col>
+        </a-row>
+        <div v-if="userLogin" style="margin-left: 4rem;">
+
         </div>
         <div>
-            <a-list size="large" bordered :data-source="newPosts">
-                <template #header>
-                    <div class="cls1">
-                        <h4>Việc làm đang tuyển</h4>
-                    </div>
-                </template>
-
-                <template #renderItem="{ item }">
-                    <a-list-item @click="showModal(item)">
-
-                        <div style="width: 50%;">
-                            <b> <b>{{ item.job_title }}</b></b>
-                            <div style="display: flex; flex-direction: row; justify-content: space-around;">
-                                <p>
-                                    Mức lương: {{ item.job_salary }}
-                                </p>
-                                <p>
-                                    Hạn nộp: {{ item.deadline }}
-                                </p>
+            <a-tabs v-model:activeKey="activeKey" type="card">
+                <a-tab-pane key="1" tab="Việc làm đang tuyển">
+                    <a-list size="large" bordered :data-source="newPosts">
+                        <template #header>
+                            <div class="cls1">
+                                <h4>Việc làm đang tuyển</h4>
                             </div>
-                        </div>
-                    </a-list-item>
+                        </template>
 
+                        <template #renderItem="{ item }">
+                            <a-list-item @click="showModal(item)">
 
+                                <div style="width: 50%;">
+                                    <b> <b>{{ item.job_title }}</b></b>
+                                    <div style="display: flex; flex-direction: row; justify-content: space-around;">
+                                        <p>
+                                            Mức lương: {{ item.job_salary }}
+                                        </p>
+                                        <p>
+                                            Hạn nộp: {{ item.deadline }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </a-list-item>
+                        </template>
+                    </a-list>
+                </a-tab-pane>
+                <a-tab-pane key="2" tab="Thông tin công ty">
+                    <p v-if="selectCompany.about">
+                    {{ selectCompany.about }}
+                    </p>
+                    <p v-else>
+                        Chưa cập nhật
+                    </p>
+                    <!-- {{ addBreakLine(selectCompany.about) }} -->
+                </a-tab-pane>
 
+                <template #rightExtra>
+                    <a-button v-if="selectCompany && checkIsFollowed(selectCompany._id)" danger
+                        @click="handleUnFollowCV(selectCompany._id)">Hủy theo dõi</a-button>
+                    <a-button v-else type="primary" @click="handleFollowCV(selectCompany._id)">Theo dõi</a-button>
                 </template>
+            </a-tabs>
 
-                <!-- <template #footer>
-                    <div>Footer</div>
-                </template> -->
-            </a-list>
         </div>
         <!-- selectjob info -->
         <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk">
@@ -73,6 +114,7 @@
                 </div>
             </template>
         </a-modal>
+
         <!-- create CV if no CV -->
         <a-modal v-model:open="openMessage" title="Bạn chưa có CV">
             <div>
@@ -95,9 +137,10 @@ definePageMeta({
 })
 export default {
     layout: 'ungvien',
-
     data() {
         return {
+            activeKey: '1',
+            reviewContent: '',
             selectCompany: false,
             openMessage: false,
             companyPosts: [],
@@ -130,17 +173,67 @@ export default {
                 console.log("ung vien>>>  login:", this.userLogin);
             }
         }
-        const companyId = useRoute().params.companyId;
-        this.selectCompany = await $fetch('http://localhost:8000/users/getUser/' + companyId)
-        this.companyPosts = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + companyId);
-        console.log("getAllCompanies:", this.companyPosts);
+        this.selectCompany = await $fetch('http://localhost:8000/users/getUser/' + useRoute().params.companyId)
+        console.log("mouted:", this.selectCompany)
+        this.companyPosts = await $fetch('http://localhost:8000/posts/getCompanyDisplayPosts/' + useRoute().params.companyId);
+        console.log("tin tuyen dung cua cong ty:", this.companyPosts);
 
 
     },
     methods: {
+        addBreakLine(data) {
+            return data.replaceAll("\\n", "\n")
+            // console.log("add br", Array.from(data.matchAll(/\n/gi)))
+        },
+        handleSubmitReview() {
+            console.log(this.reviewContent)
+        },
+        checkIsFollowed(id) {
+            let check = false
+            if (this.userLogin.follow) {
+                Object.values(this.userLogin.follow).forEach((element) => {
+                    if (element === id) {
+                        check = true
+                    }
+                })
+            }
+            return check
+        },
+        async handleUnFollowCV(candidateId) {
+            try {
+                await $fetch('http://localhost:8000/users/unfollow/' + this.isLogin, {
+                    method: 'PUT',
+                    body: {
+                        unfollowId: candidateId
+                    }
+                });
+                this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
+                console.log("huy theo doi", this.userLogin.follow.length)
+                alert("unfollow")
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async handleFollowCV(companyId) {
+            try {
+                await $fetch('http://localhost:8000/notifications/create/', {
+                    method: 'POST',
+                    body: {
+                        fromUserID: this.isLogin,
+                        toUserID: companyId,
+                        action: "follow"
+                    }
+                })
+                this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
+                console.log("theo doi", this.userLogin.follow)
+                alert("follow thanh cong")
+            } catch (error) {
+                console.log(error)
+            }
+        },
         async reloadPosts() {
-            const newData =  await $fetch('http://localhost:8000/posts/getCompanyPosts/' + useRoute().params.companyId);
-            console.log('reload',newData)
+            const newData = await $fetch('http://localhost:8000/posts/getCompanyDisplayPosts/' + useRoute().params.companyId);
+            console.log('reload', newData)
             this.companyPosts = newData
             console.log('neww')
         },
@@ -215,8 +308,17 @@ export default {
     computed: {
         newPosts() {
             return this.companyPosts;
-        }
-    }
+        },
+        // newParam(){
+        //     return useRoute().params.companyId
+        // }
+    },
+
+    // watch:{
+    //     'routeId':{
+    //         return useRoute().params.companyId
+    //     }
+    // }
 }
 </script>
 

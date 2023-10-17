@@ -1,6 +1,6 @@
 <template>
   <a-layout :name="Ungvien">
-    <div class="searchBox">
+    <!-- <div class="searchBox">
       <a-auto-complete v-model:value="value" :options="options" style="width: 30%" placeholder="input here"
         :filter-option="filterOption" />
       <a-tooltip title="search">
@@ -8,8 +8,8 @@
           <SearchOutlined />
         </a-button>
       </a-tooltip>
-    </div>
-    <a-row justify="space-around" style="padding: 0px 20px;">
+    </div> -->
+    <!-- <a-row justify="space-around" style="padding: 0px 20px;">
       <a-col v-for="item in data" :span="7">
         <a-card hoverable class="cardItem" @click="gotoCompanyInfo(item)">
           <div class="khungAvatar">
@@ -23,20 +23,20 @@
           </p>
         </a-card>
       </a-col>
-    </a-row>
-    <h2>Danh sách công ty từ db</h2>
+    </a-row> -->
+    <h2>Danh sách công ty</h2>
     <a-row justify="space-around" style="padding: 0px 20px;">
       <a-col v-for="company in propertyComputed" :span="7">
         <a-card hoverable class="cardItem" @click="gotoCompanyInfo(company)">
           <div class="khungAvatar">
-            <!-- {{ console.log(company) }} -->
-            <img class="com_img" v-bind:src="company.com_logo" alt="">
+            <img v-if="company.com_logo" class="com_img" v-bind:src="company.com_logo" alt="">
+            <img v-else class="com_img" src="https://cdn-icons-png.flaticon.com/128/1607/1607966.png" alt="">
           </div>
           <b>
             {{ company.com_name }}
           </b>
-          <p v-if="company.totalPost && company.totalPost>0" style="color: rgb(66,118,221);">
-            Đăng tuyển {{ company.totalPost }} việc
+          <p v-if="company.totalDisplayPosts > 0" style="color: rgb(66,118,221);">
+            Đang tuyển {{ company.totalDisplayPosts }} việc
           </p>
           <p v-else style="color: blue;">
             Chưa có tin tuyển dụng nào
@@ -82,28 +82,25 @@ export default {
     //   return posts
     // },
     removeDuplicate() { },
-    async getCompanyPosts(id) {
-      return await $fetch('http://localhost:8000/posts/getCompanyPosts/' + id)
-    }
   },
   async mounted() {
     if (process.client) {
       this.data = myData;
       this.companies = await $fetch('http://localhost:8000/users/getAllCompanies');
       console.log("getAllCompanies:", this.companies);
-        }
-     
-      // let app = this;
-      // this.companies = await this.companies.map(async (item) => {
-      //   let list = [];
-      //   console.log(list);
-      //   list = await app.getCompanyPosts(item._id);
-      //   console.log(list);
-      //   return {
-      //     ...item,
-      //     posts: list
-      //   }
-      // });
+    }
+
+    // let app = this;
+    // this.companies = await this.companies.map(async (item) => {
+    //   let list = [];
+    //   console.log(list);
+    //   list = await app.getCompanyPosts(item._id);
+    //   console.log(list);
+    //   return {
+    //     ...item,
+    //     posts: list
+    //   }
+    // });
     // let unique = this.groupBy(this.data,"company");
     // console.log("phanloai:", this.data);
 

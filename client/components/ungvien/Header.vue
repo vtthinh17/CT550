@@ -9,7 +9,7 @@
         <li>
           <NuxtLink to="/ungvien/companies">Tham khảo công ty</NuxtLink>
         </li>
-        <li v-if="this && this.isLogin && userLogin.role=='1'">
+        <li v-if="this && this.isLogin && userLogin.role == '1'">
           <NuxtLink to="/ungvien/profile">Hồ sơ cá nhân</NuxtLink>
         </li>
       </ul>
@@ -23,7 +23,47 @@
           </p>
         </a-modal>
         <span>
-          <span style=" font-weight: 300; color: goldenrod; text-decoration: none; cursor: pointer;" @click="gotoNTD" >Nhà tuyển dụng</span>
+          <span style=" font-weight: 300; color: goldenrod; text-decoration: none; cursor: pointer;" @click="gotoNTD">Nhà
+            tuyển dụng</span>
+        </span>
+        <span v-if="isLogin" class="notifyBell">
+          <a-dropdown :open="isOpenNotify">
+            <a-badge :count="this.unSeenNotifies.length">
+            <a-avatar shape="square" @click="toggleNotifyBox">
+              <template #icon>
+                <BellOutlined />
+              </template>
+            </a-avatar>
+          </a-badge>
+            <template #overlay>
+              <a-menu v-if="this.unSeenNotifies.length>0" style="width: 20rem;  height: auto; overflow-y: scroll;">
+                <a-menu-item v-for="notify in this.unSeenNotifies">
+                  <div v-if="notify.action==='follow'">                 
+                    <div>
+                      <LikeOutlined />
+                    <b> {{ notify._id }}</b> đã bắt đầu theo dõi bạn</div>
+                    <div style="margin-left: 1.4rem; color: blue;">Vao luc {{ notify.timeAt }}</div>
+                  </div>
+                  <div v-else-if="notify.action==='newPost'">
+                    <div>
+                      <LikeOutlined />
+                    <b> {{ notify.fromUserID }}</b> đã đăng tin mới</div>
+                    <div style="margin-left: 1.4rem; color: blue;">Vào lúc {{ notify.timeAt }}</div>
+                  </div>
+                  <div v-else>
+                    Other action
+                  </div>
+                </a-menu-item>
+              </a-menu>
+              <a-menu v-else>
+                <a-menu-item>
+                  Không có thông báo nào mới!
+                </a-menu-item>
+              </a-menu>
+
+            </template>
+          </a-dropdown>
+
         </span>
         <span>
           <div v-if="userLogin.username">
@@ -43,8 +83,7 @@
                 <DownOutlined />
               </a-button>
             </a-dropdown>
-            <a-drawer :width="500" title="Đổi mật khẩu" placement="left"
-            v-model:open="openDrawer" @close="onClose">
+            <a-drawer :width="500" title="Đổi mật khẩu" placement="left" v-model:open="openDrawer" @close="onClose">
               <div style="display: flex; flex-direction: column;">
                 <a-row style="margin: 4px 0;">
                   <a-col :span="8">
@@ -57,18 +96,18 @@
                 <a-row style="margin: 4px 0;">
                   <a-col :span="8">
                     <label>Mật khẩu mới:</label>
-                  </a-col> 
+                  </a-col>
                   <a-col :span="16">
                     <a-input-password v-model:value="newPassword" placeholder="Nhập mật khẩu mới" />
-                  </a-col>                               
+                  </a-col>
                 </a-row>
                 <a-row style="margin: 4px 0;">
                   <a-col :span="8">
                     <label>Nhập lại mật khẩu mới:</label>
-                  </a-col>   
+                  </a-col>
                   <a-col :span="16">
                     <a-input-password v-model:value="confirm_newPassword" placeholder="Nhập lại mật khẩu mới" />
-                  </a-col>                      
+                  </a-col>
                 </a-row>
               </div>
 
@@ -103,8 +142,10 @@ export default {
       address: '',
       major: '',
       errorMsg: '',
+      isOpenNotify:false,
       isLogin: false,
       userLogin: {},
+      unSeenNotifies: [],
       newPassword: '',
       currentPass: '',
       confirm_newPassword: ''
@@ -115,13 +156,46 @@ export default {
       this.isLogin = localStorage.getItem('loginUserID');
       if (this.isLogin) {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
+        this.unSeenNotifies = await $fetch('http://localhost:8000/notifications/getUnseenNotifies/' + this.isLogin);
+        console.log("noti>>>",  this.unSeenNotifies);
         console.log("header>>> ung vien login:", this.userLogin);
       }
     }
   },
   methods: {
+    async toggleNotifyBox() {
+      // neu co thong bao => open
+      if (this.isOpenNotify == false) {
+        this.isOpenNotify = !this.isOpenNotify
+      } else {
+        // dang xem thong bao => check da xem 
+        try {
+          await $fetch('http://localhost:8000/notifications/markSeenAllNotifies', {
+            method: 'PUT',
+            body: this.unSeenNotifies
+          });
+          // reset new State & dong hop thoai
+          this.unSeenNotifies = await $fetch('http://localhost:8000/notifications/getUnseenNotifies/' + this.isLogin);
+          this.isOpenNotify = this.isOpenNotify = !this.isOpenNotify
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    },
+    async markSeenNotifies(){
+      try {
+        await $fetch('http://localhost:8000/notifications/markSeenAllNotifies', {
+            method: 'PUT',
+            body: this.unSeenNotifies
+          });
+          this.unSeenNotifies = await $fetch('http://localhost:8000/notifications/getUnseenNotifies/' + this.isLogin);
+          this.isOpenNotify = false
+      } catch (error) {
+        console.log(error)
+      }
+    },
     gotoNTD() {
-      if (!this.isLogin || this.userLogin.role=='1')
+      if (!this.isLogin || this.userLogin.role == '1')
         this.openModal = true;
       else
         navigateTo('/nhatuyendung')
@@ -141,28 +215,28 @@ export default {
       navigateTo('/login')
     },
     async changePassword(id) {
-      console.log("abc:",this.currentPass)
-     if(this.currentPass!=this.userLogin.password){
-      alert("Mật khẩu hiện tại không trùng khớp")
-     }else if(this.newPassword!=this.confirm_newPassword){
-      alert("Nhập lại mật khẩu mới không trùng khớp")
-     }
-     else{
-      try {
-        await $fetch('http://localhost:8000/users/changePassword/' + id, {
-          method: 'PUT',
-          body: {
-            password: this.newPassword,
-          }
-        });
-        alert("cap nhat thanh cong, vui long dang nhap lai")
-        this.open=false;
-        this.logout()
-      } catch (error) {
-        console.log(error)
-        this.errorMsg = 'Register failed, please try again!'
+      console.log("abc:", this.currentPass)
+      if (this.currentPass != this.userLogin.password) {
+        alert("Mật khẩu hiện tại không trùng khớp")
+      } else if (this.newPassword != this.confirm_newPassword) {
+        alert("Nhập lại mật khẩu mới không trùng khớp")
       }
-     }
+      else {
+        try {
+          await $fetch('http://localhost:8000/users/changePassword/' + id, {
+            method: 'PUT',
+            body: {
+              password: this.newPassword,
+            }
+          });
+          alert("cap nhat thanh cong, vui long dang nhap lai")
+          this.open = false;
+          this.logout()
+        } catch (error) {
+          console.log(error)
+          this.errorMsg = 'Register failed, please try again!'
+        }
+      }
 
     },
     showDrawer() {
@@ -176,6 +250,13 @@ export default {
 }
 </script>
 <style lang="scss">
+.notifyBell{
+  margin-right: 1.5rem;
+  cursor: pointer;
+}
+.notifyBell:hover{
+  
+}
 .header {
   margin: 0;
   height: 60px;

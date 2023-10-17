@@ -4,19 +4,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-// import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
-// import { CreateUserDto, UpdateUserDto, LoginUserDto } from '../dto/user.dto';
 import { Post } from '../interfaces/post.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { ApplyJobDto, CreatePostDto, UpdatePostDto } from '../dto/posts.dto';
 import { UsersService } from 'src/users/services/users.service';
-
+import { NotificationsService } from 'src/notifications/services/notifications.service';
+// import * as dayjs from 'dayjs';
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel('Post') private readonly postModel: Model<Post>,
     private readonly userService: UsersService,
+    private readonly notifyService: NotificationsService,
   ) {}
   async getPost(id: string): Promise<Post> {
     try {
@@ -95,10 +95,12 @@ export class PostsService {
         com_created: createPostDto.com_created,
         job_salary: createPostDto.job_salary,
         deadline: createPostDto.deadline,
-        createdAt: new Date().getTime(),
+        createdAt: new Date(),
       });
       this.userService.increaseTotalPosts(createPostDto.com_created);
-      return await newPost.save();
+      await newPost.save();
+      await this.notifyService.sendNotiToSubScriber(createPostDto.com_created);
+      return newPost;
     } catch (error) {
       throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
     }
@@ -112,6 +114,10 @@ export class PostsService {
           job_benefit: updatePostDto.job_benefit,
           job_salary: updatePostDto.job_salary,
           deadline: updatePostDto.deadline,
+          major: updatePostDto.major,
+          workingType: updatePostDto.workingType,
+          expPrequire: updatePostDto.expPrequire,
+          educationPrequire: updatePostDto.educationPrequire,
         },
       });
     } catch (error) {
@@ -121,6 +127,14 @@ export class PostsService {
   async getCompanyPosts(companyId: string) {
     return this.postModel
       .find({ com_created: companyId })
+      .then((post) => {
+        return post;
+      })
+      .catch((err) => console.log(err));
+  }
+  async getCompanyDisplayPosts(companyId: string) {
+    return this.postModel
+      .find({ com_created: companyId, status: 1 })
       .then((post) => {
         return post;
       })
@@ -161,52 +175,36 @@ export class PostsService {
   }
   async getOutDatePosts() {
     const date = new Date();
-    // dd-MM-yyyy
-    const today = new Date(
-      `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`,
+    const todayValue = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      date.getDate(),
     );
+    console.log('today  value: ', todayValue);
     const posts = await this.postModel.find({ status: 1 }).then((post) => {
       return post;
     });
     posts.forEach(async (element) => {
-      if (element.com_created) {
-        const elementDateFormat = {
-          ngay: Number(element.deadline.slice(0, 4)),
-          thang: Number(element.deadline.slice(5, 7)),
-          nam: Number(element.deadline.slice(8)),
+      if (element.deadline) {
+        const elementDate = {
+          ngay: Number(element.deadline.slice(0, 2)),
+          thang: Number(element.deadline.slice(3, 5)),
+          nam: Number(element.deadline.slice(6, 10)),
         };
-        // dd-MM-yyyy
-        const elementDate = new Date(
-          `${elementDateFormat.ngay}-${elementDateFormat.thang}-${elementDateFormat.nam}`,
+        const elementDateValue = new Date(
+          elementDate.nam,
+          elementDate.thang,
+          elementDate.ngay,
         );
-        const time1 = elementDate.getTime();
-        const time2 = today.getTime();
-        if (time1 < time2) {
+        if (elementDateValue < todayValue) {
+          console.log(`delete ${element}`);
           try {
             await this.postModel.findByIdAndUpdate(element._id, {
               $set: {
                 status: 2,
               },
             });
-            console.log(element);
-          } catch (error) {
-            console.log(error);
-          }
-        } else {
-          console.log('All post are up-to-date');
-        }
-      } else {
-        const elementDate = new Date(element.deadline);
-        const time1 = elementDate.getTime();
-        const time2 = today.getTime();
-        if (time1 < time2) {
-          try {
-            await this.postModel.findByIdAndUpdate(element._id, {
-              $set: {
-                status: 2,
-              },
-            });
-            console.log(element);
+            console.log('an bai dang', element);
           } catch (error) {
             console.log(error);
           }

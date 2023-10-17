@@ -15,7 +15,7 @@ class PostSpider(scrapy.Spider):
     def start_requests(self):
         yield scrapy.Request('https://vieclamcantho.com.vn/viec-lam-moi-nhat?ts=1&sort2=3&page=1', self.parse1)
         yield scrapy.Request('https://vieclam24h.vn/tim-kiem-viec-lam-nhanh?page=1&province_ids%5B%5D=131', self.parse2)
-
+# https://www.careerlink.vn/vieclam/list?order=posted_date&page=1&sort=desc
     def parse1_attr(self, response):
         items["job_title"] = response.css('.card .card-body >h6::text').extract()
         items["job_links"] = response.url
@@ -27,11 +27,22 @@ class PostSpider(scrapy.Spider):
         items['job_requirement'] = response.css('.recruitment-content .recruitment-required-job .description-content::text').extract()
         items['job_benefit'] = response.css('.recruitment-content .recruitment-benefit .description-content > p::text').extract()
         items['deadline_apply'] = response.css('.recruitment-content .recruitment-apply .apply-contact div.apply-contact-item::text').extract()
+
     # # #     items['contact_location'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2 > div::text').extract()
     # # #     items['contact_phone'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2:nth-child(3) > div > a::text').extract()
     # # #     # items['item-id'] = response.css('.data-id').extract()
-           
-       
+    # yeu cau kinh nghiem
+    # yeucaukinhnghiem =   response.css(".recruitment-body .recruitment-info > .row > .col-md-6:first-child").extract()
+    # items['expPrequire']= yeucaukinhnghiem[0][yeucaukinhnghiem[0].rfind("</span>")+7:yeucaukinhnghiem[0].rfind("</div>")]
+    # hinh thuc lam viec
+    # hinhthuc =   response.css(".recruitment-body .recruitment-info > .row > .col-md-6:first-child").extract()
+    # items['expPrequire']= hinhthuc[0][hinhthuc[0].rfind("</span>")+7:hinhthuc[0].rfind("</div>")]
+    # -------------------------
+    # nganh nghe
+    # items['major'] = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(7)> a::text").extract()
+    # tinh thanh
+    # items['province'] = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(8)> a::text").extract()
+
         yield items
     #
     #
@@ -46,7 +57,20 @@ class PostSpider(scrapy.Spider):
     # # # #     # if PostSpider.pageCrawl <= 2:
     # # # #     #     PostSpider.pageCrawl += 1
     # # # #     #     yield response.follow(next_page, callback=self.parse)
-
+# --------------------------
+# ~~~~~~ CARRERLINKS ~~~~~~~~~:
+# links: response.css(".container >.row .list-group > li .media-body a.job-link::attr(href)").extract()
+# title: response.css(".card .job-detail-header.mt-3 > .media h1::text").extract()
+# com_name: response.css(".card .job-detail-header.mt-3 > .media a::attr(title)").extract()
+# com_link: response.css(".card .job-detail-header.mt-3 > .media a::attr(href)").extract()
+# salary: response.css(".card .job-detail-header.mt-3 > .job-overview> div:nth-child(2) > span.text-primary::text").extract()
+# expPrequire: response.css(".card .job-detail-header.mt-3 > .job-overview> div:nth-child(3) > span::text").extract()
+# workingType: response.css("#section-job-summary > .row.job-summary > .col-6.pr-1.pl-3 > div > div > div:nth-child(1) > div > .font-weight-bolder::text").extract()
+# major: response.css("#section-job-summary > div.row.job-summary.d-flex > div.col-6.pl-1.pr-3.pl-md-2 > div > div > div:nth-child(3) > div > div > div.font-weight-bolder a> span::text").extract()
+# eduPrequire: response.css("#section-job-summary > div.row.job-summary.d-flex > div.col-6.pr-1.pl-3.pr-md-2 > div > div > div:nth-child(3) > div > div.font-weight-bolder::text").extract()
+# province = response.css("#jd-col > div > div.card.border-0.font-nunitosans.px-4 > div.job-detail-header.mt-3 > div.job-overview.mt-2 > div >.cli-map-pin-line + span> *::text").extract()
+# logo = response.css("#jd-col > div > div.card.border-0.font-nunitosans.px-4 > div.job-detail-header.mt-3 > div.media.row.m-0 > div.company-logo.d-flex.align-items-center.justify-content-center.mr-3 > img::attr(src)").extract()
+# ----------------------
 
     def parse2(self, response):
         urls = response.css('div.relative > a.relative::attr(href)').extract()

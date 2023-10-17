@@ -21,7 +21,12 @@ export class UsersService {
 
     getCandidates() {
         return this.userModel
-            .find({ cv: { $exists: true } })
+            .find({
+                role: '1',
+                "cv.fullName":
+                    { $exists: true }
+
+            })
             .then((candidate) => {
                 return candidate;
             })
@@ -56,15 +61,14 @@ export class UsersService {
                 username: createUserDto.username,
                 password: createUserDto.password,
                 role: createUserDto.role,
-                uv_address: createUserDto.uv_address,
-                uv_phone: createUserDto.uv_phone,
-                uv_fullname: createUserDto.uv_fullname,
-                uv_major: createUserDto.uv_major,
                 com_name: createUserDto.com_name,
                 com_location: createUserDto.com_location,
                 com_phone: createUserDto.com_phone,
+                taxNumber: createUserDto.taxNumber,
                 createdAt: new Date().getTime(),
+                cv: createUserDto.cv,
             })
+            console.log("tao user", newUser)
             return await newUser.save()
         } catch (error) {
             throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
@@ -73,18 +77,23 @@ export class UsersService {
 
     async updateUser(updateUserDto: UpdateUserDto, id: string): Promise<User> {
         try {
-
+            const userModel = await this.userModel.findById(id);
+            const education = userModel.cv;
+            // const degree = userModel.cv.degreeList;
             return await this.userModel.findByIdAndUpdate(id, {
                 $set: {
-                    "cv": {
+                    ...education,
+                    cv: {
+                        ...education,
                         avatar: updateUserDto.avatar,
                         fullName: updateUserDto.fullName,
-                        exp: updateUserDto.exp,
                         brief_intro: updateUserDto.brief_intro,
-                        major: updateUserDto.major,
                         address: updateUserDto.address,
                         phone: updateUserDto.phone,
-                        certificates: updateUserDto.certificates,
+                        sex: updateUserDto.sex,
+                        birthday: updateUserDto.birthday,
+                        level: updateUserDto.level,
+                        province: updateUserDto.province,
                     }
                 }
             }
@@ -133,18 +142,121 @@ export class UsersService {
         }
     }
 
+    async follow(fromUserID: string, toUserID: string) {
+        try {
+            await this.userModel.findByIdAndUpdate(fromUserID, { $push: { follow: toUserID } });
+            await this.userModel.findByIdAndUpdate(toUserID, { $push: { subscriber: fromUserID } });
+        } catch (error) {
+            throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+        }
+    }
+    async insertEducation(insertCVDto: InsertCVDto, id: string): Promise<User> {
+         try {
+            console.log("them edu", insertCVDto);
+            const userModel = await this.userModel.findById(id);
+            const education = userModel.cv.education;
+            return await this.userModel.findByIdAndUpdate(id, {
+                $set: {
+                    cv: {
+                        ...userModel.cv,
+                        education: [
+                            ...education,
+                            {
+                                school: insertCVDto.school,
+                                major: insertCVDto.major,
+                                start: insertCVDto.start,
+                                end: insertCVDto.end,
+                                graded: insertCVDto.graded,
+                            }
+                        ]
+                    }
+                }
+            }
+            );
+        } catch (error) {
+            console.log(error);
+            throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+        }
+        // try {
+        //     console.log("them edu", insertCVDto);
+        //     const userModel = await this.userModel.findById(id);
+        //     const education = userModel.cv.education;
+        //     return await this.userModel.findByIdAndUpdate(id, {
+        //         $set: {
+        //             cv: {
+        //                 ...userModel.cv,
+        //                 education: [
+        //                     ...education,
+        //                     {
+        //                         school: insertCVDto.school,
+        //                         major: insertCVDto.major,
+        //                         start: insertCVDto.start,
+        //                         end: insertCVDto.end,
+        //                         graded: insertCVDto.graded,
+        //                     }
+        //                 ]
+        //             }
+        //         }
+        //     }
+        //     );
+        // } catch (error) {
+        //     console.log(error);
+        //     throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+        // }
+    }
+
+    async removeEducationInfo(id: string, eduId: string) {
+        const userModel = await this.userModel.findById(id);
+        console.log(userModel.cv.education)
+        try {
+        return this.userModel.findByIdAndUpdate(id, { $pull: {'cv.education': {
+            $elemMatch: {
+                '_id': eduId
+        }}}})
+        } catch (error) {
+            console.log("loi>", error);
+            throw new HttpException('Error remove edu', HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    async insertDegree(insertCVDto: InsertCVDto, id: string): Promise<User> {
+        try {
+            const userModel = await this.userModel.findById(id);
+            const degreeList = userModel.cv.degreeList;
+            return await this.userModel.findByIdAndUpdate(id, {
+                $set: {
+                    cv: {
+                        ...userModel.cv,
+                        degreeList: [
+                            ...degreeList,
+                            {
+                                degreeName: insertCVDto.degreeName,
+                                result: insertCVDto.result,
+                            }
+                        ]
+                    }
+                }
+            }
+            );
+        } catch (error) {
+            console.log(error);
+            throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+        }
+    }
+
     async insertCV(insertCVDto: InsertCVDto, id: string): Promise<User> {
         try {
-
+            console.log(insertCVDto)
             return await this.userModel.findByIdAndUpdate(id, {
                 $set: {
                     "cv": {
                         avatar: insertCVDto.avatar,
                         fullName: insertCVDto.fullName,
-                        exp: insertCVDto.exp,
                         brief_intro: insertCVDto.brief_intro,
-                        education: insertCVDto.education,
-                        major: insertCVDto.major,
+                        province: insertCVDto.province,
+                        birthday: insertCVDto.birthday,
+                        level: insertCVDto.level,
+                        sex: insertCVDto.sex,
                         address: insertCVDto.address,
                         phone: insertCVDto.phone,
                         certificates: insertCVDto.certificates,
@@ -182,6 +294,19 @@ export class UsersService {
                 $set: { "password": changePasswordDto.password, }
 
 
+            });
+        } catch (error) {
+            throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+        }
+    }
+    async unfollow(userId: string, unfollowId: string) {
+        // console.log(unfollowId)
+        try {
+            await this.userModel.findByIdAndUpdate(userId, {
+                $pull: { follow: { $eq: unfollowId } }
+            });
+            await this.userModel.findByIdAndUpdate(unfollowId, {
+                $pull: { subscriber: { $eq: userId } }
             });
         } catch (error) {
             throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);

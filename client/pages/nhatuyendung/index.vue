@@ -37,8 +37,8 @@
                 Đã ẩn
               </p>
             </span>
-            <span>Đăng ngày: 12/03/2024</span>
-            <span>Lượt xem: 204 người</span>
+            <span>Đăng vào: {{ post.createdAt.slice(0,24)}}</span>
+            <!-- <span>Lượt xem: 204 người</span> -->
           </div>
           <div>
             <b>Tuyển dụng: {{ post.job_title }}</b>
@@ -60,15 +60,13 @@
               </span>
             </div>
             <div style="flex: 6;">
-              <button class="button-36" role="button" @click="showModal(post._id)">Xem nội dung chi tiết</button>
-              <br>
-              <a-button v-if="post.status != 2 && post.status != 0" type="primary" class="xemhoso"
-                @click="hidePost(post._id)">
+              <!-- <button class="button-36" role="button" @click="showModal(post._id)">Xem nội dung chi tiết</button> -->
+              <a-button v-if="post.status != 2 && post.status != 0" type="primary" @click="hidePost(post._id)">
                 <DeleteOutlined /> Ẩn bài đăng
               </a-button>
-              <br>
+              <a-divider style="height: 1px; width: 1px;" />
               <a-button v-if="post.status != 2" key="submit" type="primary" @click="handleEdit(post._id)">
-                <EditOutlined /> Chỉnh sửa bài đăng
+                <EditOutlined />Xem/Chỉnh sửa bài đăng
               </a-button>
               <div>
 
@@ -82,34 +80,51 @@
       <div v-else>
         <p>Chưa có dữ liệu, hãy tạo tin mới</p>
       </div>
-      <!-- View post modal -->
-      <a-modal width="80%" v-model:open="modalOpen" title="Nội dung chi tiết bài đăng" @ok="handleOk">
-        <h2>Yêu cầu công việc</h2>
-        <p style="font-weight: lighter;">
-          {{ selectedPost.data.job_requirement }}
-        </p>
-        <h2>Quyền lợi</h2>
-        <p style="font-weight: lighter;">
-          {{ selectedPost.data.job_benefit }}
-        </p>
-
-        <template #footer>
-          <a-button key="back" @click="this.modalOpen = false">OK</a-button>
-        </template>
-      </a-modal>
       <!-- Edit modal -->
-      <a-modal v-model:open="modalEditOpen" title="Chinh sua  bài đăng" @ok="changeInfo">
+      <a-modal v-model:open="modalEditOpen" title="Nội dung chi tiết bài đăng" width="100%">
         <a-form :label-col="labelCol" :wrapper-col="wrapperCol" layout="horizontal" :disabled="componentDisabled"
-          style="max-width: 600px">
+          style="max-width: 70rem">
           <a-form-item label="Tên bài tuyển dụng">
             <a-input v-model:value="selectedPost.data.job_title"></a-input>
           </a-form-item>
+          <a-row>
+            <a-col :span="12">
+              <!-- Lĩnh vực -->
+              <a-form-item label="Lĩnh vực">
+                <a-input type="text" class="input" name="add_major" v-model:value="selectedPost.data.major" />
+              </a-form-item>
+            </a-col>
+            <!-- Hình thức làm việc -->
+            <a-col :span="12">
+              <a-form-item label="Hình thức làm việc">
+                <a-input type="text" class="input" name="add_workingType" v-model:value="selectedPost.data.workingType"
+                  style="width: 100%;" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row>
+            <!-- Kinh nghiệm -->
+            <a-col :span="12">
+              <a-form-item label="Yêu cầu kinh nghiệm">
+                <a-input type="text" class="input" name="add_expPrequire" v-model:value="selectedPost.data.expPrequire" />
+              </a-form-item>
+            </a-col>
+            <!-- Trình độ -->
+            <a-col :span="12">
+              <a-form-item label="Yêu cầu trình độ">
+                <a-input type="text" class="input" name="add_educationPrequire"
+                  v-model:value="selectedPost.data.educationPrequire" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <!-- Lương -->
           <a-form-item label="Mức lương">
             <a-input v-model:value="selectedPost.data.job_salary"></a-input>
           </a-form-item>
+          <!-- Hạn nộp --> 
           <a-form-item label="Hạn nộp">
-            <input type="date" class="input" name="add_deadline" v-model="selectedPost.data.deadline">
-
+            <a-date-picker v-model:value="hannop" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
+              @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" />
           </a-form-item>
           <a-form-item label="Yêu cầu công việc">
             <a-textarea :rows="4" v-model:value="selectedPost.data.job_requirement"></a-textarea>
@@ -120,41 +135,57 @@
           </a-form-item>
 
         </a-form>
+        <template #footer>
+          <a-button key="back" @click="this.modalEditOpen = false">Đóng</a-button>
+          <a-button type="primary" @click="changeInfo">Cập nhật</a-button>
+        </template>
       </a-modal>
       <!-- Add post form -->
-      <a-modal v-model:open="open" title="Thêm tin tuyển dụng" @ok="handleAdd">
+      <a-modal v-model:open="open" title="Thêm tin tuyển dụng" @ok="handleAdd" width="100%">
         <a-form :label-col="labelCol" :wrapper-col="wrapperCol" layout="horizontal" :disabled="componentDisabled"
-          style="max-width: 600px">
+          style="max-width: 70rem">
           <a-form-item label="Tên bài tuyển dụng">
-            <input type="text" class="input" name="add_jobTitle" v-model="add_jobTitle">
+            <a-input type="text" class="input" name="add_jobTitle" v-model:value="add_jobTitle" />
           </a-form-item>
-          <a-form-item label="Linh vuc">
-            <input type="text" class="input" name="add_major" v-model="add_major">
-          </a-form-item>
-          <a-form-item label="Hinh thuc lam viec">
-            <input type="text" class="input" name="add_workingType" v-model="add_workingType">
-          </a-form-item>
-          <a-form-item label="Yeu cau kinh nghiem">
-            <input type="text" class="input" name="add_expPrequire" v-model="add_expPrequire">
-          </a-form-item>
-          <a-form-item label="Yeu cau trinh do">
-            <input type="text" class="input" name="add_educationPrequire" v-model="add_educationPrequire">
-          </a-form-item>
+          <a-row>
+            <a-col :span="12">
+              <a-form-item label="Linh vuc">
+                <a-input type="text" class="input" name="add_major" v-model:value="add_major" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item label="Hình thức làm việc">
+                <a-input type="text" class="input" name="add_workingType" v-model:value="add_workingType"
+                  style="width: 100%;" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="12">
+              <a-form-item label="Yêu cầu kinh nghiệm">
+                <a-input type="text" class="input" name="add_expPrequire" v-model:value="add_expPrequire" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item label="Yêu cầu trình độ">
+                <a-input type="text" class="input" name="add_educationPrequire" v-model:value="add_educationPrequire" />
+              </a-form-item>
+            </a-col>
+          </a-row>
           <a-form-item label="Mức lương">
-            <input type="text" class="input" name="add_jobSalary" v-model="add_jobSalary">
+            <a-input type="text" class="input" name="add_jobSalary" v-model:value="add_jobSalary" />
           </a-form-item>
           <a-form-item label="Hạn nộp">
-            <input type="date" class="input" name="add_deadline" v-model="add_deadline">
+            <a-date-picker v-model:value="add_deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
+              @change="console.log('a-date-picker:', useDayjs(birthday).format('DD/MM/YYYY'))" />
           </a-form-item>
           <a-form-item label="Yêu cầu công việc">
-            <textarea v-model="add_jobRequirement" rows="4" cols="30">
-            </textarea>
-            <!-- <a-textarea v-model:job_requirement="add_jobRequirement" :rows="3" /> -->
+            <a-textarea v-model:value="add_jobRequirement" rows="4" cols="30">
+            </a-textarea>
           </a-form-item>
           <a-form-item label="Quyền lợi">
-            <textarea v-model="add_jobBenefit" rows="4" cols="30">
-            </textarea>
-            <!-- <a-textarea v-model:job_benefit="add_jobBenefit" :rows="3" /> -->
+            <a-textarea v-model:value="add_jobBenefit" rows="4" cols="30">
+            </a-textarea>
           </a-form-item>
         </a-form>
       </a-modal>
@@ -218,10 +249,13 @@
         </a-col>
       </a-grow>
     </div>
+
   </a-layout>
 </template>
 
 <script>
+import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 import { notification } from 'ant-design-vue';
 export default {
   setup() {
@@ -231,6 +265,11 @@ export default {
   },
   data() {
     return {
+      disabledDate(current) {
+        // Can not select days before today and today
+        return current && current < dayjs().endOf('day');
+      },
+      hannop: dayjs('01/01/2015', 'DD/MM/YYYY'),
       com_created: '',
       add_workingType: '',
       add_expPrequire: '',
@@ -243,7 +282,6 @@ export default {
       add_deadline: '',
       add_logo: '',
       open: false,
-      modalOpen: false,
       modalEditOpen: false,
       isLogin: null,
       userLogin: {},
@@ -258,40 +296,43 @@ export default {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
         console.log("nha tuyen dung login profile:", this.userLogin);
         this.getCompanyPosts();
+        this.clearOutDatePosts();
       }
     }
   },
   methods: {
+    async clearOutDatePosts() {
+      try {
+        await $fetch('http://localhost:8000/posts/getOutDatePosts', { method: 'PUT', })
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async changeInfo() {
       try {
         await $fetch('http://localhost:8000/posts/updatePost/' + this.selectedPost.data._id, {
           method: 'PUT',
           body: {
             job_title: this.selectedPost.data.job_title,
-            job_salary: this.selectedPost.data.job_salary,
-            deadline: this.selectedPost.data.deadline,
-            job_requirement: this.selectedPost.data.job_requirement,
-            job_benefit: this.selectedPost.data.job_benefit,
+          job_salary: this.selectedPost.data.job_salary,
+          deadline: useDayjs(this.hannop).format('DD/MM/YYYY'),
+          job_requirement: this.selectedPost.data.job_requirement,
+          job_benefit: this.selectedPost.data.job_benefit,
+          major: this.selectedPost.data.major,
+          workingType: this.selectedPost.data.workingType,
+          expPrequire: this.selectedPost.data.expPrequire,
+          educationPrequire: this.selectedPost.data.educationPrequire,
           }
         })
-        alert("cap nhat post thanh cong")
+        message.success('Cập nhật thông tin thành công');
         this.modalEditOpen = false;
         this.getCompanyPosts();
       } catch (error) {
         console.log(error)
       }
-      // console.log('update new info', {
-      //   tenbai: this.selectedPost.data.job_title,
-      //   luong: this.selectedPost.data.job_salary,
-      //   hannop: this.selectedPost.data.deadline,
-      //   yeucau: this.selectedPost.data.job_requirement,
-      //   quyenloi: this.selectedPost.data.job_benefit,
-
-      // })
     },
     async getCompanyPosts() {
       this.companyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + this.isLogin);
-      console.log("getCompanyPost:", this.companyPost);
     },
     openNotificationWithIcon(type) {
       notification[type]({
@@ -314,10 +355,6 @@ export default {
     showDrawer() {
       this.open = true;
     },
-    async showModal(postId) {
-      this.selectedPost = await useFetch('http://localhost:8000/posts/getPost/' + postId)
-      this.modalOpen = true;
-    },
     showAddModal() {
       this.open = true;
     },
@@ -336,7 +373,7 @@ export default {
             job_benefit: this.add_jobBenefit,
             com_created: this.userLogin._id,
             job_salary: this.add_jobSalary,
-            deadline: this.add_deadline,
+            deadline: useDayjs(this.add_deadline).format('DD/MM/YYYY'),
           }
         })
         console.log("response them tin tuyen dung:", res)
@@ -361,12 +398,14 @@ export default {
 
     async handleEdit(id) {
       this.selectedPost = await useFetch('http://localhost:8000/posts/getPost/' + id)
+      this.hannop = dayjs(useDayjs(dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')), 'DD/MM/YYYY')
+      console.log('han: ', this.hannop)
+      //  = .data.deadline
       this.modalEditOpen = true;
     },
     handleOk(e) {
       console.log(e);
       this.modalEditOpen = false;
-      this.modalOpen = false;
     },
     onClose() {
       this.open = false;

@@ -7,7 +7,7 @@
         <!-- <left-square-outlined :style="{fontSize: '1.5rem'}"/> -->
     </span>
     <div class="login">
-        <h1>Login form</h1>
+        <h1>Đăng nhập</h1>
         <form method="post" @submit.prevent>
 
             <div class="field">
@@ -27,7 +27,7 @@
             </div>
             
             <div class="control">
-                <button type="submit" class="button is-dark is-fullwidth" @click="dangnhap">Log In</button>
+                <a-button style="width: 8rem;" type="primary" class="button is-dark is-fullwidth" @click="dangnhap">Đăng nhập</a-button>
             </div>
         </form>
         <span v-if="errorMsg" style="color: red;">
@@ -35,7 +35,7 @@
             </span>
         <div class="has-text-centered" style="margin-top: 20px">
             <p>
-                Don't have an account? <nuxt-link to="/register">Register</nuxt-link>
+                Chưa có tài khoản? <nuxt-link to="/register">Đăng ký ngay</nuxt-link>
             </p>
         </div>
     </div>

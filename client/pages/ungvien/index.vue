@@ -4,19 +4,18 @@
             <div>
                 <div class="searchBox">
                     <div style="display: flex; justify-content: center;">
-                        <span style="padding-top: 5px; padding-right: 10px;">Tìm kiếm bài đăng:</span>
-                        <a-auto-complete v-model:value="value" :options="options" style="width: 30%"
-                            placeholder="Nhập tên bài tuyển dụng" :filter-option="filterOption" />
-                        <a-tooltip title="search">
-                            <a-button>
+                        <span style="padding-top: 5px; padding-right: 10px;">Tìm kiếm theo từ khóa:</span>
+                        <a-select v-model:value="value" mode="multiple" style="width: 70%" placeholder="Lĩnh vực tìm kiếm"
+                            :options="filterOptions_major" @change="handleChange"></a-select>
+                            <a-button @click="getKeyWordsSearch(value)">
                                 <SearchOutlined />
                             </a-button>
-                        </a-tooltip>
                     </div>
                 </div>
                 <hr>
                 <!-- filter -->
                 <div style="display: flex; justify-content: center;">
+                    <p>Bộ lọc:</p> 
                     <a-cascader class="filterOption" v-model:value="filter_major" style="width: 30%" multiple
                         max-tag-count="responsive" :options="filterOptions_major" placeholder="Lĩnh vực">
                     </a-cascader>
@@ -35,30 +34,6 @@
                 </div>
                 <!-- list jobs -->
                 <div class="list-jobs">
-                    <h2>Việc làm hot</h2>
-                    <!-- display most view post -->
-                    <a-row style="margin: 0 1rem;">
-                        <swiper :modules="modules" navigation :pagination="{ clickable: true }" :slides-per-view="3"
-                            :space-between="50" @slideChange="onSlideChange">
-                            <swiper-slide v-for="job in  this.data " class="sliderItem">
-                                <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
-                                    <p style="color: #41cf37; font-weight: 550;">{{ job.company[0] }}</p>
-                                    <a-card-meta v-bind:title="job.job_title"
-                                        v-bind:description="'Mức lương: ' + job.job_salary">
-                                    </a-card-meta>
-                                    <div v-if="job.deadline_apply[0].includes('*')">
-                                        <a-card-meta v-bind:description=job.deadline_apply>
-                                        </a-card-meta>
-                                    </div>
-                                    <div v-else>
-                                        <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline_apply">
-                                        </a-card-meta>
-                                    </div>
-                                </a-card>
-                            </swiper-slide>
-                        </swiper>
-
-                    </a-row>
                     <div v-if="isLogin">
                         <h2>Việc làm phù hợp với bạn</h2>
 
@@ -111,7 +86,9 @@
                     <a-row style="display: flex;justify-content: space-evenly;">
                         <a-col :span="7" v-for="job in getPosts" class="job-item">
                             <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
-                                <p style="color: #41cf37; font-weight: 550;">Job.Company</p>
+                                <p style="color: #41cf37; font-weight: 550;">
+                                    GetUser({{ job.com_created }})
+                                </p>
                                 <a-card-meta v-bind:title="job.job_title"
                                     v-bind:description="'Mức lương: ' + job.job_salary">
                                 </a-card-meta>
@@ -133,9 +110,29 @@
                         <a-pagination @change="onChangePagination" v-model:current="current" :total="totalCount"
                             show-less-items />
                     </div>
-                    <!-- Selected Job info -->
-                    <a-modal v-model:open="open" title="Job title" @ok="handleOk">
-                        <div>
+                    <!-- Modal job info -->
+                    <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk" width="65%">
+                        <div v-if="selectedJob.job_links">
+                            <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
+                                <img alt="example" v-bind:src=selectedJob.logo[0] class="job-item_logo" />
+                            </div>
+                            <div v-else style="display: flex;justify-content: center;">
+                                <img alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
+                                    class="job-item_logo" />
+                            </div>
+                            <h4>Yêu cầu công việc:</h4>
+                            <span v-for=" i  in  selectedJob.job_requirement ">
+                                {{ i }}
+                                <br>
+                            </span>
+
+                            <h4>Lợi ích:</h4>
+                            <span v-for=" i  in  selectedJob.job_benefit ">
+                                {{ i }}
+                                <br>
+                            </span>
+                        </div>
+                        <div v-else>
                             <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
                                 <img alt="example" v-bind:src=selectedJob.logo[0] class="job-item_logo" />
                             </div>
@@ -171,7 +168,7 @@
                             </div>
                         </template>
                     </a-modal>
-                    <!-- Model ask to create CV -->
+                    <!-- Modal create CV -->
                     <a-modal v-model:open="openMessage" title="Bạn chưa có CV">
                         <div>
                             Tạo cv mới?+
@@ -197,7 +194,7 @@ import 'swiper/css/pagination';
 import myData from '../../assets/data/data';
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-
+import { message } from 'ant-design-vue';
 // Import Swiper styles
 import 'swiper/css';
 definePageMeta({
@@ -233,6 +230,7 @@ export default {
                 value: 'suckhoe',
 
             },
+            
         ];
         const filterOptions_education = [
             {
@@ -299,7 +297,7 @@ export default {
 
 
         ];
-        const filterOption = (input, option) => {
+        const filterSearchOption = (input, option) => {
             return option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0;
         };
         const onSlideChange = () => {
@@ -311,12 +309,13 @@ export default {
             filterOptions_expPrequire,
             filterOptions_workingType,
             onSlideChange,
-            filterOption,
+            filterSearchOption,
             modules: [Navigation, Pagination, A11y],
         };
     },
     data() {
         return {
+            selectedSearchValue: '',
             inputValue: 0,
             inputValue1: 1,
             slides: 7,
@@ -327,14 +326,24 @@ export default {
             open: false,
             openMessage: false,
             selectedJob: false,
-            options: [],
+            searchOptions: [],
             data: [],
             postsApplyable: [],
             userLogin: false,
             isLogin: false,
             mess: '',
             totalCount: 0,
-            current: 1
+            current: 1,
+            ab: [
+                {
+                    label: "kế toán",
+                    value: "ketoan"
+                },
+                {
+                    label: "công nghệ thông tin",
+                    value: "cntt"
+                }
+            ]
         }
 
     },
@@ -344,27 +353,39 @@ export default {
             this.isLogin = localStorage.getItem('loginUserID');
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
+                this.clearOutDatePosts();
+
                 console.log("ung vien>>>  login:", this.userLogin);
             }
         }
         this.clearOutDatePosts();
+        console.log("clear outdate")
         this.reloadPostApplyable();
         this.data = myData;
-        this.options = this.data.map((item) => {
+        this.searchOptions = this.data.map((item) => {
             return {
                 ...item,
                 label: item.job_title,
-                value: item.job_title
+                value: item._id
             }
         });
     },
     methods: {
-        async  clearOutDatePosts(){
-          try {
-            await $fetch('http://localhost:8000/posts/getOutDatePosts', {method: 'PUT',})
-          } catch (error) {
-            console.log(error);
-          }
+        getKeyWordsSearch(value){
+            console.log(value)
+        },
+        handleChange(value){
+            console.log("select tags:",value)
+        },
+        onSelect(value) {
+            console.log(value)
+        },
+        async clearOutDatePosts() {
+            try {
+                await $fetch('http://localhost:8000/posts/getOutDatePosts', { method: 'PUT', })
+            } catch (error) {
+                console.log(error);
+            }
         },
         onChangePagination() {
             this.reloadPostApplyable();
@@ -408,18 +429,18 @@ export default {
             this.openMessage = false;
         },
         handleCreateCV() {
-            navigateTo('./createCV')
+            navigateTo('createCV')
         },
         async handleSubmitCV(selectedJob) {
             if (this.userLogin.role == '1') {
                 // Chưa có CV => open modal tạo CV
-                if (!this.userLogin.cv) {
+                if (!this.userLogin.cv.avatar) {
                     this.openMessage = true
                     // Có CV nhưng selectedJob muốn apply đã tồn tại userId => đã nộp 
                 } else if (selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
                     return obj.userId === this.userLogin._id
                 }).length > 0) {
-                    alert("Đã nộp")
+                    message.info('Đã nộp');
                 } else {
                     try {
                         await $fetch('http://localhost:8000/posts/applyJob/' + selectedJob._id, {
@@ -438,7 +459,7 @@ export default {
                     }
                 }
             } else {
-                alert("bạn cần đăng nhập với tài khoản ứng viên")
+                message.warning("Bạn cần đăng nhập với tài khoản ứng viên")
             }
 
             this.open = false;
@@ -448,7 +469,7 @@ export default {
             this.open = false;
             this.openMessage = false;
         },
-       
+
     },
     computed: {
         getPosts() {

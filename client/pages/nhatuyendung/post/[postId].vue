@@ -12,16 +12,14 @@
             </div>
             <div>
                 <h3>Yêu cầu công việc</h3>
-                <p>{{ postData.job_requirement }}</p>
+                <p style="background-color: white; padding: 1rem;">{{ postData.job_requirement }}</p>
             </div>
             <div>
-                <h3>Lợi ich</h3>
-                <p>
-                    {{ postData.job_benefit }}
-                </p>
+                <h3>Lợi ích được hưởng</h3>
+                <p style="background-color: white; padding: 1rem;">{{ postData.job_benefit }}</p>
             </div>
         </div>
-        {{ console.log(postData) }}
+        <a-divider/>
         <div>
             <a-list size="large" bordered :data-source="postData.applied">
                 <template #header>

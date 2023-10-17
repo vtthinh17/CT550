@@ -6,11 +6,10 @@
     <!-- <left-square-outlined :style="{fontSize: '1.5rem'}"/> -->
   </span>
   <div class="register">
-    <h1>Register form</h1>
+    <h1>Bạn muốn đăng ký tài khoản?</h1>
     <div>
-      <h4>Bạn muốn đăng ký tài khoản?</h4>
       <a-radio-group v-model:value="formRole" button-style="solid">
-        <a-radio-button value="1">Ứng viên</a-radio-button>
+        <a-radio-button value="1">Dành cho Ứng viên</a-radio-button>
         <a-radio-button value="2">Nhà tuyển dụng</a-radio-button>
       </a-radio-group>
     </div>
@@ -75,17 +74,12 @@
         </div>
       </div>
       <div class="field">
-        <label class="label">Địa chỉ công ty</label>
+        <label class="label">Mã số thuế</label>
         <div class="control">
-          <input type="text" class="input" name="com_location" v-model="com_location">
+          <input type="text" class="input" name="taxNumber" v-model="taxNumber">
         </div>
       </div>
-      <div class="field">
-        <label class="label">Số điện thoại</label>
-        <div class="control">
-          <input type="text" class="input" name="com_phone" v-model="com_phone">
-        </div>
-      </div>
+     
       <div class="control">
         <button type="submit" class="button is-dark is-fullwidth" @click="dangky">Đăng ký</button>
       </div>
@@ -121,8 +115,7 @@ export default {
       major: '',
       phone: '',
       com_name: '',
-      com_location: '',
-      com_phone: ''
+      taxNumber: '',
     };
   },
 
@@ -138,10 +131,6 @@ export default {
                 username: this.email,
                 password: this.password,
                 role: '1',
-                uv_fullname: this.fullname,
-                uv_address: this.address,
-                uv_major: this.major,
-                uv_phone: this.phone,
               }
             });
             alert("Dang ky thanh cong")
@@ -166,9 +155,8 @@ export default {
                 username: this.email,
                 password: this.password,
                 role: '2',
-                com_location: this.com_location,
                 com_name: this.com_name,
-                com_phone: this.com_phone,
+                taxNumber: this.taxNumber
               }
             });
             alert("Dang ky thanh cong")

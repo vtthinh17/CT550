@@ -5,11 +5,16 @@ export interface User extends Document {
   password: string;
   createdAt: string;
   role: number;
+  birthday: string;
+  level: string;
+  sex: number;
   cv: {
     avatar: string;
     fullName: string;
     brief_intro: string;
-    education: string;
+    province: string;
+    education: [];
+    degreeList: [];
     major: string;
     address: string;
     phone: string;
@@ -20,4 +25,5 @@ export interface User extends Document {
   com_location: string;
   com_phone: string;
   com_logo: string;
+  subscriber: [];
 }

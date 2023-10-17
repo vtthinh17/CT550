@@ -15,7 +15,7 @@ export default defineNuxtConfig(
       client: true
     },
     modules: [
-      '@ant-design-vue/nuxt','@pinia/nuxt','vue3-carousel-nuxt'
+      '@ant-design-vue/nuxt','@pinia/nuxt','vue3-carousel-nuxt','dayjs-nuxt','nuxt-icon'
     ],
     
   }

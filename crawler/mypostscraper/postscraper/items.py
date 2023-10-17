@@ -14,5 +14,10 @@ class PostscraperItem(scrapy.Item):
     deadline_apply = scrapy.Field()
     job_links = scrapy.Field()
     job_salary = scrapy.Field()
+    province = scrapy.Field()
+    workingType = scrapy.Field()
+    major = scrapy.Field()
+    expPrequire = scrapy.Field()
+    educationPrequire = scrapy.Field()
 
 

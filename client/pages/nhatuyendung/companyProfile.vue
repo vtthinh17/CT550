@@ -1,92 +1,65 @@
 <template>
   <a-layout :name="nhatuyendung">
     <div v-if="isLogin != ''">
-      <a-row style="margin-top: 2rem;">
-        <a-col :span="4">
-          <img style="width: 70%;" v-bind:src="userLogin.com_logo" alt="">
-
-        </a-col>
-        <a-col :span="20">
-          <h2>{{ userLogin.com_name }}</h2>
-          <b>MST:1801659572</b>
-        </a-col>
-      </a-row>
-      <h2>Giới thiệu</h2>
-      <div v-if="userLogin.about">
-        <a-textarea v-model:value="userLogin.about" :rows="4" />
-      </div>
-      <div v-else>
-        <a-row>
-          <a-col :span="4">
-            Giới thiệu cơ bản về công ty của bạn
-          </a-col>
-          <a-col :span="20">
-            <a-textarea v-model:value="addAbout" placeholder="Viết gì đó về công ty của bạn..." :rows="4" />
-          </a-col>
-        </a-row>
-
-      </div>
-      <h1>Thông tin công ty</h1>
-      <a-row style="box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;">
-        <a-col :span="6">
-          <h3>Tên công ty</h3>
-          <div>
-            Tên công ty sẽ được hiển thị công khai
-          </div>
-          <a-input type="text" v-model:value="userLogin.com_name" />
-        </a-col>
-        <a-col :span="2"></a-col>
-        <a-col :span="16">
-          <h3>Logo</h3>
-          <!-- <div style="width: 40%">
-            <img style="width: 30%;" v-bind:src="fileBase64" alt="">
-          </div> -->
-          <div v-if="userLogin.com_logo" class="avatarBox">
-            <img style="width: 20%;" v-bind:src="fileBase64" alt="">
-            <a-upload :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
-              <a-button style="margin-top: 1rem;" v-if="!fileList.length">
-                <upload-outlined></upload-outlined>
-                Cập nhật ảnh đại diện
-              </a-button>
-            </a-upload>
-
-          </div>
-          <div v-else class="avatarBox">
-            <img style="width: 20%;" v-bind:src="fileBase64" alt="">
-            <a-upload name="avatar" :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
-              <a-button style="margin-top: 1rem;" v-if="!fileList.length">
-                <upload-outlined></upload-outlined>
-                Select File
-              </a-button>
-            </a-upload>
-            Upload ảnh đại diện
-          </div>
-          <!-- <a-upload :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
-            <a-button v-if="!fileList.length">
-              <upload-outlined></upload-outlined>
-             Đăng ảnh đại diện
-            </a-button>
-          </a-upload> -->
-        </a-col>
-      </a-row>
-
-      <h1>Thông tin liên hệ</h1>
-      <a-row style="box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;">
-        <div style="margin-left: 3rem;">
-          <div class="field">
-            <h3>Gmail</h3>
-            <p>{{ userLogin.username }}</p>
-          </div>
-          <div class="field">
-            <h3>Địa chỉ liên hệ</h3>
-            <input type="text" v-model="userLogin.com_location" />
-          </div>
-          <div class="field">
-            <h3>Số điện thoại</h3>
-            <input type="text" v-model="userLogin.com_phone" />
-          </div>
+      <div style="display: flex; flex-direction: row; margin-top: 2rem;">
+        <div style="flex:1"></div>
+        <div style="flex:4">
+          <a-card style="width: 80%">
+            <!-- logo -->
+            <template #cover>
+              <div v-if="!fileList.length" style="display: flex; justify-content: center; margin-top: 1rem;">
+                <img style="width: 70%;" v-bind:src="userLogin.com_logo" alt="">
+              </div>
+              <div v-else style="display: flex; justify-content: center; margin-top: 1rem;">
+                <img style="width: 70%;" v-bind:src="fileBase64" alt="">
+              </div>
+            </template>
+            <template #actions>
+              <a-upload :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove">
+                <a-button style="margin-top: 1rem;" v-if="!fileList.length">
+                  Cập nhật logo<upload-outlined></upload-outlined>
+                </a-button>
+              </a-upload>
+            </template>
+            <a-row>
+              <a-col :span="6">Mã số thuế:</a-col>
+              <a-col :span="14"> <b>1801659572</b></a-col>
+            </a-row>
+            <a-row>
+              <a-col :span="4">Gmai:</a-col>
+              <a-col :span="14"> <b>{{ userLogin.username }}</b></a-col>
+            </a-row>
+          </a-card>
         </div>
-      </a-row>
+        <div style="flex:6">
+          <a-card :tab-list="tabListNoTitle" :active-tab-key="noTitleKey"
+            @tabChange="key => onTabChange(key)">
+            <div v-if="noTitleKey === 'tab1'">
+              <b>Tên công ty</b>
+            <a-input type="text" v-model:value="userLogin.com_name" />
+            <b>Địa chỉ liên hệ</b>
+            <a-input type="text" v-model:value="userLogin.com_location" />
+            <b>Số điện thoại</b>
+            <a-input type="text" v-model:value="userLogin.com_phone" />
+            </div>
+            <div v-else-if="noTitleKey === 'tab2'">
+              <b>Giới thiệu về công ty</b>
+            <div v-if="userLogin.about">
+              <a-textarea v-model:value="userLogin.about" :rows="3" />
+            </div>
+            <div v-else>
+              <a-textarea v-model:value="userLogin.about" placeholder="Viết gì đó về công ty của bạn..." :rows="4"
+                style="height: 100%;" />
+            </div>
+            </div>
+            <div v-else>project content</div>
+           
+           
+
+          </a-card>
+        </div>
+        <div style="flex:1"></div>
+      </div>
     </div>
 
 
@@ -96,14 +69,11 @@
     <div style="display: flex;margin: 1rem;justify-content: center">
       <a-button type="primary" @click="saveNewInfo">Lưu thay đổi</a-button>
     </div>
-    <!-- <h2>Một số hình ảnh về công ty</h2> -->
 
   </a-layout>
 </template>
 
 <script>
-import { PlusCircleOutlined } from '@ant-design/icons-vue';
-
 definePageMeta({
   layout: 'nhatuyendung'
 })
@@ -112,6 +82,17 @@ export default {
     return {
       isShowAboutInput: false,
       fileList: [],
+      noTitleKey:'tab2',
+      tabListNoTitle: [
+        {
+          key: 'tab1',
+          tab: 'Thông tin công ty',
+        },
+        {
+          key: 'tab2',
+          tab: 'Giới thiệu về công ty',
+        },
+      ],
       fileBase64: null,
       isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
       userLogin: false,
@@ -124,11 +105,14 @@ export default {
       if (this.isLogin) {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
         this.fileBase64 = this.userLogin.com_logo;
-        console.log("ung vien>>>  login:", this.userLogin);
+        console.log("123>>>  login:", this.userLogin);
       }
     }
   },
   methods: {
+    onTabChange(value) {
+        this.noTitleKey = value;
+    },
     showAboutInput() {
       this.isShowAboutInput = true;
     },
@@ -166,7 +150,7 @@ export default {
             com_name: this.userLogin.com_name,
             com_phone: this.userLogin.com_phone,
             com_location: this.userLogin.com_location,
-            about: this.addAbout
+            about: this.userLogin.about
 
           }
         });
