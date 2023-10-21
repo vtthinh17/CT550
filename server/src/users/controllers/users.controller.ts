@@ -72,9 +72,15 @@ export class UsersController {
         // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
     }
     @Put('removeEducationInfo/:id')
-    async removeEducationInfo(@Body() eduId: string, @Param('id') id: string) {
+    async removeEducationInfo(@Body() body: any, @Param('id') id: string) {
         // const user = await this.userService.getUser(id);
-        return await this.userService.removeEducationInfo(id, eduId);
+        return await this.userService.removeEducationInfo(id, body.eduId);
+        // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
+    }
+    @Put('removeDegreeInfo/:id')
+    async removeDegreeInfo(@Body() body: any, @Param('id') id: string) {
+        // const user = await this.userService.getUser(id);
+        return await this.userService.removeDegreeInfo(id, body.deegreeId);
         // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
     }
     

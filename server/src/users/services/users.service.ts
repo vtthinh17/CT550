@@ -207,12 +207,16 @@ export class UsersService {
 
     async removeEducationInfo(id: string, eduId: string) {
         const userModel = await this.userModel.findById(id);
-        console.log(userModel.cv.education)
         try {
-        return this.userModel.findByIdAndUpdate(id, { $pull: {'cv.education': {
-            $elemMatch: {
-                '_id': eduId
-        }}}})
+            const newEducation = userModel.cv.education.filter((edu) => edu._id.toString() !== eduId);
+            return await this.userModel.findByIdAndUpdate(id, {
+                $set: {
+                    cv: {
+                        ...userModel.cv,
+                        education: newEducation
+                    }
+                }
+            });
         } catch (error) {
             console.log("loi>", error);
             throw new HttpException('Error remove edu', HttpStatus.BAD_REQUEST);
@@ -241,6 +245,24 @@ export class UsersService {
         } catch (error) {
             console.log(error);
             throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    async removeDegreeInfo(id: string, degreeId: string) {
+        const userModel = await this.userModel.findById(id);
+        try {
+            const newDegreeList = userModel.cv.degreeList.filter((degree) => degree._id.toString() !== degreeId);
+            return await this.userModel.findByIdAndUpdate(id, {
+                $set: {
+                    cv: {
+                        ...userModel.cv,
+                        degreeList: newDegreeList
+                    }
+                }
+            });
+        } catch (error) {
+            console.log("loi>", error);
+            throw new HttpException('Error remove edu', HttpStatus.BAD_REQUEST);
         }
     }
 

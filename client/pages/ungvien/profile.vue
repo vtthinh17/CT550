@@ -150,7 +150,7 @@
                                     <div></div>
                                 </a-col>
                                 <a-col :span="4">
-                                    <a-button danger @click="handleRemoveEducation(degree._id)">Xóa
+                                    <a-button danger @click="handleRemoveDegree(degree._id)">Xóa
                                         <DeleteOutlined />
                                     </a-button>
                                 </a-col>
@@ -255,6 +255,17 @@ export default {
         }
     },
     methods: {
+        async handleRemoveDegree(deegreeId) {
+            try {
+                await $fetch('http://localhost:8000/users/removeDegreeInfo/' + this.isLogin, {
+                    method: 'PUT',
+                    body: { deegreeId }
+                })
+                this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
+            } catch (error) {
+                console.log(error)
+            }
+        },      
         async handleRemoveEducation(eduId) {
             try {
                 await $fetch('http://localhost:8000/users/removeEducationInfo/' + this.isLogin, {
@@ -265,7 +276,6 @@ export default {
             } catch (error) {
                 console.log(error)
             }
-            console.log("remove user.cv.edu._id ", id)
         },
         async handleAddDegree() {
             try {

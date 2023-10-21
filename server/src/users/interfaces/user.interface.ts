@@ -13,8 +13,8 @@ export interface User extends Document {
     fullName: string;
     brief_intro: string;
     province: string;
-    education: [];
-    degreeList: [];
+    education: any[];
+    degreeList: any[];
     major: string;
     address: string;
     phone: string;
@@ -25,5 +25,5 @@ export interface User extends Document {
   com_location: string;
   com_phone: string;
   com_logo: string;
-  subscriber: [];
+  subscriber: any[];
 }
