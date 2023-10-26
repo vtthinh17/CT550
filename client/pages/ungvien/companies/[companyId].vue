@@ -13,17 +13,17 @@
                 <h2 style="color:blue">{{ selectCompany.com_name }}</h2>
                 <b>MST: {{ selectCompany.taxNumber }}</b>
                 <p v-if="selectCompany.com_location">
-                    <PhoneOutlined /> Địa chỉ: {{ selectCompany.com_location }}
+                    <PushpinOutlined /><b> Địa chỉ:</b> {{ selectCompany.com_location }}
                 </p>
                 <p v-else>
-                    <PhoneOutlined /> Địa chỉ: Chưa cập nhật
+                    <PhoneOutlined /> <b> Địa chỉ:</b> Chưa cập nhật
                 </p>
                 <!-- SDT -->
                 <p v-if="selectCompany.com_phone">
-                    <PhoneOutlined /> SDT: {{ selectCompany.com_phone }}
+                    <PhoneOutlined /> <b>Số điện thoại: </b> {{ selectCompany.com_phone }}
                 </p>
                 <p v-else>
-                    <PhoneOutlined /> SDT: Chưa cập nhật
+                    <PhoneOutlined /> <b>Số điện thoại: </b> Chưa cập nhật
                 </p>
 
                 <div style="color:blue">
@@ -64,7 +64,7 @@
                 </a-tab-pane>
                 <a-tab-pane key="2" tab="Thông tin công ty">
                     <p v-if="selectCompany.about">
-                    {{ selectCompany.about }}
+                        <a-textarea v-model:value="selectCompany.about" :rows="10" />
                     </p>
                     <p v-else>
                         Chưa cập nhật

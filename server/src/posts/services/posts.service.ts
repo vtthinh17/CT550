@@ -65,6 +65,14 @@ export class PostsService {
       totalCount: totalCount,
     };
   }
+  async getPostStatus1() {
+    return this.postModel
+      .find({ status: 1 })
+      .then((post) => {
+        return post;
+      })
+      .catch((err) => console.log(err));
+  }
   async getAllDisplayPosts(currentPage: number) {
     // limit 10
     const skipCount = (currentPage - 1) * 9;
@@ -92,6 +100,7 @@ export class PostsService {
         job_title: createPostDto.job_title,
         job_requirement: createPostDto.job_requirement,
         job_benefit: createPostDto.job_benefit,
+        job_description: createPostDto.job_description,
         com_created: createPostDto.com_created,
         job_salary: createPostDto.job_salary,
         deadline: createPostDto.deadline,
@@ -112,6 +121,7 @@ export class PostsService {
           job_title: updatePostDto.job_title,
           job_requirement: updatePostDto.job_requirement,
           job_benefit: updatePostDto.job_benefit,
+          job_description: updatePostDto.job_description,
           job_salary: updatePostDto.job_salary,
           deadline: updatePostDto.deadline,
           major: updatePostDto.major,

@@ -1,13 +1,13 @@
 <template>
     <a-layout-footer class="footer">
-        <h1 style="text-align: center">  Copyright ©2023 by CUSC</h1>
-        <p style="text-align: center">Đại học Cần Thơ</p>
+        <h1 style="text-align: center">  Copyright ©2023 by CTU</h1>
+        <h2 style="text-align: center">Đại học Cần Thơ</h2>
         <div class="contacts">
           <div class="info">
             <ul >
-                <li> Địa chỉ: 01 Lý Tự Trọng, Quận Ninh Kiều, TP. Cần Thơ</li>
-                <li>Email: cusc@ctu.edu.vn</li>
-                <li>Điện thoại: +84 292 373 1072</li>
+                <li> Địa chỉ: Khu II, đường 3/2, P. Xuân Khánh, Q. Ninh Kiều, TP. Cần Thơ</li>
+                <li>Email: dhct@ctu.edu.vn</li>
+                <li>Điện thoại: +84 292 3832 663</li>
             </ul>
           </div>
           <!-- <div class="logoCUSC">

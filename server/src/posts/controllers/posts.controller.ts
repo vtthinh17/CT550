@@ -14,6 +14,10 @@ export class PostsController {
   getCompanyPosts(@Param('id') id: string) {
     return this.postService.getCompanyPosts(id);
   }
+  @Get('getPostsStatus1')
+  get1() {
+    return this.postService.getPostStatus1();
+  }
   @Get('getCompanyDisplayPosts/:id')
   getCompanyDisplayPosts(@Param('id') id: string) {
     return this.postService.getCompanyDisplayPosts(id);

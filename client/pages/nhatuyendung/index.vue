@@ -22,6 +22,7 @@
           Cập nhật thông tin
         </a-col>
       </a-row>
+        <!-- Job list -->
       <h1>Tin của tôi</h1>
       <div v-if="getNewCompanyPosts.length" class="post_list">
         <div v-for="post in getNewCompanyPosts" class="job_item">
@@ -37,7 +38,7 @@
                 Đã ẩn
               </p>
             </span>
-            <span>Đăng vào: {{ post.createdAt.slice(0,24)}}</span>
+            <span>Đăng vào: {{ post.createdAt.slice(0, 24) }}</span>
             <!-- <span>Lượt xem: 204 người</span> -->
           </div>
           <div>
@@ -45,10 +46,13 @@
           </div>
           <div style="display: flex;">
             <div style="flex:2; display: flex;justify-content: center;">
-              <img style="width:50%;" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" alt="">
+              <!-- <img style="width: 70%;" v-bind:src="userLogin.com_logo" alt=""> -->
+              <img v-if="userLogin.com_logo" style="width:50%;" v-bind:src="userLogin.com_logo" alt="">
+              <img v-else style="width:50%;" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" alt="">
             </div>
             <div style="flex:2">
               <b>{{ userLogin.com_name }}</b>
+              {{ console.log("123123", userLogin) }}
               <p v-if="post.job_salary.includes('tr', 'triệu,TR,TRIỆU')"> Mức lương: {{ post.job_salary }}</p>
               <p v-else>Mức lương: {{ post.job_salary }}tr</p>
 
@@ -61,10 +65,11 @@
             </div>
             <div style="flex: 6;">
               <!-- <button class="button-36" role="button" @click="showModal(post._id)">Xem nội dung chi tiết</button> -->
-              <a-button v-if="post.status != 2 && post.status != 0" type="primary" @click="hidePost(post._id)">
-                <DeleteOutlined /> Ẩn bài đăng
+              <a-button danger v-if="post.status == 1" @click="hidePost(post._id)">
+                <EyeInvisibleOutlined /> Ẩn bài đăng                          
               </a-button>
-              <a-divider style="height: 1px; width: 1px;" />
+              <a-divider type="vertical" v-if="post.status == 1"/> 
+              
               <a-button v-if="post.status != 2" key="submit" type="primary" @click="handleEdit(post._id)">
                 <EditOutlined />Xem/Chỉnh sửa bài đăng
               </a-button>
@@ -97,8 +102,14 @@
             <!-- Hình thức làm việc -->
             <a-col :span="12">
               <a-form-item label="Hình thức làm việc">
-                <a-input type="text" class="input" name="add_workingType" v-model:value="selectedPost.data.workingType"
-                  style="width: 100%;" />
+                <a-select ref="select" v-model:value="selectedPost.data.workingType" @focus="focus"
+                  @change="console.log(add_workingType)">
+                  <a-select-option value="Fulltime">Toàn thời gian/Fulltime</a-select-option>
+                  <a-select-option value="Partime">Bán thời gian/Partime</a-select-option>
+                  <a-select-option value="Intern">Thực tập/Intern</a-select-option>
+                </a-select>
+                <!-- <a-input type="text" class="input" name="add_workingType" v-model:value="selectedPost.data.workingType"
+                  style="width: 100%;" /> -->
               </a-form-item>
             </a-col>
           </a-row>
@@ -106,14 +117,31 @@
             <!-- Kinh nghiệm -->
             <a-col :span="12">
               <a-form-item label="Yêu cầu kinh nghiệm">
-                <a-input type="text" class="input" name="add_expPrequire" v-model:value="selectedPost.data.expPrequire" />
+                <a-select ref="select" v-model:value="selectedPost.data.expPrequire" @focus="focus"
+                  @change="console.log(add_expPrequire)">
+                  <a-select-option value="none">Không yêu cầu</a-select-option>
+                  <a-select-option value="uder1y">Dưới 1 năm</a-select-option>
+                  <a-select-option value="1y">1 năm</a-select-option>
+                  <a-select-option value="2y">2 năm</a-select-option>
+                  <a-select-option value="3y">3 năm</a-select-option>
+                  <a-select-option value="4y">4 năm</a-select-option>
+                  <a-select-option value="above5y">Trên 5 năm</a-select-option>
+                </a-select>
+                <!-- <a-input type="text" class="input" name="add_expPrequire" v-model:value="selectedPost.data.expPrequire" /> -->
               </a-form-item>
             </a-col>
             <!-- Trình độ -->
             <a-col :span="12">
               <a-form-item label="Yêu cầu trình độ">
-                <a-input type="text" class="input" name="add_educationPrequire"
-                  v-model:value="selectedPost.data.educationPrequire" />
+                <a-select ref="select" v-model:value="selectedPost.data.educationPrequire" @focus="focus"
+                  @change="console.log(add_educationPrequire)">
+                  <a-select-option value="none">Không yêu cầu</a-select-option>
+                  <a-select-option value="DH">Đại học</a-select-option>
+                  <a-select-option value="CD">Cao đẳng</a-select-option>
+                  <a-select-option value="TC">Trung cấp</a-select-option>
+                </a-select>
+                <!-- <a-input type="text" class="input" name="add_educationPrequire"
+                  v-model:value="selectedPost.data.educationPrequire" /> -->
               </a-form-item>
             </a-col>
           </a-row>
@@ -121,10 +149,16 @@
           <a-form-item label="Mức lương">
             <a-input v-model:value="selectedPost.data.job_salary"></a-input>
           </a-form-item>
-          <!-- Hạn nộp --> 
+          <!-- Hạn nộp -->
           <a-form-item label="Hạn nộp">
             <a-date-picker v-model:value="hannop" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
               @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" />
+            <!-- <a-date-picker v-model:value="selectedPost.data.deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
+              @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" /> -->
+          </a-form-item>
+          <a-form-item label="Mô tả công việc">
+            <a-textarea v-model:value="selectedPost.data.job_description" rows="4" cols="30">
+            </a-textarea>
           </a-form-item>
           <a-form-item label="Yêu cầu công việc">
             <a-textarea :rows="4" v-model:value="selectedPost.data.job_requirement"></a-textarea>
@@ -147,28 +181,55 @@
           <a-form-item label="Tên bài tuyển dụng">
             <a-input type="text" class="input" name="add_jobTitle" v-model:value="add_jobTitle" />
           </a-form-item>
+          <!-- Major -->
           <a-row>
             <a-col :span="12">
               <a-form-item label="Linh vuc">
                 <a-input type="text" class="input" name="add_major" v-model:value="add_major" />
               </a-form-item>
             </a-col>
+            <!-- WorkingType -->
             <a-col :span="12">
               <a-form-item label="Hình thức làm việc">
-                <a-input type="text" class="input" name="add_workingType" v-model:value="add_workingType"
-                  style="width: 100%;" />
+                <a-select ref="select" v-model:value="add_workingType" @focus="focus"
+                  @change="console.log(add_workingType)">
+                  <a-select-option value="Fulltime">Toàn thời gian/Fulltime</a-select-option>
+                  <a-select-option value="Partime">Bán thời gian/Partime</a-select-option>
+                  <a-select-option value="Intern">Thực tập/Intern</a-select-option>
+                </a-select>
+                <!-- <a-input type="text" class="input" name="add_workingType" v-model:value="add_workingType"
+                  style="width: 100%;" /> -->
               </a-form-item>
             </a-col>
           </a-row>
+          <!-- Kinh nghiệm, trình độ -->
           <a-row>
             <a-col :span="12">
               <a-form-item label="Yêu cầu kinh nghiệm">
-                <a-input type="text" class="input" name="add_expPrequire" v-model:value="add_expPrequire" />
+                <a-select ref="select" v-model:value="add_expPrequire" @focus="focus"
+                  @change="console.log(add_expPrequire)">
+                  <a-select-option value="none">Không yêu cầu</a-select-option>
+                  <a-select-option value="uder1y">Dưới 1 năm</a-select-option>
+                  <a-select-option value="1y">1 năm</a-select-option>
+                  <a-select-option value="2y">2 năm</a-select-option>
+                  <a-select-option value="3y">3 năm</a-select-option>
+                  <a-select-option value="4y">4 năm</a-select-option>
+                  <a-select-option value="above5y">Trên 5 năm</a-select-option>
+                </a-select>
+
+                <!-- <a-input type="text" class="input" name="add_expPrequire" v-model:value="add_expPrequire" /> -->
               </a-form-item>
             </a-col>
             <a-col :span="12">
               <a-form-item label="Yêu cầu trình độ">
-                <a-input type="text" class="input" name="add_educationPrequire" v-model:value="add_educationPrequire" />
+                <a-select ref="select" v-model:value="add_educationPrequire" @focus="focus"
+                  @change="console.log(add_educationPrequire)">
+                  <a-select-option value="none">Không yêu cầu</a-select-option>
+                  <a-select-option value="DH">Đại học</a-select-option>
+                  <a-select-option value="CD">Cao đẳng</a-select-option>
+                  <a-select-option value="TC">Trung cấp</a-select-option>
+                </a-select>
+                <!-- <a-input type="text" class="input" name="add_educationPrequire" v-model:value="add_educationPrequire" /> -->
               </a-form-item>
             </a-col>
           </a-row>
@@ -178,6 +239,10 @@
           <a-form-item label="Hạn nộp">
             <a-date-picker v-model:value="add_deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
               @change="console.log('a-date-picker:', useDayjs(birthday).format('DD/MM/YYYY'))" />
+          </a-form-item>
+          <a-form-item label="Mô tả công việc">
+            <a-textarea v-model:value="add_jobDescription" rows="4" cols="30">
+            </a-textarea>
           </a-form-item>
           <a-form-item label="Yêu cầu công việc">
             <a-textarea v-model:value="add_jobRequirement" rows="4" cols="30">
@@ -270,6 +335,7 @@ export default {
         return current && current < dayjs().endOf('day');
       },
       hannop: dayjs('01/01/2015', 'DD/MM/YYYY'),
+      add_jobDescription: '',
       com_created: '',
       add_workingType: '',
       add_expPrequire: '',
@@ -314,14 +380,15 @@ export default {
           method: 'PUT',
           body: {
             job_title: this.selectedPost.data.job_title,
-          job_salary: this.selectedPost.data.job_salary,
-          deadline: useDayjs(this.hannop).format('DD/MM/YYYY'),
-          job_requirement: this.selectedPost.data.job_requirement,
-          job_benefit: this.selectedPost.data.job_benefit,
-          major: this.selectedPost.data.major,
-          workingType: this.selectedPost.data.workingType,
-          expPrequire: this.selectedPost.data.expPrequire,
-          educationPrequire: this.selectedPost.data.educationPrequire,
+            job_salary: this.selectedPost.data.job_salary,
+            deadline: dayjs(this.hannop).format('DD/MM/YYYY'),
+            job_description: this.selectedPost.data.job_description,
+            job_requirement: this.selectedPost.data.job_requirement,
+            job_benefit: this.selectedPost.data.job_benefit,
+            major: this.selectedPost.data.major,
+            workingType: this.selectedPost.data.workingType,
+            expPrequire: this.selectedPost.data.expPrequire,
+            educationPrequire: this.selectedPost.data.educationPrequire,
           }
         })
         message.success('Cập nhật thông tin thành công');
@@ -364,6 +431,7 @@ export default {
         const res = await $fetch('http://localhost:8000/posts/create', {
           method: 'POST',
           body: {
+            job_description: this.add_jobDescription,
             workingType: this.add_workingType,
             expPrequire: this.add_expPrequire,
             major: this.add_major,
@@ -373,7 +441,7 @@ export default {
             job_benefit: this.add_jobBenefit,
             com_created: this.userLogin._id,
             job_salary: this.add_jobSalary,
-            deadline: useDayjs(this.add_deadline).format('DD/MM/YYYY'),
+            deadline: dayjs(this.add_deadline).format('DD/MM/YYYY'),
           }
         })
         console.log("response them tin tuyen dung:", res)
@@ -398,8 +466,9 @@ export default {
 
     async handleEdit(id) {
       this.selectedPost = await useFetch('http://localhost:8000/posts/getPost/' + id)
-      this.hannop = dayjs(useDayjs(dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')), 'DD/MM/YYYY')
-      console.log('han: ', this.hannop)
+      this.hannop = dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')
+      // this.hannop = dayjs(useDayjs(dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')), 'DD/MM/YYYY')
+      // console.log('han: ', useDayjs(this.hannop).format('DD/MM/YYYY'))
       //  = .data.deadline
       this.modalEditOpen = true;
     },

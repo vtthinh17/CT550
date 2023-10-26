@@ -48,7 +48,7 @@
                         </a-col>
                         <a-col :span="5">
                             <div> Ngày sinh:</div>
-                            <a-date-picker v-model:value="ngaysinh" :format="'DD/MM/YYYY'" @change="console.log('a-date-picker:', useDayjs(birthday).format('DD/MM/YYYY'))" />
+                            <a-date-picker v-model:value="ngaysinh" :format="'DD/MM/YYYY'" @change="console.log('a-date-picker:', ngaysinh)" />
                         </a-col>
                         <a-col :span="7">
                             <div>Trình độ:</div>
@@ -125,7 +125,7 @@
                             <div class="info_fields">
                                 Thời gian đào tạo
                                 <a-range-picker v-model:value="value4" picker="month" :format="'MM/YYYY'"
-                                    @change="console.log(`thang bat dau: ${useDayjs(value4[0]).format('MM/YYYY')} vs thang ket thuc ${useDayjs(value4[1]).format('MM/YYYY')} `)" />
+                                    @change="console.log(`thang bat dau: ${dayjs(value4[0]).format('MM/YYYY')} vs thang ket thuc ${dayjs(value4[1]).format('MM/YYYY')} `)" />
                             </div>
                             <template #footer>
                                 <a-button key="back" @click="this.isAddEducation = false">Hủy</a-button>
@@ -211,7 +211,7 @@ export default {
     data() {
         return {
             newDegree: '',
-            ngaysinh: '',
+            ngaysinh: dayjs('01/01/2015', 'DD/MM/YYYY'),
             isAddDegree: false,
             ketqua: '',
             xeploai: '',
@@ -299,8 +299,8 @@ export default {
                     body: {
                         school: this.edu_School,
                         major: this.edu_Major,
-                        start: useDayjs(this.value4[0]).format('MM/YYYY'),
-                        end: useDayjs(this.value4[1]).format('MM/YYYY'),
+                        start: dayjs(this.value4[0]).format('MM/YYYY'),
+                        end: dayjs(this.value4[1]).format('MM/YYYY'),
                         graded: this.xeploai
                     }
                 })
@@ -337,6 +337,7 @@ export default {
             this.fileList = [];
         },
         async saveNewInfo() {
+            // console.log(dayjs(this.ngaysinh).format('DD/MM/YYYY'))
             try {
                 await $fetch('http://localhost:8000/users/update/' + this.isLogin, {
                     method: 'PUT',
@@ -347,7 +348,7 @@ export default {
                         address: this.userLogin.cv.address,
                         phone: this.userLogin.cv.phone,
                         sex: this.userLogin.cv.sex,
-                        birthday: useDayjs(this.ngaysinh).format('DD/MM/YYYY'),
+                        birthday: dayjs(this.ngaysinh).format('DD/MM/YYYY'),
                         level: this.userLogin.cv.level,
                         province: this.userLogin.cv.province,
                     }

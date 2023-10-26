@@ -7,7 +7,8 @@ import pandas as pd
 import datetime
 class PostSpider(scrapy.Spider):
     name = 'posts'
-    pageCrawl = 2
+    pageCrawlOfViecLamCT = 2
+    pageCrawlOfCareerLink = 2
     # def create_filename():
     #     basename = "mylogfile"
     #     suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -17,27 +18,27 @@ class PostSpider(scrapy.Spider):
         yield scrapy.Request('https://vieclamcantho.com.vn/viec-lam-moi-nhat?ts=1&sort2=3&page=1', self.parse1)
         yield scrapy.Request('https://www.careerlink.vn/vieclam/list?order=posted_date&page=2&sort=desc', self.parse2)
     def parse1_attr(self, response):
-        items["job_title"] = response.css('.card .card-body >h6::text').extract()
+        items['status']=1
+        items["job_title"] = response.css('.card .card-body >h6::text').extract()[0]
         items["job_link"] = response.url
         dulieu = response.css(".card .card-body .card-list p:first-child::text").extract()
         items["job_salary"] = dulieu[2]
-        items['logo'] = response.css('.card .card-avatar >a::attr(href)').extract()
+        items['logo'] = response.css('.card .card-avatar >a::attr(href)').extract()[0]
         items['company'] = response.css('.card .card-body p.card-text>a::text').extract()
-        items['job_description'] = response.css('.recruitment-content .recruitment-job .description-content::text').extract()
-        items['job_requirement'] = response.css('.recruitment-content .recruitment-required-job .description-content::text').extract()
-        items['job_benefit'] = response.css('.recruitment-content .recruitment-benefit .description-content > p::text').extract()
-        items['deadline'] = response.css('.recruitment-content .recruitment-apply .apply-contact div.apply-contact-item::text').extract()
-        # repalce deadline_apply format dd-mm-yyyy to dd/mm/yyyy : "-" -> '/' 
-        items['com_location'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2 > div::text').extract()
-        items['com_phone'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2:nth-child(3) > div > a::text').extract()
+        items['job_description'] = ' '.join(response.css('.recruitment-content .recruitment-job .description-content::text').extract()).replace('  ','')
+        items['job_requirement'] = ' '.join(response.css('.recruitment-content .recruitment-required-job .description-content::text').extract()).replace('  ','')
+        items['job_benefit'] = ' '.join(response.css('.recruitment-content .recruitment-benefit .description-content > p::text').extract()).replace('  ','')
+        items['deadline'] = response.css('.recruitment-content .recruitment-apply .apply-contact div.apply-contact-item::text').extract()[0].replace('  ','').replace('\r\n','')
+        items['com_location'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2 > div::text').extract()[0]
+        items['com_phone'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2:nth-child(3) > div > a::text').extract()[0]
         yeucaukinhnghiem =   response.css(".recruitment-body .recruitment-info > .row > .col-md-6:first-child").extract()
         items['expRequire']= yeucaukinhnghiem[0][yeucaukinhnghiem[0].rfind("</span>")+7:yeucaukinhnghiem[0].rfind("</div>")]
         hinhthuc =   response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(6)").extract()
         items['workingType']= hinhthuc[0][hinhthuc[0].rfind("</span>")+7:hinhthuc[0].rfind("</div>")]
         items['major'] = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(7)> a::text").extract()
-        items['province'] = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(8)> a::text").extract()
+        items['province'] = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(8)> a::text").extract()[0]
         hocvan = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(3)").extract()
-        items['educationRequire']= hocvan[0][hocvan[0].rfind("</span>")+7:hocvan[0].rfind("</div>")]
+        items['educationRequire']= hocvan[0][hocvan[0].rfind("</span>")+7:hocvan[0].rfind("</div>")].replace('  ','')
     
         yield items
     def parse1(self, response):
@@ -47,11 +48,11 @@ class PostSpider(scrapy.Spider):
             links = post.css(' div.search-name > a::attr(href)').extract()
             for url in links:
                 yield scrapy.Request(url, callback=self.parse1_attr)
-                next_page = 'https://vieclamcantho.com.vn/viec-lam-moi-nhat?ts=1&sort2=3&page='+str(PostSpider.pageCrawl)
+                next_page = 'https://vieclamcantho.com.vn/viec-lam-moi-nhat?ts=1&sort2=3&page='+str(PostSpider.pageCrawlOfViecLamCT)
                 # gioi han so page crawl <5
-                if PostSpider.pageCrawl <= 5:
+                if PostSpider.pageCrawlOfViecLamCT <= 2:
                     # cralw all page ---> PostSpider.pageCrawl <= pages[length-2]:
-                    PostSpider.pageCrawl += 1
+                    PostSpider.pageCrawlOfViecLamCT += 1
                     yield response.follow(next_page, callback=self.parse1)
 
 # ----------------------
@@ -60,21 +61,27 @@ class PostSpider(scrapy.Spider):
         urls = response.css("body .container ul li a.job-link::attr(href)").extract()   
         for url in urls:
             yield  scrapy.Request("https://www.careerlink.vn/"+str(url), callback=self.parse2_attr)
+            # next_page = 'https://www.careerlink.vn/vieclam/list?order=posted_date&sort=desc&page='+str(PostSpider.pageCrawlOfCareerLink)
+            # if PostSpider.pageCrawlOfCareerLink <= 5:
+            #     # cralw all page ---> PostSpider.pageCrawl <= pages[length-2]:
+            #     PostSpider.pageCrawlOfCareerLink += 1
+            #     yield response.follow(next_page, callback=self.parse2)
 
     def parse2_attr(self, response):
+        items['status']=1
         items['job_link'] = response.url       
-        items['job_title'] = response.css(".card .job-detail-header.mt-3 > .media h1::text").extract()
-        items['company'] = response.css(".card .job-detail-header.mt-3 > .media a::attr(title)").extract()
-        items['job_salary'] = response.css(".card .job-detail-header.mt-3 > .job-overview> div:nth-child(2) > span.text-primary::text").extract()
-        items['expRequire'] = response.css(".card .job-detail-header.mt-3 > .job-overview> div:nth-child(3) > span::text").extract()
-        items['workingType'] = response.css("#section-job-summary > .row.job-summary > .col-6.pr-1.pl-3 > div > div > div:nth-child(1) > div > .font-weight-bolder::text").extract()
-        items['educationRequire'] = response.css("#section-job-summary > div.row.job-summary.d-flex > div.col-6.pr-1.pl-3.pr-md-2 > div > div > div:nth-child(3) > div > div.font-weight-bolder::text").extract()
-       
-        items['logo'] = response.css("#jd-col > div > div.card.border-0.font-nunitosans.px-4 > div.job-detail-header.mt-3 > div.media.row.m-0 > div.company-logo.d-flex.align-items-center.justify-content-center.mr-3 > img::attr(src)").extract()
-        items['job_description'] = response.css("#section-job-description > .my-3 p::text").extract()
-        items['job_benefit'] =  response.css("#section-job-benefits > div.my-3 > div > span::text").extract()
-        items['major'] = response.css("#section-job-summary div.job-summary > div div >i.fa-th + div > div.font-weight-bolder > a > span::text").extract()
-        items['province'] = response.css(".job-container div.job-detail div.job-overview div > i.cli-map-pin-line + span > a::attr(title)").extract()
+        items['job_title'] = response.css(".card .job-detail-header.mt-3 > .media h1::text").extract()[0].replace('\n','')
+        items['company'] = response.css(".card .job-detail-header.mt-3 > .media a::attr(title)").extract()[0]
+        items['job_salary'] = response.css(".card .job-detail-header.mt-3 > .job-overview> div:nth-child(2) > span.text-primary::text").extract()[0].replace('\n','')
+        items['expRequire'] = response.css(".card .job-detail-header.mt-3 > .job-overview> div:nth-child(3) > span::text").extract()[0].replace('\n','')
+        items['workingType'] = response.css("#section-job-summary > .row.job-summary > .col-6.pr-1.pl-3 > div > div > div:nth-child(1) > div > .font-weight-bolder::text").extract()[0].replace('\n','')
+        items['educationRequire'] = response.css("#section-job-summary > div.row.job-summary.d-flex > div.col-6.pr-1.pl-3.pr-md-2 > div > div > div:nth-child(3) > div > div.font-weight-bolder::text").extract()[0].replace('\n','')     
+        items['logo'] = response.css("#jd-col > div > div.card.border-0.font-nunitosans.px-4 > div.job-detail-header.mt-3 > div.media.row.m-0 > div.company-logo.d-flex.align-items-center.justify-content-center.mr-3 > img::attr(src)").extract()[0]
+        items['job_description'] = ' '.join(response.css("#section-job-description > .my-3 p::text").extract())
+        items['job_benefit'] =  ' '.join(response.css("#section-job-benefits > div.my-3 > div > span::text").extract())
+        items['job_requirement'] = ' '.join(response.css("#section-job-skills > .raw-content > p::text").extract())
+        items['major'] =' '.join(response.css("#section-job-summary div.job-summary > div div >i.fa-th + div > div.font-weight-bolder > a > span::text").extract())
+        items['province'] = response.css(".job-container div.job-detail div.job-overview div > i.cli-map-pin-line + span > a::attr(title)").extract()[0]
 # --------- deadline: ngaydang + so ngay het han------------
         ngaydangString = response.css(".job-container div.job-detail div.job-overview > div > div.date-from span::text").extract()
         ngaydang = ngaydangString[2].replace('\n', '') 

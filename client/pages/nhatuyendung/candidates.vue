@@ -59,7 +59,6 @@
                     <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/60/flying-motarboard.png" alt="flying-motarboard"/>
                   </h3>
                 <div v-if="selectedCV.cv.education.length>0">
-                  <a-divider />
                   <div v-for="edu in selectedCV.cv.education">
                     <a-row class="education_item">
                       <a-col :span="20">

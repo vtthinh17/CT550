@@ -126,7 +126,7 @@
     </a-layout>
 </template>
 <script >
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import provinces from '../../assets/data/provinces';
 definePageMeta({
     layout: 'ungvien'
@@ -242,7 +242,7 @@ export default {
                             address: this.address,
                             phone: this.phone,
                             sex: this.gioitinh,
-                            birthday: useDayjs(this.birthday).format('DD/MM/YYYY'),
+                            birthday: dayjs(this.birthday).format('DD/MM/YYYY'),
                             level: this.trinhdo,
                             province: this.thanhpho
                         }

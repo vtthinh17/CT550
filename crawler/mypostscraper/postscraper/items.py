@@ -19,5 +19,6 @@ class PostscraperItem(scrapy.Item):
     major = scrapy.Field()
     expRequire = scrapy.Field()
     educationRequire = scrapy.Field()
+    status = scrapy.Field()
 
 

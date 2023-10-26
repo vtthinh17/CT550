@@ -45,14 +45,14 @@
             <div v-else-if="noTitleKey === 'tab2'">
               <b>Giới thiệu về công ty</b>
             <div v-if="userLogin.about">
-              <a-textarea v-model:value="userLogin.about" :rows="3" />
+              <a-textarea v-model:value="userLogin.about" :rows="10" />
             </div>
             <div v-else>
               <a-textarea v-model:value="userLogin.about" placeholder="Viết gì đó về công ty của bạn..." :rows="4"
                 style="height: 100%;" />
             </div>
             </div>
-            <div v-else>project content</div>
+            <div v-else>Chưa cập nhật</div>
            
            
 
@@ -124,7 +124,7 @@ export default {
       }
       const isLt2M = file.size / 1024 / 1024 < 2;
       if (!isLt2M) {
-        message.error('Image must smaller than 2MB!');
+        message.error('Ảnh phải có dung lượng nhỏ hơn 2MB!');
         return false;
       }
       // message.success('Upload successfully');
@@ -154,7 +154,7 @@ export default {
 
           }
         });
-        message.success("update thanh cong");
+        message.success("Cập nhật thông tin thành công");
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
         this.resetState();
       } catch (error) {

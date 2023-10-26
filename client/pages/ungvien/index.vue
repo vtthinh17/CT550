@@ -7,15 +7,15 @@
                         <span style="padding-top: 5px; padding-right: 10px;">Tìm kiếm theo từ khóa:</span>
                         <a-select v-model:value="value" mode="multiple" style="width: 70%" placeholder="Lĩnh vực tìm kiếm"
                             :options="filterOptions_major" @change="handleChange"></a-select>
-                            <a-button @click="getKeyWordsSearch(value)">
-                                <SearchOutlined />
-                            </a-button>
+                        <a-button @click="getKeyWordsSearch(value)">
+                            <SearchOutlined />
+                        </a-button>
                     </div>
                 </div>
                 <hr>
                 <!-- filter -->
                 <div style="display: flex; justify-content: center;">
-                    <p>Bộ lọc:</p> 
+                    <p>Bộ lọc:</p>
                     <a-cascader class="filterOption" v-model:value="filter_major" style="width: 30%" multiple
                         max-tag-count="responsive" :options="filterOptions_major" placeholder="Lĩnh vực">
                     </a-cascader>
@@ -60,20 +60,20 @@
 
                         </a-row>
                     </div>
-                    <h2 class="job_type">Tin tổng hợp</h2>
+                    <h2 class="job_type">Tin tham khảo</h2>
                     <a-row style="display: flex;justify-content: space-evenly;">
-                        <a-col :span="7" v-for="job in  this.data " class="job-item">
-                            <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
-                                <p style="color: #41cf37; font-weight: 550;">{{ job.company[0] }}</p>
+                        <a-col :span="6" v-for="job in this.posts" class="job-item">
+                            <a-card v-if="job.job_link" hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
+                                <p style="color: #41cf37; font-weight: 550;">{{ job.company }}</p>
                                 <a-card-meta v-bind:title="job.job_title"
                                     v-bind:description="'Mức lương: ' + job.job_salary">
                                 </a-card-meta>
-                                <div v-if="job.deadline_apply[0].includes('*')">
-                                    <a-card-meta v-bind:description=job.deadline_apply>
+                                <div v-if="job.deadline.includes('*')">
+                                    <a-card-meta v-bind:description=job.deadline>
                                     </a-card-meta>
                                 </div>
                                 <div v-else>
-                                    <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline_apply">
+                                    <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline">
                                     </a-card-meta>
                                 </div>
                             </a-card>
@@ -85,14 +85,14 @@
                     <h2 class="job_type">Có thể ứng tuyển</h2>
                     <a-row style="display: flex;justify-content: space-evenly;">
                         <a-col :span="7" v-for="job in getPosts" class="job-item">
-                            <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
+                            <a-card v-if="!job.job_link" hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
                                 <p style="color: #41cf37; font-weight: 550;">
                                     GetUser({{ job.com_created }})
                                 </p>
                                 <a-card-meta v-bind:title="job.job_title"
                                     v-bind:description="'Mức lương: ' + job.job_salary">
                                 </a-card-meta>
-                                <div v-if="job.deadline.includes('*')">
+                                <div v-if="typeof (job.deadline) == 'string' && job.deadline.includes('*')">
                                     <a-card-meta v-bind:description=job.deadline>
                                     </a-card-meta>
                                 </div>
@@ -112,29 +112,30 @@
                     </div>
                     <!-- Modal job info -->
                     <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk" width="65%">
-                        <div v-if="selectedJob.job_links">
+                        <div v-if="selectedJob.job_link">
+                            {{ console.log("select",selectedJob) }}
                             <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
-                                <img alt="example" v-bind:src=selectedJob.logo[0] class="job-item_logo" />
+                                <img alt="example" v-bind:src=selectedJob.logo class="job-item_logo" />
                             </div>
                             <div v-else style="display: flex;justify-content: center;">
                                 <img alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
                                     class="job-item_logo" />
                             </div>
+                            <h4>Mô tả công việc:</h4>
+                            {{ selectedJob.job_description }}
+                           
                             <h4>Yêu cầu công việc:</h4>
-                            <span v-for=" i  in  selectedJob.job_requirement ">
-                                {{ i }}
-                                <br>
-                            </span>
+                            {{ selectedJob.job_requirement }}
+                            
 
-                            <h4>Lợi ích:</h4>
-                            <span v-for=" i  in  selectedJob.job_benefit ">
-                                {{ i }}
-                                <br>
-                            </span>
+                            <h4 v-if="selectedJob.job_benefit">Lợi ích:</h4>
+                            {{ selectedJob.job_benefit }}
+                           
                         </div>
                         <div v-else>
-                            <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
-                                <img alt="example" v-bind:src=selectedJob.logo[0] class="job-item_logo" />
+                            <div v-if="companyInfo.com_logo" style="display: flex;justify-content: center;">
+                                <img alt="example" v-bind:src="companyInfo.com_logo" style="width: 40%;"
+                                    class="job-item_logo" />
                             </div>
                             <div v-else style="display: flex;justify-content: center;">
                                 <img alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
@@ -151,21 +152,28 @@
                             </span>
                         </div>
                         <template #footer>
-                            <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
-                                return obj.userId === this.userLogin._id
-                            }).length > 0">
-                                <a-button key="back" @click="handleCancel">Close</a-button>
-                                <a-button disabled danger>Đã nộp</a-button>
-                            </div>
-                            <div v-else>
-                                <a-button key="back" @click="handleCancel">Close</a-button>
-                                <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary"
-                                    :loading="loading" @click="handleSubmitCV(selectedJob)">Nộp CV
-                                </a-button>
-                                <a-button v-else danger :loading="loading" @click="goToJobLink(selectedJob.job_links)">
+                            <div v-if="selectedJob.job_link">
+                                <a-button danger :loading="loading" @click="goToJobLink(selectedJob.job_link)">
                                     Tham khảo
                                 </a-button>
                             </div>
+                            <div v-else>
+                                <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
+                                    return obj.userId === this.userLogin._id
+                                }).length > 0">
+                                    <a-button key="back" @click="handleCancel">Close</a-button>
+                                    <a-button disabled danger>Đã nộp</a-button>
+                                </div>
+                                <div v-else>
+                                    <a-button key="back" @click="handleCancel">Close</a-button>
+                                    <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary"
+                                        :loading="loading" @click="handleSubmitCV(selectedJob)">Nộp CV
+                                    </a-button>
+
+                                </div>
+                            </div>
+
+
                         </template>
                     </a-modal>
                     <!-- Modal create CV -->
@@ -230,7 +238,7 @@ export default {
                 value: 'suckhoe',
 
             },
-            
+
         ];
         const filterOptions_education = [
             {
@@ -326,8 +334,10 @@ export default {
             open: false,
             openMessage: false,
             selectedJob: false,
+            companyInfo: false,
             searchOptions: [],
             data: [],
+            posts: [],
             postsApplyable: [],
             userLogin: false,
             isLogin: false,
@@ -349,12 +359,18 @@ export default {
     },
 
     async mounted() {
+        // this.crawl1 = dulieu1
+        // this.crawl2 = dulieu2
+        // const ResultArrayObjOne = this.crawl1.filter(({ obj1 }) => !this.crawl2.some(({ obj2 }) => obj1.job_links === obj2.job_links));
+        // console.log(ResultArrayObjOne);
+        // console.log("so sanh 2 crlaw:", a)
         if (process.client) {
             this.isLogin = localStorage.getItem('loginUserID');
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 this.clearOutDatePosts();
-
+                this.posts = await $fetch('http://localhost:8000/posts/getPostsStatus1/');
+                console.log(">>>>>>>>>>>>>>>>>>>:", this.posts);
                 console.log("ung vien>>>  login:", this.userLogin);
             }
         }
@@ -371,11 +387,11 @@ export default {
         });
     },
     methods: {
-        getKeyWordsSearch(value){
+        getKeyWordsSearch(value) {
             console.log(value)
         },
-        handleChange(value){
-            console.log("select tags:",value)
+        handleChange(value) {
+            console.log("select tags:", value)
         },
         onSelect(value) {
             console.log(value)
@@ -392,7 +408,7 @@ export default {
         },
         async reloadPostApplyable() {
             const postData = await this.getFilterOptions();
-            console.log(postData.posts);
+            console.log("co the apply:", postData.posts);
             this.postsApplyable = postData.posts;
             this.totalCount = postData.totalCount;
         },
@@ -421,8 +437,12 @@ export default {
             })
 
         },
-        showModal(job) {
+        async showModal(job) {
             this.selectedJob = job
+            if (job.com_created) {
+                this.companyInfo = await $fetch('http://localhost:8000/users/getUser/' + job.com_created)
+            }
+
             this.open = true;
         },
         handleOk(job) {
