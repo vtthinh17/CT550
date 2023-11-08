@@ -8,8 +8,8 @@ export class CreatePostDto {
   company: string;
   major: string;
   workingType: string;
-  expPrequire: string;
-  educationPrequire: string;
+  expRequire: string;
+  educationRequire: string;
   job_description: string;
   job_benefit: string;
   job_salary: string;
@@ -17,6 +17,7 @@ export class CreatePostDto {
   com_location: string;
   com_phone: string;
   createdAt: string;
+  province: string;
 }
 
 export class UpdatePostDto {
@@ -34,14 +35,22 @@ export class UpdatePostDto {
   deadline: string;
   workingType: string;
   major: string;
-  expPrequire: string;
-  educationPrequire: string;
+  expRequire: string;
+  educationRequire: string;
   createdAt: string;
+  status: number;
 }
 
 export class ApplyJobDto {
   userId: string;
   profile: object;
+}
+
+export class AddInterviewDto {
+  candidateId: string;
+  location: string;
+  time: [string, string];
+  message: string;
 }
 
 export class FilterOptionsDto {

@@ -26,4 +26,5 @@ export interface User extends Document {
   com_phone: string;
   com_logo: string;
   subscriber: any[];
+  follow: any[];
 }

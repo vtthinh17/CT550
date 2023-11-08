@@ -31,9 +31,6 @@
                 </div>
             </a-col>
         </a-row>
-        <div v-if="userLogin" style="margin-left: 4rem;">
-
-        </div>
         <div>
             <a-tabs v-model:activeKey="activeKey" type="card">
                 <a-tab-pane key="1" tab="Việc làm đang tuyển">
@@ -80,22 +77,56 @@
             </a-tabs>
 
         </div>
-        <!-- selectjob info -->
-        <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk">
-            <div>
-                {{ console.log("selected job:", selectedJob) }}
-                <div style="display: flex;justify-content: center;">
-                </div>
-                <h4>Yêu cầu công việc:</h4>
-                <span>
-                    {{ selectedJob.job_requirement }}
-                </span>
-
-                <h4>Lợi ích:</h4>
-                <span>
-                    {{ selectedJob.job_benefit }}
-                </span>
-            </div>
+        <!-- Modal selectjob info -->
+        <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk" width="90%">
+            <a-row>
+                <a-col :span="8">
+                    <div v-if="selectCompany.com_logo" style="display: flex;justify-content: center;">
+                        <img style="width: 30%;" alt="example" v-bind:src=selectCompany.com_logo class="job-item_logo" />
+                    </div>
+                    <div v-else style="display: flex;justify-content: center;">
+                        <img style="width: 30%;" alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
+                            class="job-item_logo" />
+                    </div>
+                </a-col>
+                <a-col :span="16">
+                    <h2>{{ selectCompany.com_name }}</h2>
+                    <a-row>
+                        <a-col :span="4"><b> Lĩnh vực:</b></a-col>
+                        <a-col :span="10">{{ selectedJob.major }}</a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col :span="4"><b> Hình thức làm việc:</b></a-col>
+                        <a-col :span="10">{{ selectedJob.workingType }}</a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col :span="4"><b> Mức lương:</b></a-col>
+                        <a-col :span="10">{{ selectedJob.job_salary }}</a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col :span="4"><b>Yêu cầu kinh nghiệm:</b></a-col>
+                        <a-col :span="10">{{ selectedJob.expRequire }}</a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col :span="4"><b>Yêu cầu bằng cấp:</b></a-col>
+                        <a-col :span="10">{{ selectedJob.educationRequire }}</a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col :span="4"><b>Địa chỉ công ty:</b></a-col>
+                        <a-col :span="10">{{ selectCompany.com_location }}</a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col :span="4"><b>Số điện thoại:</b></a-col>
+                        <a-col :span="10">{{ selectCompany.com_phone }}</a-col>
+                    </a-row>
+                </a-col>
+            </a-row>
+            <h4>Mô tả công việc:</h4>
+            <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
+            <h4>Yêu cầu công việc:</h4>
+            <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea>
+            <h4>Lợi ích:</h4>
+            <a-textarea v-model:value="selectedJob.job_benefit" rows="5"></a-textarea>
             <template #footer>
                 <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
                     return obj.userId === this.userLogin._id
@@ -106,7 +137,7 @@
                 <div v-else>
                     <a-button key="back" @click="handleCancel">Close</a-button>
                     <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary" :loading="loading"
-                        @click="handleSubmitCV(selectedJob)">Nộp CV
+                        @click="handleSubmitCV(selectedJob)">Ứng tuyển
                     </a-button>
                     <a-button v-else danger :loading="loading" @click="goToJobLink(selectedJob.job_links)">
                         Tham khảo

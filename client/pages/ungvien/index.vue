@@ -2,194 +2,284 @@
     <a-layout :name="Ungvien">
         <div class="mainContent">
             <div>
-                <div class="searchBox">
-                    <div style="display: flex; justify-content: center;">
-                        <span style="padding-top: 5px; padding-right: 10px;">Tìm kiếm theo từ khóa:</span>
-                        <a-select v-model:value="value" mode="multiple" style="width: 70%" placeholder="Lĩnh vực tìm kiếm"
-                            :options="filterOptions_major" @change="handleChange"></a-select>
-                        <a-button @click="getKeyWordsSearch(value)">
-                            <SearchOutlined />
-                        </a-button>
-                    </div>
-                </div>
-                <hr>
-                <!-- filter -->
-                <div style="display: flex; justify-content: center;">
-                    <p>Bộ lọc:</p>
-                    <a-cascader class="filterOption" v-model:value="filter_major" style="width: 30%" multiple
-                        max-tag-count="responsive" :options="filterOptions_major" placeholder="Lĩnh vực">
-                    </a-cascader>
-                    <a-cascader class="filterOption" v-model:value="filter_education" style="width: 10%" multiple
-                        max-tag-count="responsive" :options="filterOptions_education" placeholder="Trình độ">
-                    </a-cascader>
-                    <a-cascader class="filterOption" v-model:value="filter_expPrequire" style="width: 20%" multiple
-                        max-tag-count="responsive" :options="filterOptions_expPrequire" placeholder="Yêu cầu kinh nghiệm">
-                    </a-cascader>
-                    <a-cascader class="filterOption" v-model:value="filter_workingType" style="width: 20%" multiple
-                        max-tag-count="responsive" :options="filterOptions_workingType" placeholder="Hình thức làm việc">
-                    </a-cascader>
-                    <button class="button-32" role="button" @click="getFilterOptions">Tìm kiếm</button>
-                </div>
-                <div>
-                </div>
-                <!-- list jobs -->
-                <div class="list-jobs">
-                    <div v-if="isLogin">
-                        <h2>Việc làm phù hợp với bạn</h2>
-
-                        <a-row style="    margin: 0 1rem;">
-                            <swiper :modules="modules" navigation :pagination="{ clickable: true }" :slides-per-view="3"
-                                :space-between="50" @slideChange="onSlideChange">
-                                <swiper-slide v-for="job in  this.data " class="sliderItem">
-                                    <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
-                                        <p style="color: #41cf37; font-weight: 550;">{{ job.company[0] }}</p>
-                                        <a-card-meta v-bind:title="job.job_title"
-                                            v-bind:description="'Mức lương: ' + job.job_salary">
+                <div v-if="isLogin">
+                    <h2>Việc làm phù hợp với bạn</h2>
+                    <a-row style="    margin: 0 1rem;">
+                        <swiper :modules="modules" navigation :pagination="{ clickable: true }" :slides-per-view="3"
+                            :space-between="50" @slideChange="onSlideChange">
+                            <swiper-slide v-for="job in  this.data " class="sliderItem">
+                                <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
+                                    <p style="color: #41cf37; font-weight: 550;">{{ job.company[0] }}</p>
+                                    <a-card-meta v-bind:title="job.job_title"
+                                        v-bind:description="'Mức lương: ' + job.job_salary">
+                                    </a-card-meta>
+                                    <div v-if="job.deadline_apply[0].includes('*')">
+                                        <a-card-meta v-bind:description=job.deadline_apply>
                                         </a-card-meta>
-                                        <div v-if="job.deadline_apply[0].includes('*')">
-                                            <a-card-meta v-bind:description=job.deadline_apply>
-                                            </a-card-meta>
-                                        </div>
-                                        <div v-else>
-                                            <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline_apply">
-                                            </a-card-meta>
-                                        </div>
-                                    </a-card>
-                                </swiper-slide>
-                            </swiper>
-
-                        </a-row>
-                    </div>
-                    <h2 class="job_type">Tin tham khảo</h2>
-                    <a-row style="display: flex;justify-content: space-evenly;">
-                        <a-col :span="6" v-for="job in this.posts" class="job-item">
-                            <a-card v-if="job.job_link" hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
-                                <p style="color: #41cf37; font-weight: 550;">{{ job.company }}</p>
-                                <a-card-meta v-bind:title="job.job_title"
-                                    v-bind:description="'Mức lương: ' + job.job_salary">
-                                </a-card-meta>
-                                <div v-if="job.deadline.includes('*')">
-                                    <a-card-meta v-bind:description=job.deadline>
-                                    </a-card-meta>
-                                </div>
-                                <div v-else>
-                                    <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline">
-                                    </a-card-meta>
-                                </div>
-                            </a-card>
-
-                        </a-col>
+                                    </div>
+                                    <div v-else>
+                                        <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline_apply">
+                                        </a-card-meta>
+                                    </div>
+                                </a-card>
+                            </swiper-slide>
+                        </swiper>
 
                     </a-row>
-                    <!-- Post from database -->
-                    <h2 class="job_type">Có thể ứng tuyển</h2>
-                    <a-row style="display: flex;justify-content: space-evenly;">
-                        <a-col :span="7" v-for="job in getPosts" class="job-item">
-                            <a-card v-if="!job.job_link" hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
-                                <p style="color: #41cf37; font-weight: 550;">
-                                    GetUser({{ job.com_created }})
-                                </p>
-                                <a-card-meta v-bind:title="job.job_title"
-                                    v-bind:description="'Mức lương: ' + job.job_salary">
+                </div>
+                <h2 class="job_type">
+                    <CaretRightOutlined />Tin tham khảo
+                </h2>
+                <a-divider />
+                <a-row style="display: flex;justify-content: space-evenly;">
+                    <a-col :span="7" v-for="job in getReferPosts" class="job-item">
+                        <a-card hoverable @click="showModal(job)">
+                            <p style="color: #41cf37; font-weight: 550;">
+                                {{ job.company }}
+                            </p>
+                            <a-card-meta v-bind:title="job.job_title" v-bind:description="'Mức lương: ' + job.job_salary">
+                            </a-card-meta>
+                            <div v-if="typeof (job.deadline) == 'string' && job.deadline.includes('*')">
+                                <a-card-meta v-bind:description=job.deadline>
                                 </a-card-meta>
-                                <div v-if="typeof (job.deadline) == 'string' && job.deadline.includes('*')">
-                                    <a-card-meta v-bind:description=job.deadline>
-                                    </a-card-meta>
-                                </div>
-                                <div v-else>
-                                    <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline">
-                                    </a-card-meta>
-                                </div>
-                            </a-card>
-
-                        </a-col>
-
-                    </a-row>
-                    <!-- Pagination -->
-                    <div class="pagination">
-                        <a-pagination @change="onChangePagination" v-model:current="current" :total="totalCount"
-                            show-less-items />
-                    </div>
-                    <!-- Modal job info -->
-                    <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk" width="65%">
-                        <div v-if="selectedJob.job_link">
-                            {{ console.log("select",selectedJob) }}
-                            <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
-                                <img alt="example" v-bind:src=selectedJob.logo class="job-item_logo" />
-                            </div>
-                            <div v-else style="display: flex;justify-content: center;">
-                                <img alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
-                                    class="job-item_logo" />
-                            </div>
-                            <h4>Mô tả công việc:</h4>
-                            {{ selectedJob.job_description }}
-                           
-                            <h4>Yêu cầu công việc:</h4>
-                            {{ selectedJob.job_requirement }}
-                            
-
-                            <h4 v-if="selectedJob.job_benefit">Lợi ích:</h4>
-                            {{ selectedJob.job_benefit }}
-                           
-                        </div>
-                        <div v-else>
-                            <div v-if="companyInfo.com_logo" style="display: flex;justify-content: center;">
-                                <img alt="example" v-bind:src="companyInfo.com_logo" style="width: 40%;"
-                                    class="job-item_logo" />
-                            </div>
-                            <div v-else style="display: flex;justify-content: center;">
-                                <img alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
-                                    class="job-item_logo" />
-                            </div>
-                            <h4>Yêu cầu công việc:</h4>
-                            <span v-for=" i  in  selectedJob.job_requirement ">
-                                {{ i }}
-                            </span>
-
-                            <h4>Lợi ích:</h4>
-                            <span v-for=" i  in  selectedJob.job_benefit ">
-                                {{ i }}
-                            </span>
-                        </div>
-                        <template #footer>
-                            <div v-if="selectedJob.job_link">
-                                <a-button danger :loading="loading" @click="goToJobLink(selectedJob.job_link)">
-                                    Tham khảo
-                                </a-button>
                             </div>
                             <div v-else>
-                                <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
-                                    return obj.userId === this.userLogin._id
-                                }).length > 0">
-                                    <a-button key="back" @click="handleCancel">Close</a-button>
-                                    <a-button disabled danger>Đã nộp</a-button>
-                                </div>
-                                <div v-else>
-                                    <a-button key="back" @click="handleCancel">Close</a-button>
-                                    <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary"
-                                        :loading="loading" @click="handleSubmitCV(selectedJob)">Nộp CV
-                                    </a-button>
-
-                                </div>
+                                <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline">
+                                </a-card-meta>
                             </div>
+                        </a-card>
 
+                    </a-col>
 
-                        </template>
-                    </a-modal>
-                    <!-- Modal create CV -->
-                    <a-modal v-model:open="openMessage" title="Bạn chưa có CV">
-                        <div>
-                            Tạo cv mới?+
-                        </div>
-                        <template #footer>
-                            <a-button key="back" @click="handleCancel">Close</a-button>
-                            <a-button key="submit" type="primary" :loading="loading" @click="handleCreateCV">Tạo
-                                CV
-                            </a-button>
-                        </template>
-                    </a-modal>
+                </a-row>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <a-pagination @change="onChangeReferPagination" v-model:current="currentReferPage" :pageSize="6"
+                        :total="totalReferCount" />
                 </div>
+
+                <h2 class="job_type">
+                    <CaretRightOutlined />Có thể ứng tuyển
+                </h2>
+                <div style="background-color: #5b7fb4; padding: 1rem;">
+                    <div style="display: flex; justify-content: center;">
+                        <p>Bộ lọc:</p>
+                        <!-- <a-cascader class="filterOption" v-model:value="filter_major" style="width: 30%" multiple
+                            max-tag-count="responsive" :options="filterOptions_major" placeholder="Lĩnh vực">
+                        </a-cascader> -->
+                        <a-cascader class="filterOption" v-model:value="filter_education" style="width: 10%" 
+                            max-tag-count="responsive" :options="filterOptions_education" placeholder="Trình độ">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filter_expRequire" style="width: 20%" 
+                            max-tag-count="responsive" :options="filterOptions_expRequire"
+                            placeholder="Yêu cầu kinh nghiệm">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filter_workingType" style="width: 20%" 
+                            max-tag-count="responsive" :options="filterOptions_workingType"
+                            placeholder="Hình thức làm việc">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filter_province" style="width: 20%"
+                            max-tag-count="responsive" :options="provincesOptions" placeholder="Tỉnh/Thành phố">
+                        </a-cascader>
+                        <a-button style="background-color: yellow;" @click="reloadPostApplyable()">Lọc tin</a-button>
+                    </div>
+                </div>
+                <a-divider />
+                <a-row v-if="getPosts.length > 0" style="display: flex;justify-content: space-evenly;">
+                    <a-col :span="7" v-for="job in getPosts" class="job-item">
+                        <a-card hoverable @click="showModal(job)">
+                            <p style="color: #41cf37; font-weight: 550;">
+                                {{ job.tenCongty }}
+                            </p>
+                            <a-card-meta v-bind:title="job.job_title" v-bind:description="'Mức lương: ' + job.job_salary">
+                            </a-card-meta>
+                            <div v-if="typeof (job.deadline) == 'string' && job.deadline.includes('*')">
+                                <a-card-meta v-bind:description=job.deadline>
+                                </a-card-meta>
+                            </div>
+                            <div v-else>
+                                <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline">
+                                </a-card-meta>
+                            </div>
+                        </a-card>
+
+                    </a-col>
+
+                </a-row>
+                <a-result v-else 
+                title="Không có tin tuyển dụng nào thỏa yêu cầu tìm kiếm của bạn!"
+                sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng."
+                >
+                    <template #icon>
+                        <FrownOutlined />
+                    </template>
+                </a-result>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
+                        :total="totalCount" />
+                </div>
+
+                <!-- Modal job info -->
+                <a-modal v-model:open="open" v-bind:title="'Tuyển dụng: ' + selectedJob.job_title" @ok="handleOk"
+                    width="100%">
+                    <div v-if="selectedJob.job_link">
+                        {{ console.log("select", selectedJob) }}
+                        <a-row>
+                            <a-col :span="8">
+                                <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
+                                    <img style="width: 30%;" alt="example" v-bind:src=selectedJob.logo
+                                        class="job-item_logo" />
+                                </div>
+                                <div v-else style="display: flex;justify-content: center;">
+                                    <img style="width: 30%;" alt="example"
+                                        src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
+                                        class="job-item_logo" />
+                                </div>
+                            </a-col>
+                            <a-col :span="16">
+                                <h2>{{ selectedJob.company }}</h2>
+                                <a-row>
+                                    <a-col :span="4"><b> Lĩnh vực:</b></a-col>
+                                    {{ console.log("linh vuc", selectedJob) }}
+                                    <a-col :span="10">{{ selectedJob.major }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b> Hình thức làm việc:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.workingType }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b> Mức lương:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.job_salary }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Yêu cầu kinh nghiệm:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.expRequire }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Yêu cầu bằng cấp:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.educationRequire }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Địa chỉ công ty:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.com_location }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Số điện thoại:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.com_phone }}</a-col>
+                                </a-row>
+                            </a-col>
+                        </a-row>
+                        <h4>Mô tả công việc:</h4>
+                        <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
+                        <!-- <p>{{ selectedJob.job_description }}</p> -->
+
+                        <h4>Yêu cầu công việc:</h4>
+                        <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea>
+                        <!-- {{ selectedJob.job_requirement }} -->
+
+
+                        <h4 v-if="selectedJob.job_benefit">Lợi ích:</h4>
+                        <a-textarea v-if="selectedJob.job_benefit" v-model:value="selectedJob.job_benefit"
+                            rows="5"></a-textarea>
+                        <!-- {{ selectedJob.job_benefit }} -->
+
+                    </div>
+                    <div v-else>
+                        <a-row>
+                            <a-col :span="8">
+                                <div v-if="companyInfo.com_logo" style="display: flex;justify-content: center;">
+                                    <img style="width: 30%;" alt="example" v-bind:src=companyInfo.com_logo
+                                        class="job-item_logo" />
+                                </div>
+                                <div v-else style="display: flex;justify-content: center;">
+                                    <img style="width: 30%;" alt="example"
+                                        src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
+                                        class="job-item_logo" />
+                                </div>
+                            </a-col>
+                            <a-col :span="16">
+                                <h2>{{ companyInfo.com_name }}</h2>
+                                <a-row>
+                                    <a-col :span="4"><b> Lĩnh vực:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.major }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b> Hình thức làm việc:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.workingType }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b> Mức lương:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.job_salary }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Yêu cầu kinh nghiệm:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.expRequire }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Yêu cầu bằng cấp:</b></a-col>
+                                    <a-col :span="10">{{ selectedJob.educationRequire }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Địa chỉ công ty:</b></a-col>
+                                    <a-col :span="10">{{ companyInfo.com_location }}</a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="4"><b>Số điện thoại:</b></a-col>
+                                    <a-col :span="10">{{ companyInfo.com_phone }}</a-col>
+                                </a-row>
+                            </a-col>
+                        </a-row>
+                        <h4>Mô tả công việc:</h4>
+                        <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
+                        <h4>Yêu cầu công việc:</h4>
+                        <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea>
+                        <h4>Lợi ích:</h4>
+                        <a-textarea v-model:value="selectedJob.job_benefit" rows="5"></a-textarea>
+                    </div>
+                    <template #footer>
+                        <div v-if="selectedJob.job_link">
+                            <a-button danger :loading="loading" @click="goToJobLink(selectedJob.job_link)">
+                                Tham khảo
+                            </a-button>
+                        </div>
+                        <div v-else>
+                            <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
+                                return obj.userId === this.userLogin._id
+                            }).length > 0">
+                                <a-button key="back" @click="handleCancel">Close</a-button>
+                                <a-button disabled danger>Đã nộp</a-button>
+                            </div>
+                            <div v-else>
+                                <a-button key="back" @click="handleCancel">Close</a-button>
+                                <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary"
+                                    :loading="loading" @click="handleSubmitCV(selectedJob)">Ứng tuyển
+                                </a-button>
+
+                            </div>
+                        </div>
+
+
+                    </template>
+                </a-modal>
+
+                <!-- Modal create CV -->
+                <a-modal v-model:open="openMessage" title="Bạn chưa đăng ký thông tin cá nhân">
+                    <div>
+                        Bạn cần có thông tin cá nhân để nhà tuyển dụng có thể xem thông tin của bạn. Bạn có muốn đi đến
+                        trang đăng ký thông tin cá nhân?
+                    </div>
+                    <template #footer>
+                        <a-button key="back" @click="handleCancel">Close</a-button>
+                        <a-button key="submit" type="primary" :loading="loading" @click="handleCreateCV">
+                            Ok
+                        </a-button>
+                    </template>
+                </a-modal>
             </div>
+
         </div>
         <hr>
     </a-layout>
@@ -198,12 +288,10 @@
 import { Navigation, Pagination, A11y } from 'swiper/modules';
 import { notification } from 'ant-design-vue';
 import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 import myData from '../../assets/data/data';
-import { SearchOutlined } from '@ant-design/icons-vue';
+import provinces from '../../assets/data/provinces';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { message } from 'ant-design-vue';
-// Import Swiper styles
 import 'swiper/css';
 definePageMeta({
     layout: 'ungvien'
@@ -242,67 +330,86 @@ export default {
         ];
         const filterOptions_education = [
             {
-                label: 'Tự do',
-                value: 'tudo',
+                label: 'Không yêu cầu',
+                value: 'Không yêu cầu',
 
             },
             {
                 label: 'Cao đẳng',
-                value: 'caodang',
+                value: 'Cao đẳng',
+
+            },
+            {
+                label: 'Trung cấp',
+                value: 'Trung cấp',
 
             },
             {
                 label: 'Đại học',
-                value: 'daihoc',
+                value: 'Đại học',
 
             },
 
         ];
-        const filterOptions_expPrequire = [
+        const filterOptions_expRequire = [
             {
-                label: 'Chưa có kinh nghiệm',
-                value: '0',
+                label: 'Không yêu cầu',
+                value: 'Không yêu cầu',
 
             },
             {
-                label: 'dưới 1 năm',
-                value: 'under1y',
+                label: 'Dưới 1 năm',
+                value: 'Dưới 1 năm',
 
             },
             {
                 label: '1 năm',
-                value: '1y',
+                value: '1 năm',
 
             },
             {
                 label: '2 năm',
-                value: '2y',
+                value: '2 năm',
 
             },
             {
                 label: '3 năm',
-                value: '3y',
+                value: '3 năm',
+
+            },
+            {
+                label: '4 năm',
+                value: '4 năm',
+
+            },
+            {
+                label: 'Trên 5 năm',
+                value: 'Trên 5 năm',
 
             },
 
         ];
         const filterOptions_workingType = [
             {
-                label: 'Toàn thời gian',
-                value: 'fulltime',
+                label: 'Toàn thời gian/Fulltime',
+                value: 'Toàn thời gian/Fulltime',
 
             },
             {
-                label: 'Bán thời gian',
-                value: 'part time',
+                label: 'Bán thời gian/Partime',
+                value: 'Bán thời gian/Partime',
 
             },
             {
-                label: 'Remote',
-                value: 'remote',
+                label: 'Làm việc từ xa/Remote',
+                value: 'Làm việc từ xa/Remote',
 
             },
+            {
+                label: 'Thực tập/Intern',
+                value: 'Thực tập/Intern',
 
+            },
 
         ];
         const filterSearchOption = (input, option) => {
@@ -314,7 +421,7 @@ export default {
         return {
             filterOptions_major,
             filterOptions_education,
-            filterOptions_expPrequire,
+            filterOptions_expRequire,
             filterOptions_workingType,
             onSlideChange,
             filterSearchOption,
@@ -323,59 +430,43 @@ export default {
     },
     data() {
         return {
-            selectedSearchValue: '',
-            inputValue: 0,
-            inputValue1: 1,
             slides: 7,
-            filter_education: '',
-            filter_major: '',
-            filter_expPrequire: '',
-            filter_workingType: '',
+            filter_education: false,
+            filter_province: false,
+            filter_major: false,
+            filter_expRequire: false,
+            filter_workingType: false,
             open: false,
             openMessage: false,
             selectedJob: false,
             companyInfo: false,
             searchOptions: [],
             data: [],
-            posts: [],
+            provincesOptions: provinces,
             postsApplyable: [],
+            referPosts: [],
             userLogin: false,
             isLogin: false,
-            mess: '',
             totalCount: 0,
-            current: 1,
-            ab: [
-                {
-                    label: "kế toán",
-                    value: "ketoan"
-                },
-                {
-                    label: "công nghệ thông tin",
-                    value: "cntt"
-                }
-            ]
+            currentPage: 1,
+            totalReferCount: 0,
+            currentReferPage: 1,
+            temp: false
         }
 
     },
 
     async mounted() {
-        // this.crawl1 = dulieu1
-        // this.crawl2 = dulieu2
-        // const ResultArrayObjOne = this.crawl1.filter(({ obj1 }) => !this.crawl2.some(({ obj2 }) => obj1.job_links === obj2.job_links));
-        // console.log(ResultArrayObjOne);
-        // console.log("so sanh 2 crlaw:", a)
         if (process.client) {
             this.isLogin = localStorage.getItem('loginUserID');
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 this.clearOutDatePosts();
-                this.posts = await $fetch('http://localhost:8000/posts/getPostsStatus1/');
-                console.log(">>>>>>>>>>>>>>>>>>>:", this.posts);
-                console.log("ung vien>>>  login:", this.userLogin);
             }
         }
         this.clearOutDatePosts();
         console.log("clear outdate")
+        this.reloadReferPost();
         this.reloadPostApplyable();
         this.data = myData;
         this.searchOptions = this.data.map((item) => {
@@ -393,9 +484,6 @@ export default {
         handleChange(value) {
             console.log("select tags:", value)
         },
-        onSelect(value) {
-            console.log(value)
-        },
         async clearOutDatePosts() {
             try {
                 await $fetch('http://localhost:8000/posts/getOutDatePosts', { method: 'PUT', })
@@ -406,16 +494,37 @@ export default {
         onChangePagination() {
             this.reloadPostApplyable();
         },
+        onChangeReferPagination() {
+            this.reloadReferPost();
+        },
         async reloadPostApplyable() {
             const postData = await this.getFilterOptions();
-            console.log("co the apply:", postData.posts);
-            this.postsApplyable = postData.posts;
+            console.log("reload", postData)
+            this.postsApplyable = [];
             this.totalCount = postData.totalCount;
+            for (let post of postData.posts) {
+                let congty = await $fetch('http://localhost:8000/users/getUser/' + post.com_created);
+                post.tenCongty = congty.com_name;
+                this.postsApplyable.push(post);
+            }
+        },
+        async reloadReferPost() {
+            const referPostData = await this.getReferPostFilterOptions();
+            console.log("reload refer post,", referPostData)
+            this.referPosts = referPostData.posts;
+            this.totalReferCount = referPostData.totalReferCount;
         },
         async getFilterOptions() {
             try {
-                console.log(this.current);
-                return await $fetch(`http://localhost:8000/posts/getPostByFilter?currentPage=${this.current}&${this.filter_workingType[0] ? '&workingType=' + this.filter_workingType[0] : ''}${this.filter_major[0] ? '&major=' + this.filter_major[0] : ''}${this.filter_education[0] ? '&educationPrequire=' + this.filter_education[0] : ''}${this.filter_expPrequire[0] ? '&expPrequire=' + this.filter_expPrequire[0] : ''}`);
+                return await $fetch(`http://localhost:8000/posts/getPostByFilter?currentPage=${this.currentPage}&${this.filter_workingType && this.filter_workingType[0] ? '&workingType=' + this.filter_workingType[0] : ''}${this.filter_education && this.filter_education[0] ? '&educationRequire=' + this.filter_education[0] : ''}${this.filter_expRequire && this.filter_expRequire[0] ? '&expRequire=' + this.filter_expRequire[0] : ''}${this.filter_province && this.filter_province[0] ? '&province=' + this.filter_province[0] : ''}`);
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async getReferPostFilterOptions() {
+            try {
+                ``
+                return await $fetch(`http://localhost:8000/posts/getReferPostByFilter?currentReferPage=${this.currentReferPage}`);
             } catch (error) {
                 console.log(error)
             }
@@ -428,11 +537,11 @@ export default {
                 placement: "topRight",
                 message: (type == 'success' ? 'Ứng tuyển thành công!' : (type == 'info' ? 'Info' : (type == 'warning' ? 'Cảnh báo' : 'Oops, đã có lỗi xảy ra'))),
                 description: (type == 'success' ?
-                    'Cảm ơn bạn đã sử dụng hệ thống của chúng tôi.'
+                    'Bạn có thể xem lại tin đã ứng tuyển và xem lịch hẹn nếu được nhà tuyển dụng hẹn phỏng vấn!'
                     : (type == 'info'
                         ? 'Info'
                         : (type == 'warning'
-                            ? 'Cảnh báo'
+                            ? 'Có gì đó không đúng!'
                             : 'Vui lòng thử lại sau.'))),
             })
 
@@ -472,7 +581,7 @@ export default {
                         })
                         this.openNotificationWithIcon('success')
                         this.reloadPostApplyable();
-                        console.log("them cv vao selectedJob:", this.userLogin)
+                        // console.log("them cv vao selectedJob:", this.userLogin)
                         this.open = false
                     } catch (error) {
                         console.log(error)
@@ -484,51 +593,28 @@ export default {
 
             this.open = false;
         },
-
         handleCancel() {
             this.open = false;
             this.openMessage = false;
         },
 
     },
+
     computed: {
         getPosts() {
             return this.postsApplyable;
-        }
+        },
+        getReferPosts() {
+            return this.referPosts;
+        },
+
     }
 }
 </script>
 
 <style scoped lang="scss">
-.button-32 {
-    background-color: #fff000;
-    border-radius: 12px;
-    color: #000;
-    cursor: pointer;
-    font-weight: bold;
-    padding: 10px 15px;
-    text-align: center;
-    transition: 200ms;
-    width: 8%;
-    box-sizing: border-box;
-    border: 0;
-    font-size: 16px;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-}
-
-.button-32:not(:disabled):hover,
-.button-32:not(:disabled):focus {
-    outline: 0;
-    background: #f4e603;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, .2), 0 3px 8px 0 rgba(0, 0, 0, .15);
-}
-
-.button-32:disabled {
-    filter: saturate(0.2) opacity(0.5);
-    -webkit-filter: saturate(0.2) opacity(0.5);
-    cursor: not-allowed;
+.job-item {
+    margin: 2px 0;
 }
 
 .filterOption {
@@ -601,15 +687,13 @@ body {
 }
 
 .job_type {
-
+    margin-left: 2rem;
+    font-size: 1.4rem;
+    color: rgb(41, 27, 167);
     width: 13rem;
 }
 
 .ant-card {
     height: 13rem;
 }
-
-// .sliderItem{
-//     background-color: red;
-// }
 </style>

@@ -32,39 +32,34 @@
           </a-card>
         </div>
         <div style="flex:6">
-          <a-card :tab-list="tabListNoTitle" :active-tab-key="noTitleKey"
-            @tabChange="key => onTabChange(key)">
+          <a-card :tab-list="tabListNoTitle" :active-tab-key="noTitleKey" @tabChange="key => onTabChange(key)">
             <div v-if="noTitleKey === 'tab1'">
               <b>Tên công ty</b>
-            <a-input type="text" v-model:value="userLogin.com_name" />
-            <b>Địa chỉ liên hệ</b>
-            <a-input type="text" v-model:value="userLogin.com_location" />
-            <b>Số điện thoại</b>
-            <a-input type="text" v-model:value="userLogin.com_phone" />
+              <a-input type="text" v-model:value="userLogin.com_name" />
+              <b>Địa chỉ liên hệ</b>
+              <a-input type="text" v-model:value="userLogin.com_location" />
+              <b>Số điện thoại</b>
+              <a-input type="text" v-model:value="userLogin.com_phone" />
             </div>
             <div v-else-if="noTitleKey === 'tab2'">
               <b>Giới thiệu về công ty</b>
-            <div v-if="userLogin.about">
-              <a-textarea v-model:value="userLogin.about" :rows="10" />
-            </div>
-            <div v-else>
-              <a-textarea v-model:value="userLogin.about" placeholder="Viết gì đó về công ty của bạn..." :rows="4"
-                style="height: 100%;" />
-            </div>
+              <div v-if="userLogin.about">
+                <a-textarea v-model:value="userLogin.about" :rows="10" />
+              </div>
+              <div v-else>
+                <a-textarea v-model:value="userLogin.about" placeholder="Viết gì đó về công ty của bạn..." :rows="4"
+                  style="height: 100%;" />
+              </div>
             </div>
             <div v-else>Chưa cập nhật</div>
-           
-           
+
+
 
           </a-card>
         </div>
         <div style="flex:1"></div>
       </div>
     </div>
-
-
-
-
 
     <div style="display: flex;margin: 1rem;justify-content: center">
       <a-button type="primary" @click="saveNewInfo">Lưu thay đổi</a-button>
@@ -82,7 +77,7 @@ export default {
     return {
       isShowAboutInput: false,
       fileList: [],
-      noTitleKey:'tab2',
+      noTitleKey: 'tab2',
       tabListNoTitle: [
         {
           key: 'tab1',
@@ -111,7 +106,7 @@ export default {
   },
   methods: {
     onTabChange(value) {
-        this.noTitleKey = value;
+      this.noTitleKey = value;
     },
     showAboutInput() {
       this.isShowAboutInput = true;
@@ -119,7 +114,7 @@ export default {
     beforeUpload(file) {
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
       if (!isJpgOrPng) {
-        message.error('You can only upload JPG file!');
+        message.error('Bạn chỉ có thể upload JPG file!');
         return false;
       }
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -127,7 +122,7 @@ export default {
         message.error('Ảnh phải có dung lượng nhỏ hơn 2MB!');
         return false;
       }
-      // message.success('Upload successfully');
+      message.success('Tải ảnh thành công!');
       this.fileList = [file];
       const reader = new FileReader();
       let app = this;

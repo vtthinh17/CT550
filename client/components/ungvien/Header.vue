@@ -12,9 +12,12 @@
         <li v-if="this && this.isLogin && userLogin.role == '1'">
           <NuxtLink to="/ungvien/profile">Hồ sơ cá nhân</NuxtLink>
         </li>
+        <li v-if="this && this.isLogin && userLogin.role == '1'">
+          <NuxtLink to="/ungvien/appliedPosts">Tin đã nộp</NuxtLink>
+        </li>
       </ul>
       <div class="account_setting">
-        <a-modal v-model:open="openModal" title="Basic Modal" @ok="handleOk">
+        <a-modal v-model:open="openModal" title="Bạn không có quyền truy cập trang này!" @ok="handleOk">
           <template #footer>
             <a-button key="back" @click="handleCancel">Hủy</a-button>
             <a-button key="submit" type="primary" @click="handleOk">Tiếp tục</a-button>
@@ -119,10 +122,10 @@
           </div>
           <div v-else>
             <NuxtLink to="/login">
-              <button>Login</button>
+              <button>Đăng nhập</button>
             </NuxtLink> /
             <NuxtLink to="/register">
-              <button>Register</button>
+              <button>Đăng ký</button>
             </NuxtLink>
           </div>
         </span>

@@ -5,7 +5,7 @@
             Bạn cần đăng nhập
         </div>
         <div v-else-if="isLogin != '' && userLogin.cv !== undefined && userLogin.cv.avtar === undefined">
-            <h1>Tạo hồ sơ cá nhân của bạn</h1>
+            <h1>Đăng ký thông tin cho tài khoản của bạn</h1>
             <hr>
             <div>
                 <h2>Ảnh đại diện</h2>
@@ -76,40 +76,6 @@
                     <a-input style="width: 80%;" type="text" class="input" name="fullName" v-model:value="phone" />
                 </a-col>
             </a-row>
-            <div>
-                <h1>Thông tin học vấn <a-button v-if="!isAddEducation"
-                        @click="showAddEducation(this.isAddEducation = true)">+</a-button></h1>
-                <div>
-                    <div v-if="isAddEducation">
-                        <a-row>
-                            <a-col :span="12">
-                                <div>Trường:</div>
-                                <a-input style="width: 80%;" type="text" class="input" name="fullName"
-                                    v-model:value="edu_School" />
-                            </a-col>
-                            <a-col :span="12">
-                                <div>Chuyên ngành:</div>
-                                <a-input style="width: 80%;" type="text" class="input" name="fullName"
-                                    v-model:value="edu_Major" />
-                            </a-col>
-                        </a-row>
-                        <div>
-                            Thời gian đào tạo
-                            <a-range-picker v-model:value="value4" picker="month" :format="'MM/YYYY'"
-                                @change="console.log(`thang bat dau: ${useDayjs(value4[0]).format('MM/YYYY')} vs thang ket thuc ${useDayjs(value4[1]).format('MM/YYYY')} `)" />
-                        </div>
-                        <div>
-                            <a-button danger @click="this.isAddEducation = false">
-                                Hủy
-                            </a-button>
-                            <a-button type="primary" @click="handleAddEducation">
-                                Thêm học vấn
-                            </a-button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
             <div style="display: flex; justify-content: center;">
                 <a-button type="primary" @click="dangkyCV">Save</a-button>
             </div>
@@ -117,17 +83,12 @@
         <div v-else>
             Bạn đã tạo hồ sơ rồi, có thể xem & chỉnh sửa tại mục hồ sơ cá nhân
         </div>
-        <a-modal v-model:open="open" title="Job title" @ok="handleOk">
-            Đăng ký thành công
-            <template #footer>
-                <a-button type="primary" :loading="loading" @click="handleOk">OK</a-button>
-            </template>
-        </a-modal>
     </a-layout>
 </template>
 <script >
 import dayjs from 'dayjs';
 import provinces from '../../assets/data/provinces';
+import { notification } from 'ant-design-vue';
 definePageMeta({
     layout: 'ungvien'
 })
@@ -161,7 +122,6 @@ export default {
             thanhpho: '',
             fileList: [],
             fileBase64: null,
-            open: false,
             isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
             userLogin: {},
             fullName: '',
@@ -186,9 +146,17 @@ export default {
         }
     },
     methods: {
+        openNotificationWithIcon(type, mess, des) {
+            notification[type]({
+                placement: "top",
+                message: mess,
+                description: des,
+            })
+
+        },
         async handleAddEducation() {
             try {
-                    await $fetch('http://localhost:8000/users/insertEducation/' + this.isLogin, {
+                await $fetch('http://localhost:8000/users/insertEducation/' + this.isLogin, {
                     method: 'PUT',
                     body: {
                         school: this.edu_School,
@@ -247,7 +215,11 @@ export default {
                             province: this.thanhpho
                         }
                     })
-                    this.open = true
+                    this.openNotificationWithIcon(
+                        'success',
+                        'Tạo hồ sơ thành công',
+                        'Bạn đã tạo hồ sơ cá nhân, giờ đây các nhà tuyển dụng có thể thấy được hồ sơ của bạn và bạn có thể ứng tuyển việc làm.'
+                    )
                 } catch (error) {
                     console.log(error)
                 }

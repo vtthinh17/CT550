@@ -13,5 +13,6 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     NotificationsModule,
     MongooseModule.forFeature([{ name: 'Post', schema: PostSchema }]),
   ],
+  exports: [PostsService],
 })
 export class PostsModule {}

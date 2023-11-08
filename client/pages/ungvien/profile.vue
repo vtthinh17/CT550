@@ -48,7 +48,8 @@
                         </a-col>
                         <a-col :span="5">
                             <div> Ngày sinh:</div>
-                            <a-date-picker v-model:value="ngaysinh" :format="'DD/MM/YYYY'" @change="console.log('a-date-picker:', ngaysinh)" />
+                            <a-date-picker v-model:value="ngaysinh" :format="'DD/MM/YYYY'"
+                                @change="console.log('a-date-picker:', ngaysinh)" />
                         </a-col>
                         <a-col :span="7">
                             <div>Trình độ:</div>
@@ -186,7 +187,13 @@
             </div>
         </div>
         <div v-else>
-            <a-button type="primary" @click="goToCreateCV">Tạo ngay CV mới</a-button>
+            <a-result status="warning"
+                title="Bạn chưa đăng ký thông tin cá nhân!">
+                <template #extra>
+                    <a-button type="primary" @click="goToCreateCV">Thêm thông tin cá nhân</a-button>
+                </template>
+            </a-result>
+
         </div>
 
     </a-layout>
@@ -265,7 +272,7 @@ export default {
             } catch (error) {
                 console.log(error)
             }
-        },      
+        },
         async handleRemoveEducation(eduId) {
             try {
                 await $fetch('http://localhost:8000/users/removeEducationInfo/' + this.isLogin, {

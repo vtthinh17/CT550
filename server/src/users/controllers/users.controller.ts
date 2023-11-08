@@ -13,17 +13,13 @@ export class UsersController {
     getUser(@Param('id') id: string) {
         return this.userService.getUser(id);
     }
-    @Get('getAll')
-    getAllUsers() {
-        return this.userService.getAllUsers();
-    }
     @Get('getAllCompanies')
     getAllCompanies() {
         return this.userService.getAllCompanies();
     }
-    @Get('getCandidates')
+    @Get('getAllCandidates')
     getCandidates() {
-        return this.userService.getCandidates();
+        return this.userService.getAllCandidates();
     }
 
     @Post('create')
@@ -56,6 +52,20 @@ export class UsersController {
     async updateCompany(@Body() updateUserDto: UpdateUserDto, @Param('id') id: string) {
         // const user = await this.userService.getUser(id);
         return await this.userService.updateCompany(updateUserDto, id);
+        // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
+    }
+
+    @Put('incre/:id')
+    async incr(@Param('id') id: string) {
+        // const user = await this.userService.getUser(id);
+        return await this.userService.increaseTotalDisplayPost(id);
+        // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
+    }
+
+    @Put('decre/:id')
+    async decr(@Param('id') id: string) {
+        // const user = await this.userService.getUser(id);
+        return await this.userService.decreaseTotalDisplayPost(id);
         // throw new HttpException(NOT_ALLOWED_USER_MESSAGE, HttpStatus.FORBIDDEN);
     }
 

@@ -1,29 +1,5 @@
 <template>
   <a-layout :name="Ungvien">
-    <!-- <div class="searchBox">
-      <a-auto-complete v-model:value="value" :options="options" style="width: 30%" placeholder="input here"
-        :filter-option="filterOption" />
-      <a-tooltip title="search">
-        <a-button>
-          <SearchOutlined />
-        </a-button>
-      </a-tooltip>
-    </div> -->
-    <!-- <a-row justify="space-around" style="padding: 0px 20px;">
-      <a-col v-for="item in data" :span="7">
-        <a-card hoverable class="cardItem" @click="gotoCompanyInfo(item)">
-          <div class="khungAvatar">
-            <img class="com_img" v-bind:src="item.logo[0]" alt="">
-          </div>
-          <b>
-            {{ item.company[0] }}
-          </b>
-          <p style="color: rgb(66,118,221);">
-            Đăng tuyển (posts.count(companyID)) việc
-          </p>
-        </a-card>
-      </a-col>
-    </a-row> -->
     <h2>Danh sách công ty</h2>
     <a-row justify="space-around" style="padding: 0px 20px;">
       <a-col v-for="company in propertyComputed" :span="7">
@@ -32,14 +8,9 @@
             <img v-if="company.com_logo" class="com_img" v-bind:src="company.com_logo" alt="">
             <img v-else class="com_img" src="https://cdn-icons-png.flaticon.com/128/1607/1607966.png" alt="">
           </div>
-          <b>
-            {{ company.com_name }}
-          </b>
-          <p v-if="company.totalDisplayPosts > 0" style="color: rgb(66,118,221);">
-            Đang tuyển {{ company.totalDisplayPosts }} việc
-          </p>
-          <p v-else style="color: blue;">
-            Chưa có tin tuyển dụng nào
+          <b>{{ company.com_name }}</b>
+          <p style="color: rgb(66,118,221);">
+            {{ company.totalDisplayPosts > 0 ? 'Đang tuyển '+ company.totalDisplayPosts + ' việc': 'Chưa có tin tuyển dụng nào' }}
           </p>
         </a-card>
       </a-col>
@@ -49,7 +20,6 @@
   
 <script>
 import myData from '../../../assets/data/data';
-// data get from database, each company have an id & its posts
 definePageMeta({
   layout: 'ungvien'
 })
@@ -76,36 +46,17 @@ export default {
 
   },
   methods: {
-    // async getCompanyPosts(id) {
-    //   const posts = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + id)
-    //   console.log("rs", rs)
-    //   return posts
-    // },
-    removeDuplicate() { },
+
   },
+
   async mounted() {
     if (process.client) {
       this.data = myData;
       this.companies = await $fetch('http://localhost:8000/users/getAllCompanies');
       console.log("getAllCompanies:", this.companies);
     }
-
-    // let app = this;
-    // this.companies = await this.companies.map(async (item) => {
-    //   let list = [];
-    //   console.log(list);
-    //   list = await app.getCompanyPosts(item._id);
-    //   console.log(list);
-    //   return {
-    //     ...item,
-    //     posts: list
-    //   }
-    // });
-    // let unique = this.groupBy(this.data,"company");
-    // console.log("phanloai:", this.data);
-
-
   },
+
   computed: {
     propertyComputed() {
       console.log(this.companies);
@@ -115,15 +66,9 @@ export default {
       return this.companies.posts;
     }
   },
+  
   methods: {
-    // groupBy(array, property) {
-    //   array.reduce((grouped, element) => ({
-    //     ...grouped,
-    //     [element[property]]: [...(grouped[element[property]] || []), element]
-    //   }), {})
-    // },
     gotoCompanyInfo(com) {
-      // console.log("selected company:", com._id)
       navigateTo('/ungvien/companies/' + com._id)
     },
   }

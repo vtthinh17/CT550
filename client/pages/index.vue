@@ -1,6 +1,5 @@
 <template>
     <div class="splashPage">
-        <!-- {{ console.log("storage:>>>>",localStorage.getItem('login')) }} -->
         <div class="hinh">
             <img src="/_nuxt/assets/images/splash_page.jpg" alt="">
         </div>

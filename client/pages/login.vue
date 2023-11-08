@@ -3,8 +3,6 @@
         <NuxtLink to="/">
             <left-circle-outlined :style="{ fontSize: '1.5rem' }" />
         </NuxtLink>
-
-        <!-- <left-square-outlined :style="{fontSize: '1.5rem'}"/> -->
     </span>
     <div class="login">
         <h1>Đăng nhập</h1>
@@ -19,20 +17,18 @@
             </div>
 
             <div class="field">
-                <label class="label">Password:</label>
+                <label class="label">Mật khẩu:</label>
 
                 <div class="control">
                     <input type="password" class="input" name="password" v-model="password">
                 </div>
             </div>
-            
+
             <div class="control">
-                <a-button style="width: 8rem;" type="primary" class="button is-dark is-fullwidth" @click="dangnhap">Đăng nhập</a-button>
+                <a-button style="width: 8rem;" type="primary" class="button is-dark is-fullwidth" @click="dangnhap">Đăng
+                    nhập</a-button>
             </div>
         </form>
-        <span v-if="errorMsg" style="color: red;">
-                {{ errorMsg }}
-            </span>
         <div class="has-text-centered" style="margin-top: 20px">
             <p>
                 Chưa có tài khoản? <nuxt-link to="/register">Đăng ký ngay</nuxt-link>
@@ -42,10 +38,12 @@
 </template>
   
 <script>
+import { SmileOutlined, MehOutlined } from '@ant-design/icons-vue';
+import { notification } from 'ant-design-vue';
+import { h } from 'vue';
 export default {
     data() {
         return {
-            errorMsg: '',
             email: '',
             password: '',
             error: null,
@@ -53,32 +51,43 @@ export default {
     },
 
     methods: {
+        openNotification (mess, des){
+            notification.open({
+                message: mess,
+                description: des,
+                placement:'top',
+                icon: () =>
+                    h(MehOutlined, {
+                        style: 'color: red',
+                    }),
+            });
+        },
         async dangnhap() {
-            if(this.email != '' && this.password!=''){
+            if (this.email != '' && this.password != '') {
                 try {
-                const res = await $fetch('http://localhost:8000/users/login', {
-                    method: 'POST',
-                    body: {
-                        username: this.email,
-                        password: this.password,
+                    const res = await $fetch('http://localhost:8000/users/login', {
+                        method: 'POST',
+                        body: {
+                            username: this.email,
+                            password: this.password,
+                        }
+                    })
+                    localStorage.setItem("loginUserID", res._id)
+                    // set loginUser profile to local storage or Pinia(global state)
+                    if (res.role == '1') {
+                        navigateTo('/ungvien')
+                    } else if (res.role == '2') {
+                        navigateTo('/nhatuyendung')
+                    } else {
+                        navigateTo('/admin')
                     }
-                })
-                localStorage.setItem("loginUserID", res._id)
-                // set loginUser profile to local storage or Pinia(global state)
-                if(res.role=='1'){
-                    navigateTo('/ungvien')
-                }else if(res.role=='2'){
-                    navigateTo('/nhatuyendung')
-                }else{
-                    navigateTo('/admin')
-                }
-                
+
                 } catch (error) {
-                    this.errorMsg = 'Login failed, please try again!'
+                    this.openNotification('Đã có lỗi xảy ra','Thông tin tài khoản hoặc mật khẩu bạn cung cấp không chính xác. Vui lòng thử lại sau!')
                     console.log("loi:", error)
                 }
             } else {
-                this.errorMsg = 'Empty please try input something!'
+                this.openNotification('Đã có lỗi xảy ra','Vui lòng nhập đầy đủ thông tin!')
             }
 
         }
@@ -109,4 +118,5 @@ export default {
         height: 2rem;
 
     }
-}</style>
+}
+</style>

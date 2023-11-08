@@ -3,9 +3,9 @@
     <NuxtLink to="/">
       <left-circle-outlined :style="{ fontSize: '1.5rem' }" />
     </NuxtLink>
-    <!-- <left-square-outlined :style="{fontSize: '1.5rem'}"/> -->
   </span>
   <div class="register">
+    
     <h1>Bạn muốn đăng ký tài khoản?</h1>
     <div>
       <a-radio-group v-model:value="formRole" button-style="solid">
@@ -13,6 +13,7 @@
         <a-radio-button value="2">Nhà tuyển dụng</a-radio-button>
       </a-radio-group>
     </div>
+    <!-- form đăng ký tài khoản ứng viên -->
     <form v-if="formRole == '1'" method="post" @submit.prevent>
       <div class="field">
         <label class="label">Email(<span style="color: red;">*</span>)</label>
@@ -40,11 +41,11 @@
       </div>
       <div class="has-text-centered" style="margin-top: 20px">
         <p>
-          Already have an account? <nuxt-link to="/login">Login</nuxt-link>
+          Đã có tài khoản? <nuxt-link to="/login">Đăng nhập</nuxt-link>
         </p>
       </div>
     </form>
-    <!-- form cho nhà tuyển dụng -->
+    <!-- form đăng ký tài khoản tuyển dụng -->
     <form v-else method="post" @submit.prevent>
       <div class="field">
         <label class="label">Email(<span style="color: red;">*</span>)</label>
@@ -55,7 +56,7 @@
       </div>
 
       <div class="field">
-        <label class="label">Password(<span style="color: red;">*</span>)</label>
+        <label class="label">Mật khẩu(<span style="color: red;">*</span>)</label>
         <div class="control">
           <input type="password" class="input" name="password" v-model="password">
         </div>
@@ -79,33 +80,26 @@
           <input type="text" class="input" name="taxNumber" v-model="taxNumber">
         </div>
       </div>
-     
+
       <div class="control">
         <button type="submit" class="button is-dark is-fullwidth" @click="dangky">Đăng ký</button>
       </div>
       <div class="has-text-centered" style="margin-top: 20px">
         <p>
-          Already have an account? <nuxt-link to="/login">Login</nuxt-link>
+          Đã có tài khoản? <nuxt-link to="/login">Đăng nhập</nuxt-link>
         </p>
       </div>
     </form>
+
   </div>
-
-
-
-  <span v-if="this.errorMsg != ''" style="color: red;">
-    {{ this.errorMsg }}
-  </span>
-  <span v-else>
-  </span>
 </template>
   
 <script>
+import { notification } from 'ant-design-vue';
 export default {
   data() {
     return {
       formRole: '1',
-      errorMsg: '',
       email: '',
       cf_password: '',
       password: '',
@@ -120,6 +114,14 @@ export default {
   },
 
   methods: {
+    openNotificationWithIcon(type,mess,des) {
+            notification[type]({
+                placement: "top",
+                message: mess,
+                description:des,
+            })
+
+        },
     async dangky() {
       if (this.formRole == '1') {
         // check confirm password is matched?
@@ -133,17 +135,32 @@ export default {
                 role: '1',
               }
             });
-            alert("Dang ky thanh cong")
+            this.openNotificationWithIcon(
+              'success',
+              'Đăng ký thành công',
+              'Bạn đã đăng ký tài khoản thành công, giờ đây bạn có thể đăng nhập và tìm kiếm việc làm.'
+            )
             this.email = '';
             this.password = '';
-            navigateTo('/login')
+            this.cf_password = '';
+            // navigateTo('/login')
           } catch (error) {
-            this.errorMsg = 'Register failed, please try again!'
+            this.openNotificationWithIcon(
+              'error',
+              'Đã có lỗi xảy ra',
+              'Vui lòng cung cấp đầy đủ thông tin!'
+            )
           }
-        } else {
-          alert("mat khau ko trung khop")
+        }
+        else {
+          this.openNotificationWithIcon(
+              'error',
+              'Đã có lỗi xảy ra',
+              'Xác minh mật khẩu không trùng khớp. Vui lòng nhập lại!'
+            )
         }
       }
+
       // form.role==2
       else {
         // check confirm password is matched?
@@ -159,17 +176,31 @@ export default {
                 taxNumber: this.taxNumber
               }
             });
-            alert("Dang ky thanh cong")
+            this.openNotificationWithIcon(
+              'success',
+              'Đăng ký tài khoản tuyển dụng thành công',
+              'Bạn đã đăng ký tài khoản thành công, giờ đây bạn có thể đăng nhập và bắt đầu tìm kiếm ứng viên phù hợp cho công ty của mình.'
+            )
             this.email = '';
             this.password = '';
-            navigateTo('/login')
+            this.cf_password = '';
+            this.com_name = ''; 
+            this.taxNumber = '';
           } catch (error) {
-            this.errorMsg = 'Register failed, please try again!'
+            this.openNotificationWithIcon(
+              'error',
+              'Đã có lỗi xảy ra',
+              'Vui lòng cung cấp đầy đủ thông tin!'
+            )
           }
-        } else {
-          alert("mat khau khong trung khop")
+        } 
+        else {
+          this.openNotificationWithIcon(
+              'error',
+              'Đã có lỗi xảy ra',
+              'Xác minh mật khẩu không trùng khớp. Vui lòng nhập lại!'
+            )
         }
-
       }
 
 

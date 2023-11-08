@@ -22,7 +22,7 @@
           Cập nhật thông tin
         </a-col>
       </a-row>
-        <!-- Job list -->
+      <!-- Job list -->
       <h1>Tin của tôi</h1>
       <div v-if="getNewCompanyPosts.length" class="post_list">
         <div v-for="post in getNewCompanyPosts" class="job_item">
@@ -39,14 +39,12 @@
               </p>
             </span>
             <span>Đăng vào: {{ post.createdAt.slice(0, 24) }}</span>
-            <!-- <span>Lượt xem: 204 người</span> -->
           </div>
           <div>
             <b>Tuyển dụng: {{ post.job_title }}</b>
           </div>
           <div style="display: flex;">
             <div style="flex:2; display: flex;justify-content: center;">
-              <!-- <img style="width: 70%;" v-bind:src="userLogin.com_logo" alt=""> -->
               <img v-if="userLogin.com_logo" style="width:50%;" v-bind:src="userLogin.com_logo" alt="">
               <img v-else style="width:50%;" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" alt="">
             </div>
@@ -54,7 +52,7 @@
               <b>{{ userLogin.com_name }}</b>
               {{ console.log("123123", userLogin) }}
               <p v-if="post.job_salary.includes('tr', 'triệu,TR,TRIỆU')"> Mức lương: {{ post.job_salary }}</p>
-              <p v-else>Mức lương: {{ post.job_salary }}tr</p>
+              <p v-else>Mức lương: {{ post.job_salary }}</p>
 
               <span class="xemhoso" @click="viewAppiedCandidates(post._id)">
                 <a-tooltip>
@@ -64,19 +62,17 @@
               </span>
             </div>
             <div style="flex: 6;">
-              <!-- <button class="button-36" role="button" @click="showModal(post._id)">Xem nội dung chi tiết</button> -->
               <a-button danger v-if="post.status == 1" @click="hidePost(post._id)">
-                <EyeInvisibleOutlined /> Ẩn bài đăng                          
+                <EyeInvisibleOutlined /> Ngưng tuyển dụng
               </a-button>
-              <a-divider type="vertical" v-if="post.status == 1"/> 
-              
+              <a-divider type="vertical" v-if="post.status == 1" />
+
               <a-button v-if="post.status != 2" key="submit" type="primary" @click="handleEdit(post._id)">
                 <EditOutlined />Xem/Chỉnh sửa bài đăng
               </a-button>
               <div>
 
               </div>
-              <!-- <span style="cursor: pointer; background-color: white;"><EditOutlined /> Chỉnh sửa bài đăng</span> -->
             </div>
           </div>
         </div>
@@ -85,11 +81,12 @@
       <div v-else>
         <p>Chưa có dữ liệu, hãy tạo tin mới</p>
       </div>
+
       <!-- Edit modal -->
       <a-modal v-model:open="modalEditOpen" title="Nội dung chi tiết bài đăng" width="100%">
         <a-form :label-col="labelCol" :wrapper-col="wrapperCol" layout="horizontal" :disabled="componentDisabled"
-          style="max-width: 70rem">
-          <a-form-item label="Tên bài tuyển dụng">
+          style="max-width: 90%">
+          <a-form-item label="Tiêu đề tuyển dụng">
             <a-input v-model:value="selectedPost.data.job_title"></a-input>
           </a-form-item>
           <a-row>
@@ -117,31 +114,31 @@
             <!-- Kinh nghiệm -->
             <a-col :span="12">
               <a-form-item label="Yêu cầu kinh nghiệm">
-                <a-select ref="select" v-model:value="selectedPost.data.expPrequire" @focus="focus"
-                  @change="console.log(add_expPrequire)">
-                  <a-select-option value="none">Không yêu cầu</a-select-option>
-                  <a-select-option value="uder1y">Dưới 1 năm</a-select-option>
-                  <a-select-option value="1y">1 năm</a-select-option>
-                  <a-select-option value="2y">2 năm</a-select-option>
-                  <a-select-option value="3y">3 năm</a-select-option>
-                  <a-select-option value="4y">4 năm</a-select-option>
-                  <a-select-option value="above5y">Trên 5 năm</a-select-option>
+                <a-select ref="select" v-model:value="selectedPost.data.exReequire" @focus="focus"
+                  @change="console.log(add_expRequire)">
+                  <a-select-option value="Không yêu cầu">Không yêu cầu</a-select-option>
+                  <a-select-option value="Dưới 1 năm">Dưới 1 năm</a-select-option>
+                  <a-select-option value="1 năm">1 năm</a-select-option>
+                  <a-select-option value="2 năm">2 năm</a-select-option>
+                  <a-select-option value="3 năm">3 năm</a-select-option>
+                  <a-select-option value="4 năm">4 năm</a-select-option>
+                  <a-select-option value="Trên 5 năm">Trên 5 năm</a-select-option>
                 </a-select>
-                <!-- <a-input type="text" class="input" name="add_expPrequire" v-model:value="selectedPost.data.expPrequire" /> -->
+                <!-- <a-input type="text" class="input" name="add_expRequire" v-model:value="selectedPost.data.expRequire" /> -->
               </a-form-item>
             </a-col>
             <!-- Trình độ -->
             <a-col :span="12">
               <a-form-item label="Yêu cầu trình độ">
-                <a-select ref="select" v-model:value="selectedPost.data.educationPrequire" @focus="focus"
-                  @change="console.log(add_educationPrequire)">
-                  <a-select-option value="none">Không yêu cầu</a-select-option>
-                  <a-select-option value="DH">Đại học</a-select-option>
-                  <a-select-option value="CD">Cao đẳng</a-select-option>
-                  <a-select-option value="TC">Trung cấp</a-select-option>
+                <a-select ref="select" v-model:value="selectedPost.data.educationRequire" @focus="focus"
+                  @change="console.log(add_educationRequire)">
+                  <a-select-option value="Không yêu cầu">Không yêu cầu</a-select-option>
+                  <a-select-option value="Đại học">Đại học</a-select-option>
+                  <a-select-option value="Cao đẳng">Cao đẳng</a-select-option>
+                  <a-select-option value="Trung cấp">Trung cấp</a-select-option>
                 </a-select>
-                <!-- <a-input type="text" class="input" name="add_educationPrequire"
-                  v-model:value="selectedPost.data.educationPrequire" /> -->
+                <!-- <a-input type="text" class="input" name="add_educationRequire"
+                  v-model:value="selectedPost.data.educationRequire" /> -->
               </a-form-item>
             </a-col>
           </a-row>
@@ -150,12 +147,23 @@
             <a-input v-model:value="selectedPost.data.job_salary"></a-input>
           </a-form-item>
           <!-- Hạn nộp -->
-          <a-form-item label="Hạn nộp">
-            <a-date-picker v-model:value="hannop" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
-              @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" />
-            <!-- <a-date-picker v-model:value="selectedPost.data.deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
+          <a-row>
+            <a-col :span="12">
+              <a-form-item label="Hạn nộp">
+                <a-date-picker v-model:value="hannop" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
+                  @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" />
+                <!-- <a-date-picker v-model:value="selectedPost.data.deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
               @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" /> -->
-          </a-form-item>
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item label="Tỉnh/Thành phố">
+                <a-select ref="select" v-model:value="selectedPost.data.province" style="width: 120px" :options="provinceOption"
+                  @focus="focus" @change="handleChange"></a-select>
+              </a-form-item>
+            </a-col>
+          </a-row>
+
           <a-form-item label="Mô tả công việc">
             <a-textarea v-model:value="selectedPost.data.job_description" rows="4" cols="30">
             </a-textarea>
@@ -174,17 +182,18 @@
           <a-button type="primary" @click="changeInfo">Cập nhật</a-button>
         </template>
       </a-modal>
+
       <!-- Add post form -->
-      <a-modal v-model:open="open" title="Thêm tin tuyển dụng" @ok="handleAdd" width="100%">
+      <a-modal v-model:open="open" title="Thêm tin tuyển dụng" width="100%">
         <a-form :label-col="labelCol" :wrapper-col="wrapperCol" layout="horizontal" :disabled="componentDisabled"
-          style="max-width: 70rem">
-          <a-form-item label="Tên bài tuyển dụng">
+          style="max-width: 90%">
+          <a-form-item label="Tiêu đề tuyển dụng">
             <a-input type="text" class="input" name="add_jobTitle" v-model:value="add_jobTitle" />
           </a-form-item>
           <!-- Major -->
           <a-row>
             <a-col :span="12">
-              <a-form-item label="Linh vuc">
+              <a-form-item label="Lĩnh vực/Ngành nghề">
                 <a-input type="text" class="input" name="add_major" v-model:value="add_major" />
               </a-form-item>
             </a-col>
@@ -193,9 +202,10 @@
               <a-form-item label="Hình thức làm việc">
                 <a-select ref="select" v-model:value="add_workingType" @focus="focus"
                   @change="console.log(add_workingType)">
-                  <a-select-option value="Fulltime">Toàn thời gian/Fulltime</a-select-option>
-                  <a-select-option value="Partime">Bán thời gian/Partime</a-select-option>
-                  <a-select-option value="Intern">Thực tập/Intern</a-select-option>
+                  <a-select-option value="Toàn thời gian/Fulltime">Toàn thời gian/Fulltime</a-select-option>
+                  <a-select-option value="Bán thời gian/Partime">Bán thời gian/Partime</a-select-option>
+                  <a-select-option value="Làm việc từ xa/Remote">Làm việc từ xa/Remote</a-select-option>
+                  <a-select-option value="Thực tập/Intern">Thực tập/Intern</a-select-option>
                 </a-select>
                 <!-- <a-input type="text" class="input" name="add_workingType" v-model:value="add_workingType"
                   style="width: 100%;" /> -->
@@ -206,40 +216,47 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="Yêu cầu kinh nghiệm">
-                <a-select ref="select" v-model:value="add_expPrequire" @focus="focus"
-                  @change="console.log(add_expPrequire)">
-                  <a-select-option value="none">Không yêu cầu</a-select-option>
-                  <a-select-option value="uder1y">Dưới 1 năm</a-select-option>
-                  <a-select-option value="1y">1 năm</a-select-option>
-                  <a-select-option value="2y">2 năm</a-select-option>
-                  <a-select-option value="3y">3 năm</a-select-option>
-                  <a-select-option value="4y">4 năm</a-select-option>
-                  <a-select-option value="above5y">Trên 5 năm</a-select-option>
+                <a-select ref="select" v-model:value="add_expRequire" @focus="focus"
+                  @change="console.log(add_expRequire)">
+                  <a-select-option value="Không yêu cầu">Không yêu cầu</a-select-option>
+                  <a-select-option value="Dưới 1 năm">Dưới 1 năm</a-select-option>
+                  <a-select-option value="1 năm">1 năm</a-select-option>
+                  <a-select-option value="2 năm">2 năm</a-select-option>
+                  <a-select-option value="3 năm">3 năm</a-select-option>
+                  <a-select-option value="4 năm">4 năm</a-select-option>
+                  <a-select-option value="Trên 5 năm">Trên 5 năm</a-select-option>
                 </a-select>
-
-                <!-- <a-input type="text" class="input" name="add_expPrequire" v-model:value="add_expPrequire" /> -->
               </a-form-item>
             </a-col>
             <a-col :span="12">
               <a-form-item label="Yêu cầu trình độ">
-                <a-select ref="select" v-model:value="add_educationPrequire" @focus="focus"
-                  @change="console.log(add_educationPrequire)">
-                  <a-select-option value="none">Không yêu cầu</a-select-option>
-                  <a-select-option value="DH">Đại học</a-select-option>
-                  <a-select-option value="CD">Cao đẳng</a-select-option>
-                  <a-select-option value="TC">Trung cấp</a-select-option>
+                <a-select ref="select" v-model:value="add_educationRequire" @focus="focus"
+                  @change="console.log(add_educationRequire)">
+                  <a-select-option value="Không yêu cầu">Không yêu cầu</a-select-option>
+                  <a-select-option value="Đại học">Đại học</a-select-option>
+                  <a-select-option value="Cao đẳng">Cao đẳng</a-select-option>
+                  <a-select-option value="Trung cấp">Trung cấp</a-select-option>
                 </a-select>
-                <!-- <a-input type="text" class="input" name="add_educationPrequire" v-model:value="add_educationPrequire" /> -->
               </a-form-item>
             </a-col>
           </a-row>
           <a-form-item label="Mức lương">
             <a-input type="text" class="input" name="add_jobSalary" v-model:value="add_jobSalary" />
           </a-form-item>
-          <a-form-item label="Hạn nộp">
-            <a-date-picker v-model:value="add_deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
-              @change="console.log('a-date-picker:', useDayjs(birthday).format('DD/MM/YYYY'))" />
-          </a-form-item>
+          <a-row>
+            <a-col :span="12">
+              <a-form-item label="Hạn nộp">
+                <a-date-picker v-model:value="add_deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
+                  @change="console.log('a-date-picker:', useDayjs(birthday).format('DD/MM/YYYY'))" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item label="Tỉnh/Thành phố">
+                <a-select ref="select" v-model:value="add_province" style="width: 120px" :options="provinceOption"
+                  @focus="focus" @change="handleChange"></a-select>
+              </a-form-item>
+            </a-col>
+          </a-row>
           <a-form-item label="Mô tả công việc">
             <a-textarea v-model:value="add_jobDescription" rows="4" cols="30">
             </a-textarea>
@@ -253,31 +270,31 @@
             </a-textarea>
           </a-form-item>
         </a-form>
+        <template #footer>
+          <a-button key="back" @click="this.open = false">Đóng</a-button>
+          <a-button type="primary" @click="handleAdd">Tạo tin</a-button>
+        </template>
       </a-modal>
+
     </div>
+
     <div v-else>
       <h1>Nhà tuyển dụng</h1>
       <a-grow style="display: flex; justify-content: space-around;">
-        <a-col :span="6" style="    display: flex;
-    justify-content: center;
-    align-items: center;">
+        <a-col :span="6" style="    display: flex; justify-content: center; align-items: center;">
           <a-card title="1">
             <h3>Tạo tài khoản miễn phí của bạn</h3>
             <p>Tất cả những gì bạn cần là địa chỉ email để tạo tài khoản và bắt đầu tạo bài đăng việc làm của mình.</p>
           </a-card>
         </a-col>
-        <a-col :span="6" style="    display: flex;
-    justify-content: center;
-    align-items: center;">
+        <a-col :span="6" style="    display: flex; justify-content: center; align-items: center;">
           <a-card title="2">
             <h3>Tạo bài đăng việc làm của bạn</h3>
             <p>Sau đó chỉ cần thêm chức danh, mô tả và địa điểm vào bài đăng việc làm của bạn, và bạn đã sẵn sàng tuyển
               dụng.</p>
           </a-card>
         </a-col>
-        <a-col :span="6" style="    display: flex;
-    justify-content: center;
-    align-items: center;">
+        <a-col :span="6" style="    display: flex; justify-content: center; align-items: center;">
           <a-card title="3">
             <h3>Đăng việc làm của bạnt</h3>
             <p>Sau khi đăng việc làm, hãy sử dụng các công cụ hiện đại của chúng tôi để giúp bạn tìm thấy nhân tài mong
@@ -321,6 +338,7 @@
 <script>
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import provinces from '../../assets/data/provinces';
 import { notification } from 'ant-design-vue';
 export default {
   setup() {
@@ -338,15 +356,17 @@ export default {
       add_jobDescription: '',
       com_created: '',
       add_workingType: '',
-      add_expPrequire: '',
+      add_expRequire: '',
       add_major: '',
-      add_educationPrequire: '',
+      add_educationRequire: '',
       add_jobBenefit: '',
       add_jobTitle: '',
       add_jobRequirement: '',
       add_jobSalary: '',
       add_deadline: '',
+      add_province: '',
       add_logo: '',
+      provinceOption: provinces,
       open: false,
       modalEditOpen: false,
       isLogin: null,
@@ -387,11 +407,16 @@ export default {
             job_benefit: this.selectedPost.data.job_benefit,
             major: this.selectedPost.data.major,
             workingType: this.selectedPost.data.workingType,
-            expPrequire: this.selectedPost.data.expPrequire,
-            educationPrequire: this.selectedPost.data.educationPrequire,
+            expRequire: this.selectedPost.data.expRequire,
+            educationRequire: this.selectedPost.data.educationRequire,
           }
         })
-        message.success('Cập nhật thông tin thành công');
+        // this.openNotificationWithIcon(
+        //                 'success',
+        //                 'Cập nhật thông tin tuyển dụng thành công!',
+        //                 'Bạn có thể xem và chỉnh sửa thông tin của bài tuyển dụng này trước khi được duyệt.'
+        //             )
+        message.success('Cập nhật thông tin tuyển dụng thành công');
         this.modalEditOpen = false;
         this.getCompanyPosts();
       } catch (error) {
@@ -401,21 +426,16 @@ export default {
     async getCompanyPosts() {
       this.companyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + this.isLogin);
     },
-    openNotificationWithIcon(type) {
-      notification[type]({
-        placement: "topRight",
-        message: (type == 'success' ? 'Thêm tin mới thành công!' : (type == 'info' ? 'Info' : (type == 'warning' ? 'Cảnh báo' : 'Oops, đã có lỗi xảy ra'))),
-        description:
-          (type == 'success' ?
-            'Tin sẽ được hiển thị trên hệ thống sau khi được duyệt. Cảm ơn bạn đã sử dụng hệ thống của chúng tôi.'
-            : (type == 'info'
-              ? 'Info'
-              : (type == 'warning'
-                ? 'Cảnh báo'
-                : 'Vui lòng thử lại sau.')))
 
-      });
+    openNotificationWithIcon(type, mess, des) {
+      notification[type]({
+        placement: "top",
+        message: mess,
+        description: des,
+      })
+
     },
+
     viewAppiedCandidates(postID) {
       navigateTo('/nhatuyendung/post/' + postID)
     },
@@ -433,19 +453,23 @@ export default {
           body: {
             job_description: this.add_jobDescription,
             workingType: this.add_workingType,
-            expPrequire: this.add_expPrequire,
+            expRequire: this.add_expRequire,
             major: this.add_major,
-            educationPrequire: this.add_educationPrequire,
+            educationRequire: this.add_educationRequire,
             job_title: this.add_jobTitle,
             job_requirement: this.add_jobRequirement,
             job_benefit: this.add_jobBenefit,
             com_created: this.userLogin._id,
             job_salary: this.add_jobSalary,
+            province: this.add_province,
             deadline: dayjs(this.add_deadline).format('DD/MM/YYYY'),
           }
         })
-        console.log("response them tin tuyen dung:", res)
-        this.openNotificationWithIcon('success')
+        this.openNotificationWithIcon(
+          'success',
+          'Tạo tin tuyển dụng thành công!',
+          'Bạn có thể xem và chỉnh sửa thông tin của bài tuyển dụng này trước khi được duyệt.'
+        )
         this.getCompanyPosts();
         this.open = false
       } catch (error) {
@@ -455,17 +479,31 @@ export default {
 
     },
     async hidePost(id) {
-      try {
-        await $fetch('http://localhost:8000/posts/hidePost/' + id, { method: 'PUT', })
-        this.openNotificationWithIcon('success')
-      } catch (error) {
-        console.log(error)
-        this.openNotificationWithIcon('error')
+      if (confirm("Xác nhận ngưng tuyển dụng vị trí này?") == true) {
+        try {
+          await $fetch('http://localhost:8000/posts/changePostStatus/' + id, {
+            method: 'PUT',
+            body: {
+              status: 2
+            }
+          })
+          this.companyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + this.isLogin);
+          message.success('Ngưng tuyển dụng vị trí này');
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
       }
+
+
+
+
     },
 
     async handleEdit(id) {
+      
       this.selectedPost = await useFetch('http://localhost:8000/posts/getPost/' + id)
+      console.log("chon", this.selectedPost)
       this.hannop = dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')
       // this.hannop = dayjs(useDayjs(dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')), 'DD/MM/YYYY')
       // console.log('han: ', useDayjs(this.hannop).format('DD/MM/YYYY'))
@@ -507,38 +545,6 @@ export default {
   cursor: pointer;
   background-color: rgb(228, 217, 217);
   padding: 2px;
-}
-
-.button-36 {
-  background-image: linear-gradient(92.88deg, #455EB5 9.16%, #5643CC 43.89%, #673FD7 64.72%);
-  border-radius: 8px;
-  border-style: none;
-  box-sizing: border-box;
-  color: #FFFFFF;
-  cursor: pointer;
-  flex-shrink: 0;
-  font-family: "Inter UI", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  height: 3rem;
-  padding: 0 1.6rem;
-  text-align: center;
-  text-shadow: rgba(0, 0, 0, 0.25) 0 3px 8px;
-  transition: all .5s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
-
-.button-36:hover {
-  box-shadow: rgba(80, 63, 205, 0.5) 0 1px 30px;
-  transition-duration: .1s;
-}
-
-@media (min-width: 768px) {
-  .button-36 {
-    padding: 0 2.6rem;
-  }
 }
 
 .post_list {
