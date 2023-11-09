@@ -351,22 +351,60 @@ export class UsersService {
     }
   }
 
-  getAllCompanies() {
-    return this.userModel
-      .find({ role: '2' })
+  async getAllCompanies(currentPage: number) {
+    const filterObject = {
+      role: '2',
+    };
+    // patch remove empty property
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    // limit 6 items each fetch
+    const skipCount = (currentPage - 1) * 6;
+    const data = await this.userModel
+      .find(filterObject)
+      .limit(6)
+      .skip(skipCount)
       .then((post) => {
         return post;
       })
       .catch((err) => console.log(err));
+    const totalCount = await this.userModel.find(filterObject).countDocuments();
+    console.log(totalCount);
+    return {
+      users: data,
+      totalCount: totalCount,
+    };
   }
 
-  getAllCandidates() {
-    return this.userModel
-      .find({ role: '1' })
-      .then((user) => {
-        return user;
+  async getAllCandidates(currentPage: number) {
+    const filterObject = {
+      role: '1',
+    };
+    // patch remove empty property
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    // limit 6 items each fetch
+    const skipCount = (currentPage - 1) * 6;
+    const data = await this.userModel
+      .find(filterObject)
+      .limit(6)
+      .skip(skipCount)
+      .then((post) => {
+        return post;
       })
       .catch((err) => console.log(err));
+    const totalCount = await this.userModel.find(filterObject).countDocuments();
+    console.log(totalCount);
+    return {
+      users: data,
+      totalCount: totalCount,
+    };
   }
 
   async changePassword(

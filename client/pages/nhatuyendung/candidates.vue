@@ -3,12 +3,14 @@
     <div v-if="isLogin">
       <h1>Danh sách ứng viên</h1>
       <a-row justify="space-around">
-        <a-col style :span="6" v-for="candidate in candidatesData">
-          <a-card hoverable @click="showModal(candidate)">
+        <a-col :span="7" v-for="candidate in getCandidatesList">
+          <a-card v-if="candidate.cv" hoverable @click="showModal(candidate)" style="margin: 4px 0">
             <a-card-meta v-if="candidate.cv.sex" v-bind:title="candidate.cv.fullName"
-              v-bind:description='toStringSex(candidate.cv.sex) + " - Năm sinh: " + candidate.cv.birthday.slice(6)'>
+              v-bind:description='"Giới tính: "+toStringSex(candidate.cv.sex) + " - Năm sinh: " + candidate.cv.birthday.slice(6)'>
               <template #avatar>
-                <a-avatar v-bind:src="candidate.cv.avatar" />
+                <a-avatar v-if="candidate.cv.avatar" v-bind:src="candidate.cv.avatar" />
+                <a-avatar v-else src="/_nuxt/assets/images/avatar_7610857.png" />
+                
               </template>
             </a-card-meta>
             <a-divider />
@@ -23,28 +25,34 @@
           </a-card>
         </a-col>
       </a-row>
+      <div class="pagination">
+        <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" />
+      </div>
       <!-- modal show candidate CV -->
       <a-modal v-model:open="open" title="Hồ sơ cá nhân" width="100%" wrap-class-name="full-modal" @ok="handleOk">
         <div class="CV_header">
           <a-row>
             <!-- Thông tin ứng viên -->
             <a-col :span="6">
-              <img style="width: 30%; border-radius: 10%;" v-bind:src="selectedCV.cv.avatar" alt="">
+            <div style="width:60%">
+              <img v-if="selectedCV.cv.avatar" style="width: 30%; border-radius: 10%;" v-bind:src="selectedCV.cv.avatar" alt="">
+              <img v-else style="width: 40%; border-radius: 10%;" src="/_nuxt/assets/images/avatar_7610857.png" alt="">
+            </div>
               <div>
-                <h2>{{ selectedCV.cv.fullName }}</h2>
+                <h2>{{ selectedCV.cv.fullName ? selectedCV.cv.fullName : "Chưa cập nhật" }}</h2>
                 <div>
-                  <p style="font-weight: lighter;">Giới tính: {{ toStringSex(selectedCV.cv.sex) }} 
-                    <br> Ngày sinh: {{ selectedCV.cv.birthday }}
-                    <br>Nơi sinh sống: {{ selectedCV.cv.province }} 
+                  <p style="font-weight: lighter;">Giới tính: {{selectedCV.cv.sex ? toStringSex(selectedCV.cv.sex) : "Chưa cập nhật" }}
+                    <br> Ngày sinh: {{ selectedCV.cv.birthday ? selectedCV.cv.birthday : "Chưa cập nhật" }}
+                    <br>Nơi sinh sống: {{ selectedCV.cv.province? selectedCV.cv.province : "Chưa cập nhật" }}
                   </p>
                 </div>
                 <a-divider />
-                <h3>Thông tin liên hệ 
-                  <img width="30" height="30" src="https://img.icons8.com/ios/50/contact-card.png" alt="contact-card"/>
+                <h3>Thông tin liên hệ
+                  <img width="30" height="30" src="https://img.icons8.com/ios/50/contact-card.png" alt="contact-card" />
                 </h3>
-                <div>Địa chỉ: {{ selectedCV.cv.address }}</div>
-                <div>Email: {{ selectedCV.username }}</div>
-                <div>Số điện thoại: {{ selectedCV.cv.phone }}</div>
+                <div>Địa chỉ: {{ selectedCV.cv.address ? selectedCV.cv.address : "Chưa cập nhật"}}</div>
+                <div>Email: {{ selectedCV.username ? selectedCV.cv.username : "Chưa cập nhật"}}</div>
+                <div>Số điện thoại: {{ selectedCV.cv.phone ? selectedCV.cv.phone : "Chưa cập nhật"}}</div>
               </div>
             </a-col>
             <!-- Thông tin CV -->
@@ -52,13 +60,14 @@
               <div>
                 <div>
                   <h3>Giới thiệu</h3>
-                  <p>{{ selectedCV.cv.brief_intro }}</p>
+                  <p>{{ selectedCV.cv.brief_intro ? selectedCV.cv.brief_intro : "Chưa cập nhật" }}</p>
                 </div>
                 <a-divider />
-                <h3>Học vấn 
-                    <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/60/flying-motarboard.png" alt="flying-motarboard"/>
-                  </h3>
-                <div v-if="selectedCV.cv.education.length>0">
+                <h3>Học vấn
+                  <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/60/flying-motarboard.png"
+                    alt="flying-motarboard" />
+                </h3>
+                <div v-if="selectedCV.cv.education.length > 0">
                   <div v-for="edu in selectedCV.cv.education">
                     <a-row class="education_item">
                       <a-col :span="20">
@@ -76,9 +85,10 @@
                 </div>
                 <a-divider />
                 <h3>Bằng cấp
-                    <img width="30" height="30" src="https://img.icons8.com/windows/32/winner-document.png" alt="winner-document"/>
-                  </h3>
-                <div v-if="selectedCV.cv.degreeList.length>0">                                
+                  <img width="30" height="30" src="https://img.icons8.com/windows/32/winner-document.png"
+                    alt="winner-document" />
+                </h3>
+                <div v-if="selectedCV.cv.degreeList.length > 0">
                   <div v-for="degree in selectedCV.cv.degreeList">
                     <a-row class="education_item">
                       <a-col :span="20">
@@ -124,8 +134,10 @@ export default {
       isLogin: null,
       userLogin: {},
       open: false,
-      candidatesData: false,
+      candidatesList: [],
       selectedCV: null,
+      totalCount: 0,
+      currentPage: 1,
     }
   },
   async mounted() {
@@ -134,11 +146,43 @@ export default {
       if (this.isLogin !== '') {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
       }
-      this.candidatesData = await $fetch('http://localhost:8000/users/getCandidates');
-      console.log("candidates data", this.candidatesData);
+      this.reloadCandidatesList();
     }
   },
   methods: {
+    onChangePagination() {
+      this.reloadCandidatesList();
+    },
+    async reloadPostApplyable() {
+      const postData = await this.getFilterOptions();
+      console.log("reload", postData)
+      this.postsApplyable = [];
+      this.totalCount = postData.totalCount;
+      for (let post of postData.posts) {
+        let congty = await $fetch('http://localhost:8000/users/getUser/' + post.com_created);
+        post.tenCongty = congty.com_name;
+        this.postsApplyable.push(post);
+      }
+    },
+    async reloadCandidatesList() {
+      const userData = await this.getFilterOptions();
+      console.log(">>>>>", userData)
+      this.candidatesList = [];
+      this.totalCount = userData.totalCount;
+      for (let user of userData.users) {
+        if (user.cv.fullName) {
+          this.candidatesList.push(user);
+        }
+      }
+
+    },
+    async getFilterOptions() {
+      try {
+        return await $fetch(`http://localhost:8000/users/getAllCandidates?currentPage=${this.currentPage}`);
+      } catch (error) {
+        console.log(error)
+      }
+    },
     checkIsFollowed(id) {
       return this.userLogin.follow.some(ele => {
         if (ele === id) {
@@ -191,11 +235,22 @@ export default {
     handleOk() {
       this.open = false;
     },
+  },
+  computed: {
+    getCandidatesList() {
+      return this.candidatesList;
+    }
   }
 }
 </script>
 
 <style scoped>
+.pagination {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0px;
+}
+
 .ant-modal {
   max-width: 100%;
   top: 0;

@@ -3,7 +3,10 @@
         <div v-if="userLogin && userLogin.role == '3'">
             <h2>Danh sách nhà tuyển dụng</h2>
             <a-layout-content>
-                <a-list size="large" bordered :data-source="getAllCompany">
+                <a-list size="large" bordered :data-source="getCompanyList">
+                    <template #header>
+                        <h1>Số lượng: {{ totalCount }}</h1>
+                    </template>
                     <template #renderItem="{ item }">
                         <a-list-item class="hoverItem">
                             <a-row style="width: 80%;">
@@ -34,6 +37,10 @@
                         </a-list-item>
                     </template>
                 </a-list>
+                <div class="pagination">
+                    <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
+                        :total="totalCount" />
+                </div>
 
 
             </a-layout-content>
@@ -74,17 +81,17 @@
                     </a-col>
                 </a-row>
                 <a-tabs v-model:activeKey="activeKey" type="card">
-                    <a-tab-pane key="1" tab="Việc làm đang tuyển">
-                        <a-list size="large" bordered :data-source="selectCompanyPost">
+                    <a-tab-pane key="1" tab="Quản lý tin tuyển dụng">
+                        <a-list size="large" bordered :data-source="getSelectedCompanyPost">
                             <template #header>
                                 <div class="cls1">
-                                    <h4>Việc làm đang tuyển</h4>
+                                    <h4>Số lượng tin tuyển dụng: <b>{{ this.totalSelectedCompanyPostsCount }}</b></h4>
                                 </div>
                             </template>
 
                             <template #renderItem="{ item }">
                                 <a-list-item>
-                                    <a-row style="width: 100%;">
+                                    <a-row style="width:90%">
                                         <a-col :span="14">
                                             <b>Tuyển dụng:</b> {{ item.job_title }}
                                             <div>
@@ -134,6 +141,11 @@
                                 </a-list-item>
                             </template>
                         </a-list>
+                        <div class="pagination">
+                            <a-pagination @change="onChangeSelectedCompanyPostsPagination"
+                                v-model:current="currentSelectedCompanyPostsPage" :pageSize="6"
+                                :total="totalSelectedCompanyPostsCount" />
+                        </div>
                     </a-tab-pane>
                     <a-tab-pane key="2" tab="Thông tin công ty">
                         <p v-if="selectCompany.about">
@@ -147,47 +159,58 @@
                 </a-tabs>
             </a-modal>
             <!-- Thông tin bài tuyển dụng -->
-            <!--  -->
-            <a-modal v-model:open="openJob" @ok="this.openJob = false"
-                v-bind:title="'Tuyển dụng: ' + selectedJob.job_title">
-                <div v-if="selectedJob.job_link">
-                    {{ console.log("select", selectedJob) }}
-                    <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
-                        <img alt="example" v-bind:src=selectedJob.logo class="job-item_logo" />
-                    </div>
-                    <div v-else style="display: flex;justify-content: center;">
-                        <img alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
-                            class="job-item_logo" />
-                    </div>
-                    <h4>Mô tả công việc:</h4>
-                    {{ selectedJob.job_description }}
-
-                    <h4>Yêu cầu công việc:</h4>
-                    {{ selectedJob.job_requirement }}
-
-
-                    <h4 v-if="selectedJob.job_benefit">Lợi ích:</h4>
-                    {{ selectedJob.job_benefit }}
-
-                </div>
-                <div v-else>
-                    <div v-if="companyInfo.com_logo" style="display: flex;justify-content: center;">
-                        <img alt="example" v-bind:src="companyInfo.com_logo" style="width: 40%;" class="job-item_logo" />
-                    </div>
-                    <div v-else style="display: flex;justify-content: center;">
-                        <img style="width: 40%;" alt="example" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
-                            class="job-item_logo" />
-                    </div>
-                    <h4>Yêu cầu công việc:</h4>
-                    <span v-for=" i  in  selectedJob.job_requirement ">
-                        {{ i }}
-                    </span>
-
-                    <h4>Lợi ích:</h4>
-                    <span v-for=" i  in  selectedJob.job_benefit ">
-                        {{ i }}
-                    </span>
-                </div>
+            <a-modal v-model:open="openJob" v-bind:title="selectedJob.job_title" width="90%">
+                <a-row>
+                    <a-col :span="8">
+                        <div v-if="companyInfo.com_logo" style="display: flex;justify-content: center;">
+                            <img style="width: 30%;" alt="example" v-bind:src=companyInfo.com_logo class="job-item_logo" />
+                        </div>
+                        <div v-else style="display: flex;justify-content: center;">
+                            <img style="width: 30%;" alt="example"
+                                src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" class="job-item_logo" />
+                        </div>
+                    </a-col>
+                    <a-col :span="16">
+                        <h2>{{ companyInfo.com_name }}</h2>
+                        <a-row>
+                            <a-col :span="6"><b> Lĩnh vực:</b></a-col>
+                            <a-col :span="10">{{ selectedJob.major }}</a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="6"><b> Hình thức làm việc:</b></a-col>
+                            <a-col :span="10">{{ selectedJob.workingType }}</a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="6"><b> Mức lương:</b></a-col>
+                            <a-col :span="10">{{ selectedJob.job_salary }}</a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="6"><b>Yêu cầu kinh nghiệm:</b></a-col>
+                            <a-col :span="10">{{ selectedJob.expRequire }}</a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="6"><b>Yêu cầu bằng cấp:</b></a-col>
+                            <a-col :span="10">{{ selectedJob.educationRequire }}</a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="6"><b>Địa chỉ công ty:</b></a-col>
+                            <a-col :span="10">{{ companyInfo.com_location }}</a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="6"><b>Số điện thoại:</b></a-col>
+                            <a-col :span="10">{{ companyInfo.com_phone }}</a-col>
+                        </a-row>
+                    </a-col>
+                </a-row>
+                <h4>Mô tả công việc:</h4>
+                <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
+                <h4>Yêu cầu công việc:</h4>
+                <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea>
+                <h4>Lợi ích:</h4>
+                <a-textarea v-model:value="selectedJob.job_benefit" rows="5"></a-textarea>
+                <template #footer>
+                    <a-button type="primary" @click="this.openJob = false">Đóng</a-button>
+                </template>
             </a-modal>
         </div>
         <div v-else>
@@ -218,17 +241,54 @@ export default {
             activeKey: '1',
             isLogin: false,
             userLogin: {},
-            allUserData: false,
-            candidatesList: [],
+            companyList: [],
+            totalCount: 0,
+            currentPage: 1,
+            totalSelectedCompanyPostsCount: 0,
+            currentSelectedCompanyPostsPage: 1,
             open: false,
             openJob: false,
             selectCompany: false,
-            selectCompanyPost: false,
+            selectCompanyPosts: [],
             selectedJob: false,
             companyInfo: false,
         }
     },
     methods: {
+        onChangePagination() {
+            this.reloadCompanyList();
+        },
+        async reloadCompanyList() {
+            const userData = await this.getFilterOptions();
+            console.log(">>>>>company list", userData)
+            this.companyList = userData.users;
+            this.totalCount = userData.totalCount;
+        },
+        async getFilterOptions() {
+            try {
+                return await $fetch(`http://localhost:8000/users/getAllCompanies?currentPage=${this.currentPage}`);
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        onChangeSelectedCompanyPostsPagination() {
+            this.reloadSelectedCompanyPosts();
+        },
+        async reloadSelectedCompanyPosts() {
+            const postData = await this.getFilterSelectedCompanyPostsOptions();
+            console.log(">>>>>selected company post", postData)
+            this.selectCompanyPosts = postData.posts;
+            this.totalSelectedCompanyPostsCount = postData.totalCount;
+        },
+        async getFilterSelectedCompanyPostsOptions() {
+            if (this.selectCompany) {
+                try {
+                    return await $fetch(`http://localhost:8000/posts/getCompanyPosts/${this.selectCompany._id}?currentPage=${this.currentSelectedCompanyPostsPage}`);
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+        },
         async changePostStatus(item, newState) {
             let text;
             if (newState == 2) {
@@ -253,7 +313,7 @@ export default {
                                 }
                             })
                         message.success('Thay đổi trạng thái tin tuyển dụng thành công');
-                        app.selectCompanyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + item.com_created);
+                        app.reloadSelectedCompanyPosts();
                     } catch (error) {
                         console.log(error)
                         // this.openNotificationWithIcon('error')
@@ -276,9 +336,9 @@ export default {
                 cancelText: 'Hủy',
                 async onOk() {
                     try {
-                        await $fetch('http://localhost:8000/posts/deletePost/' + post._id, { method: 'DELETE', })
+                        await $fetch('http://localhost:8000/posts/deletePost/' + item._id, { method: 'DELETE', })
                         message.success('Xóa tin thành công');
-                        app.allPostData = await $fetch('http://localhost:8000/posts/getAll');
+                        app.reloadSelectedCompanyPosts();
                     } catch (error) {
                         console.log(error);
                     }
@@ -300,7 +360,7 @@ export default {
                     try {
                         await $fetch('http://localhost:8000/users/' + user._id, { method: 'DELETE', })
                         message.success('Xóa người dùng thành công');
-                        app.allUserData = await $fetch('http://localhost:8000/users/getAllCompanies');
+                        app.reloadCompanyList()
                     } catch (error) {
                         console.log(error);
                     }
@@ -320,7 +380,7 @@ export default {
         },
         async showCompanyInfo(candidate) {
             this.selectCompany = candidate
-            this.selectCompanyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + candidate._id);
+            this.reloadSelectedCompanyPosts()
             this.open = true;
             console.log("show", candidate)
         },
@@ -330,16 +390,26 @@ export default {
             this.isLogin = localStorage.getItem('loginUserID');
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
-                this.allUserData = await $fetch('http://localhost:8000/users/getAllCompanies');
             }
+            this.reloadCompanyList();
         }
     },
     computed: {
-        getAllCompany() {
-            return Object.values(this.allUserData);
+        getCompanyList() {
+            return this.companyList;
+        },
+        getSelectedCompanyPost() {
+            return this.selectCompanyPosts;
         }
     }
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0px;
+    // background-color: rgb(203, 191, 191);
+}
+</style>

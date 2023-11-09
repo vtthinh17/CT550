@@ -2,7 +2,7 @@
   <a-layout :name="Ungvien">
     <h2>Danh sách công ty</h2>
     <a-row justify="space-around" style="padding: 0px 20px;">
-      <a-col v-for="company in propertyComputed" :span="7">
+      <a-col v-for="company in getCompanyList" :span="7">
         <a-card hoverable class="cardItem" @click="gotoCompanyInfo(company)">
           <div class="khungAvatar">
             <img v-if="company.com_logo" class="com_img" v-bind:src="company.com_logo" alt="">
@@ -10,11 +10,14 @@
           </div>
           <b>{{ company.com_name }}</b>
           <p style="color: rgb(66,118,221);">
-            {{ company.totalDisplayPosts > 0 ? 'Đang tuyển '+ company.totalDisplayPosts + ' việc': 'Chưa có tin tuyển dụng nào' }}
+            {{ company.totalDisplayPosts > 0 ? 'Đang tuyển ' + company.totalDisplayPosts + ' việc' : 'Chưa có tin tuyển dụng nào' }}
           </p>
         </a-card>
       </a-col>
     </a-row>
+    <div class="pagination">
+      <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" />
+    </div>
   </a-layout>
 </template>
   
@@ -39,45 +42,71 @@ export default {
       value: ref(),
       open: false,
       selectedCompany: {},
+      companyList: [],
       data: [],
       open: Boolean,
       options: [],
+      totalCount: 0,
+      currentPage: 1,
     }
-
-  },
-  methods: {
 
   },
 
   async mounted() {
     if (process.client) {
       this.data = myData;
-      this.companies = await $fetch('http://localhost:8000/users/getAllCompanies');
-      console.log("getAllCompanies:", this.companies);
+      // this.companies = await $fetch('http://localhost:8000/users/getAllCompanies');
+      // console.log("getAllCompanies:", this.companies);
+      this.reloadCompanyList();
     }
+
   },
 
-  computed: {
-    propertyComputed() {
-      console.log(this.companies);
-      return this.companies
-    },
-    posts() {
-      return this.companies.posts;
-    }
-  },
-  
   methods: {
     gotoCompanyInfo(com) {
       navigateTo('/ungvien/companies/' + com._id)
     },
-  }
+
+    onChangePagination() {
+      this.reloadCompanyList();
+    },
+
+    async reloadCompanyList() {
+      const userData = await this.getFilterOptions();
+      console.log(">>>>>", userData)
+      this.companyList = userData.users;
+      this.totalCount = userData.totalCount;
+    },
+
+    async getFilterOptions() {
+      try {
+        return await $fetch(`http://localhost:8000/users/getAllCompanies?currentPage=${this.currentPage}`);
+      } catch (error) {
+        console.log(error)
+      }
+    },
+  },
+
+  computed: {
+    getCompanyList() {
+      return this.companyList;
+    },
+    getSelectedCompanyPost() {
+      return this.selectCompanyPost;
+    }
+  },
 
 }
 
 </script>
 
 <style scoped lang="scss">
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0px;
+    // background-color: rgb(203, 191, 191);
+}
 :where(.css-dev-only-do-not-override-eq3tly).ant-modal-root .ant-modal-mask {
   background: rgba(0, 0, 0, 0.1) !important;
 }

@@ -19,16 +19,16 @@ export class PostsController {
     return this.postService.deletePost(id);
   }
   @Get('getCompanyPosts/:id')
-  getCompanyPosts(@Param('id') id: string) {
-    return this.postService.getCompanyPosts(id);
+  getCompanyPosts(@Param('id') id: string, @Query('currentPage') currentPage: number) {
+    return this.postService.getCompanyPosts(currentPage,id);
   }
   @Get('getPostsStatus1')
   get1() {
     return this.postService.getPostStatus1();
   }
-  @Get('getCompanyDisplayPosts/:id')
-  getCompanyDisplayPosts(@Param('id') id: string) {
-    return this.postService.getCompanyDisplayPosts(id);
+  @Get('getCompanyActivePosts/:id')
+  getCompanyActivePosts(@Param('id') id: string,@Query('currentPage') currentPage: number ) {
+    return this.postService.getCompanyActivePosts(currentPage,id);
   }
 
   @Get('getPostByFilter')
@@ -38,6 +38,16 @@ export class PostsController {
   @Get('getReferPostByFilter')
   getReferPostByFilter(@Query('currentReferPage') currentReferPage: number) {
     return this.postService.getReferPostByFilter(currentReferPage);
+  }
+
+  @Get('getSysTemPosts')
+  getSysTemPosts(@Query('currentPage') currentPage: number) {
+    return this.postService.getSysTemPosts(currentPage);
+  }
+
+  @Get('getReferPosts')
+  getReferPosts(@Query('currentReferPage') currentReferPage: number) {
+    return this.postService.getReferPosts(currentReferPage);
   }
   
   @Get('getAllDisplay')

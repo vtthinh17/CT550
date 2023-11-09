@@ -3,7 +3,10 @@
         <div v-if="userLogin && userLogin.role == '3'">
             <h2>Quản lý danh sách ứng viên</h2>
             <a-layout-content>
-                <a-list size="large" bordered :data-source="getAllUser">
+                <a-list size="large" bordered :data-source="getCandidatesList">
+                    <template #header>
+                        <h1>Số lượng: {{ totalCount }}</h1>
+                    </template>
                     <template #renderItem="{ item }">
                         <a-list-item class="hoverItem">
                             <a-row style="width: 80%;">
@@ -17,8 +20,10 @@
                                                 alt="user-male-circle--v1" />
                                         </a-col>
                                         <a-col :span="16">
-                                            <div>Họ tên: {{ item.cv.fullName ? item.cv.fullName : 'Chưa cập nhật' }}</div>
-                                            <div>Năm sinh: {{ item.cv.birthday ? item.cv.birthday : 'Chưa cập nhật' }}</div>
+                                            <div>Họ tên: {{ item.cv.fullName ? item.cv.fullName : 'Chưa cập nhật' }}
+                                            </div>
+                                            <div>Năm sinh: {{ item.cv.birthday ? item.cv.birthday : 'Chưa cập nhật' }}
+                                            </div>
                                             <div>Giới tính:
                                                 <span v-if="item.cv.sex">
                                                     <span v-if="item.cv.sex == 1">Nam</span>
@@ -27,7 +32,8 @@
                                                 <span v-else>Chưa cập nhật</span>
 
                                             </div>
-                                            <div>Nơi sống: {{ item.cv.province ? item.cv.province : 'Chưa cập nhật' }}</div>
+                                            <div>Nơi sống: {{ item.cv.province ? item.cv.province : 'Chưa cập nhật' }}
+                                            </div>
                                         </a-col>
                                     </a-row>
                                 </a-col>
@@ -41,6 +47,10 @@
                         </a-list-item>
                     </template>
                 </a-list>
+                <div class="pagination">
+                    <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
+                        :total="totalCount" />
+                </div>
                 <a-modal v-model:open="open" title="Hồ sơ cá nhân" width="100%" wrap-class-name="full-modal" @ok="handleOk">
                     <div class="CV_header">
                         <a-row>
@@ -60,9 +70,12 @@
                                         <img width="30" height="30" src="https://img.icons8.com/ios/50/contact-card.png"
                                             alt="contact-card" />
                                     </h3>
-                                    <div>Địa chỉ: {{ selectedCV.cv.address ? selectedCV.cv.address : 'Chưa cập nhật' }}</div>
+                                    <div>Địa chỉ: {{ selectedCV.cv.address ? selectedCV.cv.address : 'Chưa cập nhật' }}
+                                    </div>
                                     <div>Email: {{ selectedCV.username }}</div>
-                                    <div>Số điện thoại: {{ selectedCV.cv.phone ? selectedCV.cv.phone : 'Chưa cập nhật'  }}</div>
+                                    <div>Số điện thoại: {{ selectedCV.cv.phone ? selectedCV.cv.phone : 'Chưa cập nhật'
+                                    }}
+                                    </div>
                                 </div>
                             </a-col>
 
@@ -71,7 +84,7 @@
 
                                 <div>
                                     <h3>Giới thiệu</h3>
-                                    <p>{{ selectedCV.cv.brief_intro? selectedCV.cv.brief_intro : 'Chưa cập nhật'}}</p>
+                                    <p>{{ selectedCV.cv.brief_intro ? selectedCV.cv.brief_intro : 'Chưa cập nhật' }}</p>
                                     <a-divider />
                                     <h3>Học vấn
                                         <img width="30" height="30"
@@ -122,7 +135,7 @@
                                 </div>
 
                             </a-col>
-                            
+
                         </a-row>
                     </div>
                     <template #footer>
@@ -162,13 +175,30 @@ export default {
         return {
             isLogin: false,
             userLogin: {},
-            allUserData: false,
             candidatesList: [],
             open: false,
             selectedCV: false,
+            totalCount: 0,
+            currentPage: 1,
         }
     },
     methods: {
+        onChangePagination() {
+            this.reloadCandidatesList();
+        },
+        async reloadCandidatesList() {
+            const userData = await this.getFilterOptions();
+            console.log(">>>>>", userData)
+            this.candidatesList = userData.users;
+            this.totalCount = userData.totalCount;
+        },
+        async getFilterOptions() {
+            try {
+                return await $fetch(`http://localhost:8000/users/getAllCandidates?currentPage=${this.currentPage}`);
+            } catch (error) {
+                console.log(error)
+            }
+        },
         handleRemoveUser(user) {
             let app = this;
             Modal.confirm({
@@ -181,7 +211,7 @@ export default {
                     try {
                         await $fetch('http://localhost:8000/users/' + user._id, { method: 'DELETE', })
                         message.success('Xóa người dùng thành công');
-                        app.allUserData = await $fetch('http://localhost:8000/users/getAllCandidates');
+                        app.reloadCandidatesList()
                     } catch (error) {
                         console.log(error);
                     }
@@ -202,17 +232,23 @@ export default {
             this.isLogin = localStorage.getItem('loginUserID');
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
-                this.allUserData = await $fetch('http://localhost:8000/users/getAllCandidates');
-                console.log(this.allUserData)
             }
+            this.reloadCandidatesList()
         }
     },
     computed: {
-        getAllUser() {
-            return Object.values(this.allUserData);
+        getCandidatesList() {
+            return this.candidatesList;
         }
     }
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0px;
+    // background-color: rgb(203, 191, 191);
+}
+</style>

@@ -6,7 +6,11 @@
 
             <a-layout-content>
                 <a-card :tab-list="tabListNoTitle" :active-tab-key="noTitleKey" @tabChange="key => onTabChange(key)">
-                    <a-list v-if="noTitleKey === 'tab1'" size="large" bordered :data-source="getAllPost">
+                    <!-- Tin được tạo trên hệ thống -->
+                    <a-list v-if="noTitleKey === 'tab1'" size="large" bordered :data-source="getSystemPosts">
+                        <template #header>
+                            <h1>Số lượng: {{ totalCount }}</h1>
+                            </template>                      
                         <template #renderItem="{ item }">
                             <a-list-item style="border: 1px solid rgb(128, 121, 121);">
                                 <a-row style="width: 100%;">
@@ -39,8 +43,7 @@
                                     <a-col :span="14">
                                         <a-button type="primary" @click="showJob(item)">Xem tin tuyển dụng</a-button>
                                         <a-divider type="vertical" />
-                                        <a-button v-if="item.status == 2" danger @click="deletePost(item)">Xóa
-                                            tin</a-button>
+                                        <a-button danger @click="deletePost(item)">Xóa tin</a-button>
                                         <a-divider type="vertical" />
                                         <a-button v-if="item.status == 1" @click="changePostStatus(item, 2)"
                                             style="background-color: rgb(240, 240, 132);"> Ẩn tin tuyển dụng
@@ -52,18 +55,73 @@
                                 </a-row>
                             </a-list-item>
                         </template>
+                        <div class="pagination">
+                            <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
+                                :total="totalCount" />
+                        </div>
                     </a-list>
-                    <div v-else>
-                       a-list get reference list
-                    </div>
+                    <!-- Tin tham khảo -->
+                    <a-list v-else size="large" bordered :data-source="getReferPosts">
+                        <template #header>
+                            <h1>Số lượng: {{ totalReferCount }}</h1>
+                            </template>   
+                        <template #renderItem="{ item }">
+                            <a-list-item style="border: 1px solid rgb(128, 121, 121);">
+                                <a-row style="width: 100%;">
+                                    <a-col :span="10">
+                                        <b>Tuyển dụng:</b> {{ item.job_title }}
+                                        <div>
+                                            <p>
+                                                Mức lương: {{ item.job_salary }}
+                                            </p>
+                                            <p>
+                                                Hạn nộp: {{ item.deadline }}
+                                            </p>
+
+                                            <p>Trạng thái:
+                                                <span v-if="item.status == 0"
+                                                    style="background-color: rgb(240, 224, 131); padding: 0.4rem;">
+                                                    Đang chờ duyệt
+                                                </span>
+                                                <span v-else-if="item.status == 1"
+                                                    style="background-color: rgb(140, 228, 140); padding: 0.4rem;">
+                                                    Đang hiển thị
+                                                </span>
+                                                <span v-else style="background-color: rgb(237, 154, 154); padding: 0.4rem;">
+                                                    Đã ẩn
+                                                </span>
+                                            </p>
+
+                                        </div>
+                                    </a-col>
+                                    <a-col :span="14">
+                                        <a-button type="primary" @click="showJob(item)">Xem tin tuyển dụng</a-button>
+                                        <a-divider type="vertical" />
+                                        <a-button danger @click="deletePost(item)">Xóa tin</a-button>
+                                        <a-divider type="vertical" />
+                                        <a-button v-if="item.status == 1" @click="changePostStatus(item, 2)"
+                                            style="background-color: rgb(240, 240, 132);"> Ẩn tin tuyển dụng
+                                        </a-button>
+                                        <a-button v-if="item.status == 0" @click="changePostStatus(item, 1)"
+                                            style="background-color: rgb(66, 243, 66);"> Duyệt/Hiển thị tin
+                                        </a-button>
+                                    </a-col>
+                                </a-row>
+                            </a-list-item>
+                        </template>
+                        <div class="pagination">
+                            <a-pagination @change="onChangeReferPagination" v-model:current="currentReferPage" :pageSize="6"
+                                :total="totalReferCount" />
+                        </div>
+                    </a-list>
                 </a-card>
             </a-layout-content>
 
-            <!-- Modal selected job info -->
+            <!-- Modal show selected jobInfo -->
             <a-modal width="90%" v-model:open="openJob" @ok="this.openJob = false"
                 v-bind:title="'Tuyển dụng: ' + selectedJob.job_title">
+                <!-- Tin tham khảo -->
                 <div v-if="selectedJob.job_link">
-                    {{ console.log("select", selectedJob) }}
                     <a-row>
                         <a-col :span="8">
                             <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
@@ -102,20 +160,15 @@
                             </a-row>
                         </a-col>
                     </a-row>
-
                     <h4>Mô tả công việc:</h4>
-                    <p>{{ selectedJob.job_description }}</p>
+                    <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
                     <h4>Yêu cầu công việc:</h4>
-                    <!-- <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea> -->
-                    {{ selectedJob.job_requirement }}
-
-
+                    <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea>
                     <h4 v-if="selectedJob.job_benefit">Lợi ích:</h4>
-                    <a-textarea v-if="selectedJob.job_benefit" v-model:value="selectedJob.job_benefit"
-                        rows="5"></a-textarea>
-                    <!-- {{ selectedJob.job_benefit }} -->
+                    <a-textarea v-if="selectedJob.job_benefit" v-model:value="selectedJob.job_benefit" rows="5"></a-textarea>
 
                 </div>
+                <!-- Tin trên hệ thống -->
                 <div v-else>
                     <a-row>
                         <a-col :span="8">
@@ -156,15 +209,12 @@
                             </a-row>
                         </a-col>
                     </a-row>
+                    <h4>Mô tả công việc:</h4>
+                    <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
                     <h4>Yêu cầu công việc:</h4>
-                    <span v-for=" i  in  selectedJob.job_requirement ">
-                        {{ i }}
-                    </span>
-
+                    <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
                     <h4>Lợi ích:</h4>
-                    <span v-for=" i  in  selectedJob.job_benefit ">
-                        {{ i }}
-                    </span>
+                    <a-textarea v-model:value="selectedJob.job_benefit" rows="5"></a-textarea>
                 </div>
             </a-modal>
 
@@ -209,13 +259,49 @@ export default {
             openJob: false,
             isLogin: false,
             userLogin: {},
-            allPostData: false,
             candidatesList: [],
             companyInfo: false,
             selectedCV: false,
+            systemPosts: [],
+            totalCount: 0,
+            currentPage: 1,
+            referPosts: [],
+            totalReferCount: 0,
+            currentReferPage: 1,
         }
     },
     methods: {
+        onChangePagination() {
+            this.reloadSystemPosts();
+        },
+        async reloadSystemPosts() {
+            const postData = await this.getFilterOptions();
+            this.systemPosts = postData.posts;
+            this.totalCount = postData.totalCount;
+        },
+        async getFilterOptions() {
+            try {
+                return await $fetch(`http://localhost:8000/posts/getSysTemPosts?currentPage=${this.currentPage}`);
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        onChangeReferPagination() {
+            this.reloadReferPosts();
+        },
+        async reloadReferPosts() {
+            const postData = await this.getReferFilterOptions();
+            console.log(postData)
+            this.referPosts = postData.posts;
+            this.totalReferCount = postData.totalReferCount;
+        },
+        async getReferFilterOptions() {
+            try {
+                return await $fetch(`http://localhost:8000/posts/getReferPosts?currentReferPage=${this.currentReferPage}`);
+            } catch (error) {
+                console.log(error)
+            }
+        },
         onTabChange(value) {
             this.noTitleKey = value;
         },
@@ -243,7 +329,8 @@ export default {
                                 }
                             })
                         message.success('Thay đổi trạng thái tin tuyển dụng thành công');
-                        app.allPostData = await $fetch('http://localhost:8000/posts/getAll');
+                        app.reloadSystemPosts()
+                        app.reloadReferPosts();
                     } catch (error) {
                         console.log(error)
                         // this.openNotificationWithIcon('error')
@@ -268,7 +355,8 @@ export default {
                     try {
                         await $fetch('http://localhost:8000/posts/deletePost/' + job._id, { method: 'DELETE', })
                         message.success('Xóa tin thành công');
-                        app.allPostData = await $fetch('http://localhost:8000/posts/getAll');
+                        app.reloadSystemPosts()
+                        app.reloadReferPosts();
                     } catch (error) {
                         console.log(error);
                     }
@@ -293,26 +381,27 @@ export default {
             this.isLogin = localStorage.getItem('loginUserID');
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
-                this.allPostData = await $fetch('http://localhost:8000/posts/getAll');
             }
+            this.reloadSystemPosts();
+            this.reloadReferPosts();
         }
     },
     computed: {
-        getCandidateList() {
-            // console.log( Object.values(this.allUserData));
-            Object.values(this.allPostData).forEach(element => {
-                if (element.role == '1') {
-                    console.log(element)
-                    this.candidatesList.push(element)
-                }
-            });
-            return this.candidatesList;
+        getSystemPosts() {
+            return this.systemPosts;
         },
-        getAllPost() {
-            return Object.values(this.allPostData);
-        }
+        getReferPosts() {
+            return this.referPosts;
+        },
     }
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0px;
+    // background-color: rgb(203, 191, 191);
+}
+</style>

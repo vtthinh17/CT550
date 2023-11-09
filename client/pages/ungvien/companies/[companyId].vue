@@ -34,7 +34,7 @@
         <div>
             <a-tabs v-model:activeKey="activeKey" type="card">
                 <a-tab-pane key="1" tab="Việc làm đang tuyển">
-                    <a-list size="large" bordered :data-source="newPosts">
+                    <a-list size="large" bordered :data-source="getCompanyActivePosts">
                         <template #header>
                             <div class="cls1">
                                 <h4>Việc làm đang tuyển</h4>
@@ -58,6 +58,10 @@
                             </a-list-item>
                         </template>
                     </a-list>
+                    <div class="pagination">
+                        <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
+                            :total="totalCount" />
+                    </div>
                 </a-tab-pane>
                 <a-tab-pane key="2" tab="Thông tin công ty">
                     <p v-if="selectCompany.about">
@@ -92,31 +96,31 @@
                 <a-col :span="16">
                     <h2>{{ selectCompany.com_name }}</h2>
                     <a-row>
-                        <a-col :span="4"><b> Lĩnh vực:</b></a-col>
+                        <a-col :span="6"><b> Lĩnh vực:</b></a-col>
                         <a-col :span="10">{{ selectedJob.major }}</a-col>
                     </a-row>
                     <a-row>
-                        <a-col :span="4"><b> Hình thức làm việc:</b></a-col>
+                        <a-col :span="6"><b> Hình thức làm việc:</b></a-col>
                         <a-col :span="10">{{ selectedJob.workingType }}</a-col>
                     </a-row>
                     <a-row>
-                        <a-col :span="4"><b> Mức lương:</b></a-col>
+                        <a-col :span="6"><b> Mức lương:</b></a-col>
                         <a-col :span="10">{{ selectedJob.job_salary }}</a-col>
                     </a-row>
                     <a-row>
-                        <a-col :span="4"><b>Yêu cầu kinh nghiệm:</b></a-col>
+                        <a-col :span="6"><b>Yêu cầu kinh nghiệm:</b></a-col>
                         <a-col :span="10">{{ selectedJob.expRequire }}</a-col>
                     </a-row>
                     <a-row>
-                        <a-col :span="4"><b>Yêu cầu bằng cấp:</b></a-col>
+                        <a-col :span="6"><b>Yêu cầu bằng cấp:</b></a-col>
                         <a-col :span="10">{{ selectedJob.educationRequire }}</a-col>
                     </a-row>
                     <a-row>
-                        <a-col :span="4"><b>Địa chỉ công ty:</b></a-col>
+                        <a-col :span="6"><b>Địa chỉ công ty:</b></a-col>
                         <a-col :span="10">{{ selectCompany.com_location }}</a-col>
                     </a-row>
                     <a-row>
-                        <a-col :span="4"><b>Số điện thoại:</b></a-col>
+                        <a-col :span="6"><b>Số điện thoại:</b></a-col>
                         <a-col :span="10">{{ selectCompany.com_phone }}</a-col>
                     </a-row>
                 </a-col>
@@ -174,11 +178,13 @@ export default {
             reviewContent: '',
             selectCompany: false,
             openMessage: false,
-            companyPosts: [],
+            companyActivePosts: [],
             open: false,
             userLogin: false,
             isLogin: '',
             selectedJob: false,
+            totalCount: 0,
+            currentPage: 1,
             data: [
                 {
                     "job_title": ["Nhân Viên Kinh Doanh"],
@@ -205,13 +211,25 @@ export default {
             }
         }
         this.selectCompany = await $fetch('http://localhost:8000/users/getUser/' + useRoute().params.companyId)
-        console.log("mouted:", this.selectCompany)
-        this.companyPosts = await $fetch('http://localhost:8000/posts/getCompanyDisplayPosts/' + useRoute().params.companyId);
-        console.log("tin tuyen dung cua cong ty:", this.companyPosts);
-
+        this.reloadCompanyActivePost()
 
     },
     methods: {
+        onChangePagination() {
+            this.reloadCompanyActivePost();
+        },
+        async reloadCompanyActivePost() {
+            const postData = await this.getFilterOptions();
+            this.companyActivePosts = postData.posts;
+            this.totalCount = postData.totalCount;
+        },
+        async getFilterOptions() {
+            try {
+                return await $fetch(`http://localhost:8000/posts/getCompanyActivePosts/${useRoute().params.companyId}?currentPage=${this.currentPage}`);
+            } catch (error) {
+                console.log(error)
+            }
+        },
         addBreakLine(data) {
             return data.replaceAll("\\n", "\n")
             // console.log("add br", Array.from(data.matchAll(/\n/gi)))
@@ -323,6 +341,7 @@ export default {
         },
         showModal(job) {
             this.selectedJob = job
+            this.reloadCompanyActivePost();
             this.open = true;
         },
 
@@ -337,23 +356,22 @@ export default {
         },
     },
     computed: {
-        newPosts() {
-            return this.companyPosts;
-        },
-        // newParam(){
-        //     return useRoute().params.companyId
-        // }
-    },
+        getCompanyActivePosts() {
+            return this.companyActivePosts;
+        }
 
-    // watch:{
-    //     'routeId':{
-    //         return useRoute().params.companyId
-    //     }
-    // }
+    },
 }
 </script>
 
 <style lang="scss" scoped>
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0px;
+    // background-color: rgb(203, 191, 191);
+}
+
 .cls1 {
     background-color: #9fb8db;
     height: 2rem;

@@ -28,7 +28,7 @@
                     </a-row>
                 </div>
                 <h2 class="job_type">
-                    <CaretRightOutlined />Tin tham khảo
+                    <CaretRightOutlined />Tin tham khảo: {{ totalReferCount }} 
                 </h2>
                 <a-divider />
                 <a-row style="display: flex;justify-content: space-evenly;">
@@ -60,7 +60,7 @@
                 </div>
 
                 <h2 class="job_type">
-                    <CaretRightOutlined />Có thể ứng tuyển
+                    <CaretRightOutlined />Có thể ứng tuyển: {{ totalCount }} 
                 </h2>
                 <div style="background-color: #5b7fb4; padding: 1rem;">
                     <div style="display: flex; justify-content: center;">
@@ -126,48 +126,45 @@
                 <a-modal v-model:open="open" v-bind:title="'Tuyển dụng: ' + selectedJob.job_title" @ok="handleOk"
                     width="100%">
                     <div v-if="selectedJob.job_link">
-                        {{ console.log("select", selectedJob) }}
                         <a-row>
                             <a-col :span="8">
                                 <div v-if="selectedJob.logo" style="display: flex;justify-content: center;">
-                                    <img style="width: 30%;" alt="example" v-bind:src=selectedJob.logo
-                                        class="job-item_logo" />
+                                    <img style="width: 50%;" alt="example" v-bind:src=selectedJob.logo />
                                 </div>
                                 <div v-else style="display: flex;justify-content: center;">
-                                    <img style="width: 30%;" alt="example"
-                                        src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
-                                        class="job-item_logo" />
+                                    <img style="width: 50%;" alt="example"
+                                        src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" />
                                 </div>
                             </a-col>
                             <a-col :span="16">
                                 <h2>{{ selectedJob.company }}</h2>
                                 <a-row>
-                                    <a-col :span="4"><b> Lĩnh vực:</b></a-col>
+                                    <a-col :span="6"><b> Lĩnh vực:</b></a-col>
                                     {{ console.log("linh vuc", selectedJob) }}
                                     <a-col :span="10">{{ selectedJob.major }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b> Hình thức làm việc:</b></a-col>
+                                    <a-col :span="6"><b> Hình thức làm việc:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.workingType }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b> Mức lương:</b></a-col>
+                                    <a-col :span="6"><b> Mức lương:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.job_salary }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Yêu cầu kinh nghiệm:</b></a-col>
+                                    <a-col :span="6"><b>Yêu cầu kinh nghiệm:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.expRequire }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Yêu cầu bằng cấp:</b></a-col>
+                                    <a-col :span="6"><b>Yêu cầu bằng cấp:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.educationRequire }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Địa chỉ công ty:</b></a-col>
+                                    <a-col :span="6"><b>Địa chỉ công ty:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.com_location }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Số điện thoại:</b></a-col>
+                                    <a-col :span="6"><b>Số điện thoại:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.com_phone }}</a-col>
                                 </a-row>
                             </a-col>
@@ -191,11 +188,11 @@
                         <a-row>
                             <a-col :span="8">
                                 <div v-if="companyInfo.com_logo" style="display: flex;justify-content: center;">
-                                    <img style="width: 30%;" alt="example" v-bind:src=companyInfo.com_logo
+                                    <img style="width: 50%;" alt="example" v-bind:src=companyInfo.com_logo
                                         class="job-item_logo" />
                                 </div>
                                 <div v-else style="display: flex;justify-content: center;">
-                                    <img style="width: 30%;" alt="example"
+                                    <img style="width: 50%;" alt="example"
                                         src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"
                                         class="job-item_logo" />
                                 </div>
@@ -203,31 +200,31 @@
                             <a-col :span="16">
                                 <h2>{{ companyInfo.com_name }}</h2>
                                 <a-row>
-                                    <a-col :span="4"><b> Lĩnh vực:</b></a-col>
+                                    <a-col :span="6"><b> Lĩnh vực:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.major }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b> Hình thức làm việc:</b></a-col>
+                                    <a-col :span="6"><b> Hình thức làm việc:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.workingType }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b> Mức lương:</b></a-col>
+                                    <a-col :span="6"><b> Mức lương:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.job_salary }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Yêu cầu kinh nghiệm:</b></a-col>
+                                    <a-col :span="6"><b>Yêu cầu kinh nghiệm:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.expRequire }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Yêu cầu bằng cấp:</b></a-col>
+                                    <a-col :span="6"><b>Yêu cầu bằng cấp:</b></a-col>
                                     <a-col :span="10">{{ selectedJob.educationRequire }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Địa chỉ công ty:</b></a-col>
+                                    <a-col :span="6"><b>Địa chỉ công ty:</b></a-col>
                                     <a-col :span="10">{{ companyInfo.com_location }}</a-col>
                                 </a-row>
                                 <a-row>
-                                    <a-col :span="4"><b>Số điện thoại:</b></a-col>
+                                    <a-col :span="6"><b>Số điện thoại:</b></a-col>
                                     <a-col :span="10">{{ companyInfo.com_phone }}</a-col>
                                 </a-row>
                             </a-col>
@@ -690,7 +687,7 @@ body {
     margin-left: 2rem;
     font-size: 1.4rem;
     color: rgb(41, 27, 167);
-    width: 13rem;
+    width: 20rem;
 }
 
 .ant-card {

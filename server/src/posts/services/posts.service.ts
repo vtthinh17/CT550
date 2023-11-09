@@ -44,6 +44,7 @@ export class PostsService {
       const post = await this.postModel.findById(id);
       await this.postModel.findByIdAndDelete(id);
       await this.userService.decreaseTotalPost(post.com_created);
+      await this.userService.decreaseTotalDisplayPost(post.com_created);
     } catch (error) {
       throw new HttpException('Error get post', HttpStatus.BAD_REQUEST);
     }
@@ -169,6 +170,60 @@ export class PostsService {
       totalCount: totalCount,
     };
   }
+  async getSysTemPosts(currentPage: number) {
+    const filterObject = {
+      com_created: { $exists: true },
+    };
+    // patch remove empty property
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    // limit 6 items each fetch
+    const skipCount = (currentPage - 1) * 6;
+    const post = await this.postModel
+      .find(filterObject)
+      .limit(6)
+      .skip(skipCount)
+      .then((post) => {
+        return post;
+      })
+      .catch((err) => console.log(err));
+    const totalCount = await this.postModel.find(filterObject).countDocuments();
+    console.log(totalCount);
+    return {
+      posts: post,
+      totalCount: totalCount,
+    };
+  }
+  async getReferPosts(currentReferPage: number) {
+    const filterObject = {
+      job_link: { $exists: true },
+    };
+    // patch remove empty property
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    // limit 6 items each fetch
+    const skipCount = (currentReferPage - 1) * 6;
+    const post = await this.postModel
+      .find(filterObject)
+      .limit(6)
+      .skip(skipCount)
+      .then((post) => {
+        return post;
+      })
+      .catch((err) => console.log(err));
+    const totalCount = await this.postModel.find(filterObject).countDocuments();
+    console.log(totalCount);
+    return {
+      posts: post,
+      totalReferCount: totalCount,
+    };
+  }
   async createPost(createPostDto: CreatePostDto): Promise<Post> {
     try {
       const newPost = new this.postModel({
@@ -214,21 +269,60 @@ export class PostsService {
       throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
     }
   }
-  async getCompanyPosts(companyId: string) {
-    return this.postModel
-      .find({ com_created: companyId })
+  async getCompanyPosts(currentReferPage: number, companyId: string) {
+    const filterObject = {
+      com_created: companyId,
+    };
+    // patch remove empty property
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    // limit 6 items each fetch
+    const skipCount = (currentReferPage - 1) * 6;
+    const post = await this.postModel
+      .find(filterObject)
+      .limit(6)
+      .skip(skipCount)
       .then((post) => {
         return post;
       })
       .catch((err) => console.log(err));
+    const totalCount = await this.postModel.find(filterObject).countDocuments();
+    console.log(totalCount);
+    return {
+      posts: post,
+      totalCount: totalCount,
+    };
   }
-  async getCompanyDisplayPosts(companyId: string) {
-    return this.postModel
-      .find({ com_created: companyId, status: 1 })
+  async getCompanyActivePosts(currentReferPage: number, companyId: string) {
+    const filterObject = {
+      com_created: companyId,
+      status: 1,
+    };
+    // patch remove empty property
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    // limit 6 items each fetch
+    const skipCount = (currentReferPage - 1) * 6;
+    const post = await this.postModel
+      .find(filterObject)
+      .limit(6)
+      .skip(skipCount)
       .then((post) => {
         return post;
       })
       .catch((err) => console.log(err));
+    const totalCount = await this.postModel.find(filterObject).countDocuments();
+    console.log(totalCount);
+    return {
+      posts: post,
+      totalReferCount: totalCount,
+    };
   }
   async changePostStatus(postId: string, updatePostDto: UpdatePostDto) {
     console.log('new state', updatePostDto.status);

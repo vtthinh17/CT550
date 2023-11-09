@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, Delete, Param, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Delete, Param, Put, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 // import { Request } from 'express';
 import { UsersService } from '../services/users.service';
 // import { User } from '../models/user.model';
@@ -14,12 +14,12 @@ export class UsersController {
         return this.userService.getUser(id);
     }
     @Get('getAllCompanies')
-    getAllCompanies() {
-        return this.userService.getAllCompanies();
+    getAllCompanies(@Query('currentPage') currentPage: number) {
+        return this.userService.getAllCompanies(currentPage);
     }
     @Get('getAllCandidates')
-    getCandidates() {
-        return this.userService.getAllCandidates();
+    getCandidates(@Query('currentPage') currentPage: number) {
+        return this.userService.getAllCandidates(currentPage);
     }
 
     @Post('create')

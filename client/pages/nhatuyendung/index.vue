@@ -6,9 +6,8 @@
         <a-col :span="7"
           style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background-color: rgb(219, 213, 213);"
           class="gradient_item">
-          Số bài đã đăng
-          <b>{{ getNewCompanyPosts.length }}</b>
-          <!-- {{ console.log("so luong:", this.companyPost) }} -->
+          Số tin đã tạo
+          <b>{{ this.totalCount }}</b>
           <img src="" alt="">
         </a-col>
         <a-col :span="7" @click="showAddModal"
@@ -24,37 +23,41 @@
       </a-row>
       <!-- Job list -->
       <h1>Tin của tôi</h1>
-      <div v-if="getNewCompanyPosts.length" class="post_list">
-        <div v-for="post in getNewCompanyPosts" class="job_item">
+      <div v-if="this.totalCount > 0">
+        <div v-for="post in getCompanyPosts" class="job_item">
           <div style="display: flex; flex-direction: row; justify-content: space-around; margin-bottom: 1rem;">
-            <span>
-              <p v-if="post.status == 0" style="background-color: rgb(240, 224, 131);margin-right: 1rem;">
-                Đang chờ duyệt
-              </p>
-              <p v-else-if="post.status == 1" style="background-color: rgb(140, 228, 140);margin-right: 1rem;">
-                Đang hiển thị
-              </p>
-              <p v-else style="background-color: rgb(237, 154, 154);margin-right: 1rem;">
-                Đã ẩn
-              </p>
-            </span>
-            <span>Đăng vào: {{ post.createdAt.slice(0, 24) }}</span>
+
           </div>
           <div>
             <b>Tuyển dụng: {{ post.job_title }}</b>
           </div>
           <div style="display: flex;">
             <div style="flex:2; display: flex;justify-content: center;">
-              <img v-if="userLogin.com_logo" style="width:50%;" v-bind:src="userLogin.com_logo" alt="">
-              <img v-else style="width:50%;" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" alt="">
+              <div>
+                <img v-if="userLogin.com_logo" style="width:90%;" v-bind:src="userLogin.com_logo" alt="">
+                <img v-else style="width:80%;" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" alt="">
+              </div>
             </div>
             <div style="flex:2">
               <b>{{ userLogin.com_name }}</b>
-              {{ console.log("123123", userLogin) }}
-              <p v-if="post.job_salary.includes('tr', 'triệu,TR,TRIỆU')"> Mức lương: {{ post.job_salary }}</p>
-              <p v-else>Mức lương: {{ post.job_salary }}</p>
+              <span>
+                <p v-if="post.status == 0">
+                  <span style="background-color: rgb(240, 224, 131);">Đang chờ duyệt</span>
+                </p>
+                <p v-else-if="post.status == 1">
+                  <span style="background-color: rgb(140, 228, 140);">Đang hiển thị</span>
+                </p>
+                <p v-else>
+                  <span style="background-color: rgb(237, 154, 154);">Đã ẩn</span>
+                </p>
+              </span>
+              <span>Thời gian tạo: {{ post.createdAt.slice(0, 24) }}</span>
 
-              <span class="xemhoso" @click="viewAppiedCandidates(post._id)">
+              <p v-if="post.job_salary.includes('tr', 'triệu,TR,TRIỆU')"> Mức lương: {{ post.job_salary }}</p>
+              <p v-else-if="post.job_salary.includes('h')">Mức lương: {{ post.job_salary }}</p>
+              <p v-else>Mức lương: {{ post.job_salary }} triệu</p>
+
+              <span v-if="post.status == 1" class="xemhoso" @click="viewAppiedCandidates(post._id)">
                 <a-tooltip>
                   <template #title>Xem danh sách hồ sơ</template>
                   <UserOutlined /> Hồ sơ đã nộp: {{ post.applied.length }}
@@ -62,24 +65,31 @@
               </span>
             </div>
             <div style="flex: 6;">
-              <a-button danger v-if="post.status == 1" @click="hidePost(post._id)">
-                <EyeInvisibleOutlined /> Ngưng tuyển dụng
-              </a-button>
-              <a-divider type="vertical" v-if="post.status == 1" />
-
               <a-button v-if="post.status != 2" key="submit" type="primary" @click="handleEdit(post._id)">
                 <EditOutlined />Xem/Chỉnh sửa bài đăng
               </a-button>
-              <div>
-
-              </div>
+              <a-divider type="vertical" v-if="post.status == 1" />
+              <a-button danger v-if="post.status == 1" @click="hidePost(post._id)">
+                <EyeInvisibleOutlined /> Ngưng tuyển dụng
+              </a-button>
             </div>
           </div>
-        </div>
 
+        </div>
+        <div class="pagination">
+          <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" />
+        </div>
       </div>
       <div v-else>
-        <p>Chưa có dữ liệu, hãy tạo tin mới</p>
+        <a-result title="Bạn chưa đăng tin tuyển dụng nào, hãy tạo tin mới">
+          <template #icon>
+            <smile-twoTone />
+          </template>
+          <template #extra>
+            <a-button type="primary" @click="showAddModal">Tạo tin</a-button>
+          </template>
+        </a-result>
+        <!-- <p>Chưa có dữ liệu, hãy tạo tin mới</p> -->
       </div>
 
       <!-- Edit modal -->
@@ -105,8 +115,6 @@
                   <a-select-option value="Partime">Bán thời gian/Partime</a-select-option>
                   <a-select-option value="Intern">Thực tập/Intern</a-select-option>
                 </a-select>
-                <!-- <a-input type="text" class="input" name="add_workingType" v-model:value="selectedPost.data.workingType"
-                  style="width: 100%;" /> -->
               </a-form-item>
             </a-col>
           </a-row>
@@ -114,7 +122,7 @@
             <!-- Kinh nghiệm -->
             <a-col :span="12">
               <a-form-item label="Yêu cầu kinh nghiệm">
-                <a-select ref="select" v-model:value="selectedPost.data.exReequire" @focus="focus"
+                <a-select ref="select" v-model:value="selectedPost.data.expRequire" @focus="focus"
                   @change="console.log(add_expRequire)">
                   <a-select-option value="Không yêu cầu">Không yêu cầu</a-select-option>
                   <a-select-option value="Dưới 1 năm">Dưới 1 năm</a-select-option>
@@ -124,7 +132,6 @@
                   <a-select-option value="4 năm">4 năm</a-select-option>
                   <a-select-option value="Trên 5 năm">Trên 5 năm</a-select-option>
                 </a-select>
-                <!-- <a-input type="text" class="input" name="add_expRequire" v-model:value="selectedPost.data.expRequire" /> -->
               </a-form-item>
             </a-col>
             <!-- Trình độ -->
@@ -137,8 +144,6 @@
                   <a-select-option value="Cao đẳng">Cao đẳng</a-select-option>
                   <a-select-option value="Trung cấp">Trung cấp</a-select-option>
                 </a-select>
-                <!-- <a-input type="text" class="input" name="add_educationRequire"
-                  v-model:value="selectedPost.data.educationRequire" /> -->
               </a-form-item>
             </a-col>
           </a-row>
@@ -152,14 +157,12 @@
               <a-form-item label="Hạn nộp">
                 <a-date-picker v-model:value="hannop" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
                   @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" />
-                <!-- <a-date-picker v-model:value="selectedPost.data.deadline" :format="'DD/MM/YYYY'" :disabled-date="disabledDate"
-              @change="console.log('a-date-picker:', useDayjs(hannop).format('DD/MM/YYYY'))" /> -->
               </a-form-item>
             </a-col>
             <a-col :span="12">
               <a-form-item label="Tỉnh/Thành phố">
-                <a-select ref="select" v-model:value="selectedPost.data.province" style="width: 120px" :options="provinceOption"
-                  @focus="focus" @change="handleChange"></a-select>
+                <a-select ref="select" v-model:value="selectedPost.data.province" style="width: 120px"
+                  :options="provinceOption" @focus="focus" @change="handleChange"></a-select>
               </a-form-item>
             </a-col>
           </a-row>
@@ -371,6 +374,8 @@ export default {
       modalEditOpen: false,
       isLogin: null,
       userLogin: {},
+      totalCount: 0,
+      currentPage: 1,
       companyPost: [],
       selectedPost: {},
     }
@@ -381,12 +386,28 @@ export default {
       if (this.isLogin !== '') {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
         console.log("nha tuyen dung login profile:", this.userLogin);
-        this.getCompanyPosts();
+        this.reloadCompanyPost();
         this.clearOutDatePosts();
       }
     }
   },
   methods: {
+    onChangePagination() {
+      this.reloadCompanyPost();
+    },
+    async reloadCompanyPost() {
+      const postData = await this.getFilterOptions();
+      console.log(">>>>>", postData)
+      this.companyPost = postData.posts;
+      this.totalCount = postData.totalCount;
+    },
+    async getFilterOptions() {
+      try {
+        return await $fetch(`http://localhost:8000/posts/getCompanyPosts/${this.isLogin}?currentPage=${this.currentPage}`);
+      } catch (error) {
+        console.log(error)
+      }
+    },
     async clearOutDatePosts() {
       try {
         await $fetch('http://localhost:8000/posts/getOutDatePosts', { method: 'PUT', })
@@ -411,20 +432,12 @@ export default {
             educationRequire: this.selectedPost.data.educationRequire,
           }
         })
-        // this.openNotificationWithIcon(
-        //                 'success',
-        //                 'Cập nhật thông tin tuyển dụng thành công!',
-        //                 'Bạn có thể xem và chỉnh sửa thông tin của bài tuyển dụng này trước khi được duyệt.'
-        //             )
         message.success('Cập nhật thông tin tuyển dụng thành công');
         this.modalEditOpen = false;
-        this.getCompanyPosts();
+        this.reloadCompanyPost();
       } catch (error) {
         console.log(error)
       }
-    },
-    async getCompanyPosts() {
-      this.companyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + this.isLogin);
     },
 
     openNotificationWithIcon(type, mess, des) {
@@ -470,7 +483,7 @@ export default {
           'Tạo tin tuyển dụng thành công!',
           'Bạn có thể xem và chỉnh sửa thông tin của bài tuyển dụng này trước khi được duyệt.'
         )
-        this.getCompanyPosts();
+        this.reloadCompanyPost();
         this.open = false
       } catch (error) {
         console.log(error)
@@ -489,51 +502,26 @@ export default {
           })
           this.companyPost = await $fetch('http://localhost:8000/posts/getCompanyPosts/' + this.isLogin);
           message.success('Ngưng tuyển dụng vị trí này');
+          this.reloadCompanyPost();
         } catch (error) {
           console.log(error);
         }
       } else {
       }
-
-
-
-
     },
 
     async handleEdit(id) {
-      
       this.selectedPost = await useFetch('http://localhost:8000/posts/getPost/' + id)
       console.log("chon", this.selectedPost)
       this.hannop = dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')
-      // this.hannop = dayjs(useDayjs(dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')), 'DD/MM/YYYY')
-      // console.log('han: ', useDayjs(this.hannop).format('DD/MM/YYYY'))
-      //  = .data.deadline
       this.modalEditOpen = true;
-    },
-    handleOk(e) {
-      console.log(e);
-      this.modalEditOpen = false;
-    },
-    onClose() {
-      this.open = false;
-    },
-    addPost() {
-      console.log("them post")
-    },
-    rowSelection(event) {
-      console.log(event)
     },
     onChange(pagination, filters, sorter, extra) {
       console.log('params', pagination, filters, sorter, extra);
     },
-    clearLoginInfo() {
-      console.log("thoat")
-      localStorage.removeItem("loginUserID");
-      navigateTo('/login')
-    }
   },
   computed: {
-    getNewCompanyPosts() {
+    getCompanyPosts() {
       return this.companyPost;
     }
   }
@@ -541,23 +529,30 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.pagination {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0px;
+  // background-color: rgb(203, 191, 191);
+}
+
 .xemhoso:hover {
   cursor: pointer;
   background-color: rgb(228, 217, 217);
   padding: 2px;
 }
 
-.post_list {
 
-  // background-color: rgb(67, 61, 61);
-  .job_item {
-    background-color: rgb(255, 254, 254);
-    margin: 2rem 0;
-    box-shadow: rgba(3, 102, 214, 0.3) 0px 0px 0px 3px;
+// background-color: rgb(67, 61, 61);
+.job_item {
+  // border: 1px solid black;
+  background-color: rgb(255, 254, 254);
+  margin: 1rem 0;
+  box-shadow: rgba(3, 102, 214, 0.3) 0px 0px 0px 3px;
 
 
-  }
 }
+
 
 
 .message {
