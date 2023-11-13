@@ -82,24 +82,52 @@ export class PostsService {
     educationRequire: string,
     expRequire: string,
     province: string,
-    // major: string,
+    major: string,
+    salary: string,
   ) {
     const filterObject = {
       workingType: workingType,
       educationRequire: educationRequire,
       expRequire: expRequire,
       province: province,
-      // major: major,
       status: 1,
       com_created: { $exists: true },
     };
+    if (major !== '') {
+      filterObject['major'] = {
+        $regex: major,
+        $options: 'i',
+      };
+    } else {
+      filterObject['major'] = undefined;
+    }
+    if (salary !== '') {
+      if (salary === 'Th') {
+        filterObject['job_salary'] = {
+          $regex: /(Th)|(Cạnh)/,
+          $options: 'i',
+        };
+      } else if (salary === 'tren10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[0-9]( triệu)? -)|(^1[0-9]( triệu)?)|(Trên 1[0-9])|(2[0-9]  -)|(2[0-9]( triệu)? -)|(Trên 2[0-9])|(2[0-9]  -)/,
+          $options: 'i',
+        };
+      } else {
+        filterObject['job_salary'] = {
+          $regex: salary,
+          $options: 'i',
+        };
+      }
+    } else {
+      filterObject['job_salary'] = undefined;
+    }
     // patch remove empty property
     Object.keys(filterObject).forEach((key) => {
       if (filterObject[key] === undefined) {
         delete filterObject[key];
       }
     });
-    console.log('filterObject', filterObject);
     // limit 6 items each fetch
     const skipCount = (currentPage - 1) * 6;
     const post = await this.postModel
@@ -116,18 +144,93 @@ export class PostsService {
       totalCount: totalCount,
     };
   }
-  async getReferPostByFilter(currentReferPage: number) {
+  async getReferPostByFilter(
+    currentReferPage: number,
+    hinhthuc: string,
+    trinhdo: string,
+    thanhpho: string,
+    kinhnghiem: string,
+    linhvuc: string,
+    mucluong: string,
+  ) {
+    // console.log('muc luong', mucluong);
     const filterObject = {
       status: 1,
       job_link: { $exists: true },
     };
+    if (hinhthuc !== undefined) {
+      filterObject['workingType'] = {
+        $regex: hinhthuc,
+        $options: 'i',
+      };
+    }
+    if (trinhdo !== undefined) {
+      filterObject['educationRequire'] = {
+        $regex: trinhdo,
+        $options: 'i',
+      };
+    }
+    if (thanhpho !== undefined) {
+      filterObject['province'] = {
+        $regex: thanhpho,
+        $options: 'i',
+      };
+    }
+    if (kinhnghiem !== undefined) {
+      if (kinhnghiem === '0') {
+        filterObject['expRequire'] = {
+          $regex: /(Không)|(Chưa)|(0)/,
+          $options: 'i',
+        };
+      } else {
+        filterObject['expRequire'] = {
+          $regex: kinhnghiem,
+          $options: 'i',
+        };
+      }
+    }
+    if (linhvuc !== '') {
+      filterObject['major'] = {
+        $regex: linhvuc,
+        $options: 'i',
+      };
+    } else {
+      filterObject['major'] = undefined;
+    }
+    // console.log('muc luong', mucluong);
+    if (mucluong !== '') {
+      if (mucluong === 'Th') {
+        filterObject['job_salary'] = {
+          $regex: /(Th)|(Cạnh)/,
+          $options: 'i',
+        };
+      } else if (mucluong === 'tren10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[0-9]( triệu)? -)|(Trên 1[0-9])|(2[0-9]  -)|(2[0-9]( triệu)? -)|(Trên 2[0-9])|(2[0-9]  -)/,
+          $options: 'i',
+        };
+      } else if (mucluong === 'tren20') {
+        filterObject['job_salary'] = {
+          $regex: /(2[0-9]( triệu)? -)|(Trên 2[0-9])|(2[0-9]  -)|/,
+          $options: 'i',
+        };
+      } else {
+        filterObject['job_salary'] = {
+          $regex: mucluong,
+          $options: 'i',
+        };
+      }
+    } else {
+      filterObject['job_salary'] = undefined;
+    }
     // patch remove empty property
     Object.keys(filterObject).forEach((key) => {
       if (filterObject[key] === undefined) {
         delete filterObject[key];
       }
     });
-    console.log('loc', filterObject);
+    // console.log('loc', filterObject);
     // limit 6 items each fetch
     const skipCount = (currentReferPage - 1) * 6;
     const post = await this.postModel
@@ -139,7 +242,6 @@ export class PostsService {
       })
       .catch((err) => console.log(err));
     const totalCount = await this.postModel.find(filterObject).countDocuments();
-    console.log(totalCount);
     return {
       posts: post,
       totalReferCount: totalCount,
@@ -321,7 +423,7 @@ export class PostsService {
     console.log(totalCount);
     return {
       posts: post,
-      totalReferCount: totalCount,
+      totalCount: totalCount,
     };
   }
   async changePostStatus(postId: string, updatePostDto: UpdatePostDto) {
@@ -417,12 +519,6 @@ export class PostsService {
 
   async editInterview(addInterviewDto: AddInterviewDto, postId: string) {
     try {
-      // console.log('from client:', {
-      //   message: addInterviewDto.message,
-      //   candidateId: addInterviewDto.candidateId,
-      //   location: addInterviewDto.location,
-      //   time: addInterviewDto.time,
-      // });
       const ab = await this.postModel.findById(postId);
       console.log(ab.interviewList);
       ab.interviewList.forEach((element) => {
@@ -455,12 +551,6 @@ export class PostsService {
   }
   async getOutDatePosts() {
     const todayValue = new Date();
-    // console.log('today format', {
-    //   ngay: date.getDate(),
-    //   thang: date.getMonth() + 1,
-    //   nam: date.getFullYear(),
-    // });
-    // console.log('today  value: ', todayValue);
     const posts = await this.postModel.find({ status: 1 }).then((post) => {
       return post;
     });
@@ -486,5 +576,31 @@ export class PostsService {
       }
     });
     console.log('All posts are up-to-date');
+  }
+
+  async getSuitableJobs(userId: string) {
+    const user = await this.userService.getUser(userId);
+    // const eduList = [];
+    // user.cv.education.forEach((edu) => {
+    //   eduList.push(`(${edu.major})`);
+    // });
+    const filterObject = {
+      status: 1,
+      province: user.cv.province,
+    };
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    const post = await this.postModel
+      .find(filterObject)
+      .then((post) => {
+        return post;
+      })
+      .catch((err) => console.log(err));
+    return {
+      posts: post,
+    };
   }
 }

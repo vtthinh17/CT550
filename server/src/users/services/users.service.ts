@@ -189,7 +189,6 @@ export class UsersService {
   }
   async insertEducation(insertCVDto: InsertCVDto, id: string): Promise<User> {
     try {
-      console.log('them edu', insertCVDto);
       const userModel = await this.userModel.findById(id);
       const education = userModel.cv.education;
       return await this.userModel.findByIdAndUpdate(id, {
@@ -213,32 +212,6 @@ export class UsersService {
       console.log(error);
       throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
     }
-    // try {
-    //     console.log("them edu", insertCVDto);
-    //     const userModel = await this.userModel.findById(id);
-    //     const education = userModel.cv.education;
-    //     return await this.userModel.findByIdAndUpdate(id, {
-    //         $set: {
-    //             cv: {
-    //                 ...userModel.cv,
-    //                 education: [
-    //                     ...education,
-    //                     {
-    //                         school: insertCVDto.school,
-    //                         major: insertCVDto.major,
-    //                         start: insertCVDto.start,
-    //                         end: insertCVDto.end,
-    //                         graded: insertCVDto.graded,
-    //                     }
-    //                 ]
-    //             }
-    //         }
-    //     }
-    //     );
-    // } catch (error) {
-    //     console.log(error);
-    //     throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
-    // }
   }
 
   async removeEducationInfo(id: string, eduId: string) {
@@ -379,16 +352,24 @@ export class UsersService {
     };
   }
 
-  async getAllCandidates(currentPage: number) {
+  async getAllCandidates(
+    currentPage: number,
+    gender: number,
+    educationRequire: string,
+    province: string,
+  ) {
     const filterObject = {
       role: '1',
+      'cv.sex': gender,
+      'cv.province': province,
+      'cv.level': educationRequire,
     };
-    // patch remove empty property
     Object.keys(filterObject).forEach((key) => {
       if (filterObject[key] === undefined) {
         delete filterObject[key];
       }
     });
+
     // limit 6 items each fetch
     const skipCount = (currentPage - 1) * 6;
     const data = await this.userModel

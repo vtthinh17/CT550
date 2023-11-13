@@ -18,8 +18,8 @@ export class UsersController {
         return this.userService.getAllCompanies(currentPage);
     }
     @Get('getAllCandidates')
-    getCandidates(@Query('currentPage') currentPage: number) {
-        return this.userService.getAllCandidates(currentPage);
+    getCandidates(@Query('currentPage') currentPage: number,@Query('gender') gender: number,  @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
+        return this.userService.getAllCandidates(currentPage, gender, educationRequire, province);
     }
 
     @Post('create')

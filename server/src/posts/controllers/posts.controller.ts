@@ -32,14 +32,21 @@ export class PostsController {
   }
 
   @Get('getPostByFilter')
-  getFilterPosts(@Query('currentPage') currentPage: number, @Query('workingType') workingType: string, @Query('expRequire') expRequire: string, @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
-    return this.postService.getPostByFilters(currentPage, workingType, educationRequire, expRequire, province);
-  }
-  @Get('getReferPostByFilter')
-  getReferPostByFilter(@Query('currentReferPage') currentReferPage: number) {
-    return this.postService.getReferPostByFilter(currentReferPage);
+  // 
+  getFilterPosts(@Query('currentPage') currentPage: number, @Query('workingType') workingType: string,@Query('salary') salary: string, @Query('expRequire') expRequire: string, @Query('major') major: string,  @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
+    return this.postService.getPostByFilters(currentPage, workingType, educationRequire, expRequire, province, major,salary);
   }
 
+  @Get('getReferPostByFilter')
+  getReferPostByFilter(@Query('currentReferPage') currentReferPage: number, @Query('hinhthuc') hinhthuc: string, @Query('trinhdo') trinhdo: string, @Query('thanhpho') thanhpho: string, @Query('kinhnghiem') kinhnghiem: string, @Query('linhvuc') linhvuc: string, @Query('mucluong') mucluong: string) {
+    return this.postService.getReferPostByFilter(currentReferPage, hinhthuc, trinhdo, thanhpho, kinhnghiem, linhvuc, mucluong);
+  }
+  // ------------
+  @Get('getSuitableJobs/:userId')
+  getSuitableJobs(@Param('userId') userId: string) {
+    return this.postService.getSuitableJobs(userId);
+  }
+  
   @Get('getSysTemPosts')
   getSysTemPosts(@Query('currentPage') currentPage: number) {
     return this.postService.getSysTemPosts(currentPage);
@@ -50,10 +57,6 @@ export class PostsController {
     return this.postService.getReferPosts(currentReferPage);
   }
   
-  @Get('getAllDisplay')
-  getAllDisplayPosts(@Param('currentPage') currentPage: number) {
-      return this.postService.getAllDisplayPosts(currentPage);
-  }
   @Get('isSubmit')
   isSubmit(@Param('postId') postId: string, @Param('userId') userId: string) {
     return this.postService.isSubmit(postId,userId);

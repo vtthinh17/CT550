@@ -11,8 +11,8 @@
             </a-col>
             <a-col :span="16">
                 <h2 style="color:blue">{{ selectCompany.com_name }}</h2>
-                <b>MST: {{ selectCompany.taxNumber }}</b>
-                <p v-if="selectCompany.com_location">
+                <b>MST: {{ selectCompany.taxNumber ? selectCompany.taxNumber : 'Chưa cập nhật'}}</b>
+                <p v-if="selectCompany && selectCompany.com_location">
                     <PushpinOutlined /><b> Địa chỉ:</b> {{ selectCompany.com_location }}
                 </p>
                 <p v-else>
@@ -64,7 +64,7 @@
                     </div>
                 </a-tab-pane>
                 <a-tab-pane key="2" tab="Thông tin công ty">
-                    <p v-if="selectCompany.about">
+                    <p v-if="selectCompany && selectCompany.about">
                         <a-textarea v-model:value="selectCompany.about" :rows="10" />
                     </p>
                     <p v-else>
@@ -208,9 +208,14 @@ export default {
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 console.log("ung vien>>>  login:", this.userLogin);
+                
+            }
+            console.log(this.getCompanyId);
+            console.log();
+            if (this.getCompanyId) {
+                this.selectCompany = await $fetch('http://localhost:8000/users/getUser/' + this.getCompanyId)
             }
         }
-        this.selectCompany = await $fetch('http://localhost:8000/users/getUser/' + useRoute().params.companyId)
         this.reloadCompanyActivePost()
 
     },
@@ -221,11 +226,12 @@ export default {
         async reloadCompanyActivePost() {
             const postData = await this.getFilterOptions();
             this.companyActivePosts = postData.posts;
+            console.log("reload active post",postData )
             this.totalCount = postData.totalCount;
         },
         async getFilterOptions() {
             try {
-                return await $fetch(`http://localhost:8000/posts/getCompanyActivePosts/${useRoute().params.companyId}?currentPage=${this.currentPage}`);
+                return await $fetch(`http://localhost:8000/posts/getCompanyActivePosts/${this.getCompanyId}?currentPage=${this.currentPage}`);
             } catch (error) {
                 console.log(error)
             }
@@ -358,8 +364,10 @@ export default {
     computed: {
         getCompanyActivePosts() {
             return this.companyActivePosts;
+        },
+        getCompanyId() {
+            return this.$route.params.companyId;
         }
-
     },
 }
 </script>

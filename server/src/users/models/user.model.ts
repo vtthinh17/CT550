@@ -22,7 +22,7 @@ export const UserSchema = new mongoose.Schema({
     exp: { type: String },
     brief_intro: { type: String },
     birthday: { type: String },
-    sex: { type: Number },
+    sex: { type: Number, default: 1 },
     level: { type: String },
     education: [
       {

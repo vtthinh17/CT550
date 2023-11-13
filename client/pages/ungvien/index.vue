@@ -2,36 +2,55 @@
     <a-layout :name="Ungvien">
         <div class="mainContent">
             <div>
-                <div v-if="isLogin">
-                    <h2>Việc làm phù hợp với bạn</h2>
-                    <a-row style="    margin: 0 1rem;">
-                        <swiper :modules="modules" navigation :pagination="{ clickable: true }" :slides-per-view="3"
-                            :space-between="50" @slideChange="onSlideChange">
-                            <swiper-slide v-for="job in  this.data " class="sliderItem">
-                                <a-card hoverable @click="showModal(job)" style="margin: 0.7rem 0; ">
-                                    <p style="color: #41cf37; font-weight: 550;">{{ job.company[0] }}</p>
-                                    <a-card-meta v-bind:title="job.job_title"
-                                        v-bind:description="'Mức lương: ' + job.job_salary">
-                                    </a-card-meta>
-                                    <div v-if="job.deadline_apply[0].includes('*')">
-                                        <a-card-meta v-bind:description=job.deadline_apply>
-                                        </a-card-meta>
-                                    </div>
-                                    <div v-else>
-                                        <a-card-meta v-bind:description="'* Hạn nộp: ' + job.deadline_apply">
-                                        </a-card-meta>
-                                    </div>
-                                </a-card>
-                            </swiper-slide>
-                        </swiper>
-
-                    </a-row>
+                <div v-if="isLogin && getSuitableJobs.length > 0">
+                    <h2 class="job_type">
+                        <CaretRightOutlined />Việc làm gần bạn: {{ getSuitableJobs.length }}
+                    </h2>
+                    <swiper :modules="modules" navigation :pagination="{ clickable: true }" :slides-per-view="3"
+                        :space-between="30" @slideChange="onSlideChange" style="width: 95%;">
+                        <swiper-slide v-for="job in getSuitableJobs " class="sliderItem">
+                            <a-card hoverable @click="showModal(job)">
+                                <p style="color: #41cf37; font-weight: 550;">{{ job.company }}</p>
+                                <a-card-meta v-bind:title="job.job_title"
+                                    v-bind:description="'Mức lương: ' + job.job_salary">
+                                </a-card-meta>
+                                <a-card-meta v-bind:description=job.deadline_apply>
+                                </a-card-meta>
+                            </a-card>
+                        </swiper-slide>
+                    </swiper>
                 </div>
                 <h2 class="job_type">
-                    <CaretRightOutlined />Tin tham khảo: {{ totalReferCount }} 
+                    <CaretRightOutlined />Tin tham khảo: {{ totalReferCount }}
                 </h2>
+                <div style="background-color: #5b7fb4; padding: 1rem;">
+                    <div style="display: flex; justify-content: center;">
+                        <p>Bộ lọc:</p>
+                        <a-input type="text" :allowClear="true" v-model:value="filterRefer_major"
+                            style="width: 12%; height: 2rem" placeholder="Lĩnh vực tìm kiếm" />
+                        <a-cascader class="filterOption" v-model:value="filterRefer_salary" style="width: 15%;  height: 2rem;"
+                            max-tag-count="responsive" :options="filterOptions_salary"
+                            placeholder="Mức lương">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filterRefer_education" style="width: 10%;  height: 2rem;"
+                            max-tag-count="responsive" :options="filterOptionsRefer_education" placeholder="Trình độ">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filterRefer_expRequire" style="width: 15%;  height: 2rem;"
+                            max-tag-count="responsive" :options="filterOptionsRefer_expRequire"
+                            placeholder="Yêu cầu kinh nghiệm">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filterRefer_workingType" style="width: 15%;  height: 2rem;"
+                            max-tag-count="responsive" :options="filterOptionsRefer_workingType"
+                            placeholder="Hình thức làm việc">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filterRefer_province" style="width: 15%;  height: 2rem;"
+                            max-tag-count="responsive" :options="provincesOptions" placeholder="Tỉnh/Thành phố">
+                        </a-cascader>
+                        <a-button style="background-color: yellow;" @click="reloadReferPost()">Lọc tin</a-button>
+                    </div>
+                </div>
                 <a-divider />
-                <a-row style="display: flex;justify-content: space-evenly;">
+                <a-row v-if="totalReferCount > 0" style="display: flex;justify-content: space-evenly;">
                     <a-col :span="7" v-for="job in getReferPosts" class="job-item">
                         <a-card hoverable @click="showModal(job)">
                             <p style="color: #41cf37; font-weight: 550;">
@@ -52,6 +71,12 @@
                     </a-col>
 
                 </a-row>
+                <a-result v-else title="Không có tin tuyển dụng nào thỏa yêu cầu tìm kiếm của bạn!"
+                    sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng.">
+                    <template #icon>
+                        <FrownOutlined />
+                    </template>
+                </a-result>
 
                 <!-- Pagination -->
                 <div class="pagination">
@@ -60,26 +85,29 @@
                 </div>
 
                 <h2 class="job_type">
-                    <CaretRightOutlined />Có thể ứng tuyển: {{ totalCount }} 
+                    <CaretRightOutlined />Có thể ứng tuyển: {{ totalCount }}
                 </h2>
                 <div style="background-color: #5b7fb4; padding: 1rem;">
                     <div style="display: flex; justify-content: center;">
                         <p>Bộ lọc:</p>
-                        <!-- <a-cascader class="filterOption" v-model:value="filter_major" style="width: 30%" multiple
-                            max-tag-count="responsive" :options="filterOptions_major" placeholder="Lĩnh vực">
-                        </a-cascader> -->
-                        <a-cascader class="filterOption" v-model:value="filter_education" style="width: 10%" 
+                        <a-input type="text" :allowClear="true" v-model:value="filter_major"
+                            style="width: 20%; height: 2rem" placeholder="Nhập từ khóa lĩnh vực tìm kiếm" />
+                            <a-cascader class="filterOption" v-model:value="filter_salary" style="width: 15%; height: 2rem;"
+                            max-tag-count="responsive" :options="filterOptions_salary"
+                            placeholder="Mức lương">
+                        </a-cascader>
+                        <a-cascader class="filterOption" v-model:value="filter_education" style="width: 10%;  height: 2rem;"
                             max-tag-count="responsive" :options="filterOptions_education" placeholder="Trình độ">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filter_expRequire" style="width: 20%" 
+                        <a-cascader class="filterOption" v-model:value="filter_expRequire" style="width: 15%;  height: 2rem;"
                             max-tag-count="responsive" :options="filterOptions_expRequire"
                             placeholder="Yêu cầu kinh nghiệm">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filter_workingType" style="width: 20%" 
+                        <a-cascader class="filterOption" v-model:value="filter_workingType" style="width: 15%;  height: 2rem;"
                             max-tag-count="responsive" :options="filterOptions_workingType"
                             placeholder="Hình thức làm việc">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filter_province" style="width: 20%"
+                        <a-cascader class="filterOption" v-model:value="filter_province" style="width: 15%;  height: 2rem;"
                             max-tag-count="responsive" :options="provincesOptions" placeholder="Tỉnh/Thành phố">
                         </a-cascader>
                         <a-button style="background-color: yellow;" @click="reloadPostApplyable()">Lọc tin</a-button>
@@ -107,10 +135,8 @@
                     </a-col>
 
                 </a-row>
-                <a-result v-else 
-                title="Không có tin tuyển dụng nào thỏa yêu cầu tìm kiếm của bạn!"
-                sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng."
-                >
+                <a-result v-else title="Không có tin tuyển dụng nào thỏa yêu cầu tìm kiếm của bạn!"
+                    sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng.">
                     <template #icon>
                         <FrownOutlined />
                     </template>
@@ -282,12 +308,12 @@
     </a-layout>
 </template>
 <script >
-import { Navigation, Pagination, A11y } from 'swiper/modules';
 import { notification } from 'ant-design-vue';
 import 'swiper/css/navigation';
 import myData from '../../assets/data/data';
 import provinces from '../../assets/data/provinces';
 import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Navigation, Pagination } from 'swiper/modules';
 import { message } from 'ant-design-vue';
 import 'swiper/css';
 definePageMeta({
@@ -301,7 +327,70 @@ export default {
         SwiperSlide,
     },
     layout: 'ungvien',
-    setup() {
+    setup() {       
+        const filterOptions_salary = [
+            {
+                label: 'Thỏa thuận',
+                value: 'Th',
+
+            },          
+            {
+                label: '3 - 5 triệu',
+                value: '3 - 5',
+
+            },
+            {
+                label: '5 - 7 triệu',
+                value: '5 - 7',
+
+            },
+            {
+                label: '7 - 10 triệu',
+                value: '7 - 10',
+
+            },
+            {
+                label: 'Trên 10 triệu',
+                value: 'tren10',
+
+            },
+            {
+                label: '10 - 12 triệu',
+                value: '10 - 12',
+
+            },
+            {
+                label: '10 - 12 triệu',
+                value: '10 - 12',
+
+            },
+            {
+                label: '12 - 15 triệu',
+                value: '12 - 15',
+
+            },
+            {
+                label: '15 - 20 triệu',
+                value: '15 - 20',
+
+            },
+            {
+                label: 'Trên 20 triệu',
+                value: 'tren20',
+
+            },
+            // {
+            //     label: 'Từ 15 - 20 triệu',
+            //     value: '15 - 20',
+
+            // },
+            // {
+            //     label: 'Trên 20 triệu',
+            //     value: '20+',
+
+            // },
+
+        ];
         const filterOptions_major = [
             {
                 label: 'Kế toán',
@@ -409,20 +498,109 @@ export default {
             },
 
         ];
+        const filterOptionsRefer_expRequire = [
+            {
+                label: 'Không yêu cầu',
+                value: '0',
+
+            },
+            {
+                label: 'Dưới 1 năm',
+                value: 'Dưới 1',
+
+            },
+            {
+                label: '1 năm',
+                value: '1',
+
+            },
+            {
+                label: '2 năm',
+                value: '2',
+
+            },
+            {
+                label: '3 năm',
+                value: '3',
+
+            },
+            {
+                label: '4 năm',
+                value: '4',
+
+            },
+            {
+                label: 'Trên 5 năm',
+                value: '5',
+
+            },
+
+        ];
+        const filterOptionsRefer_workingType = [
+            {
+                label: 'Toàn thời gian/Fulltime',
+                value: 'Toàn',
+
+            },
+            {
+                label: 'Bán thời gian/Partime',
+                value: 'Bán',
+
+            },
+            {
+                label: 'Khác',
+                value: 'Khác',
+
+            },
+            // {
+            //     label: 'Làm việc từ xa/Remote',
+            //     value: 'Làm việc từ xa/Remote',
+
+            // },
+            // {
+            //     label: 'Thực tập/Intern',
+            //     value: 'Thực tập',
+
+            // },
+
+        ];
+        const filterOptionsRefer_education = [
+            {
+                label: 'Không yêu cầu',
+                value: 'Không yêu cầu',
+
+            },
+            {
+                label: 'Cao đẳng',
+                value: 'Cao đẳng',
+
+            },
+            {
+                label: 'Trung cấp',
+                value: 'Trung',
+
+            },
+            {
+                label: 'Đại học',
+                value: 'Đại học',
+
+            },
+
+        ];
         const filterSearchOption = (input, option) => {
             return option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0;
         };
-        const onSlideChange = () => {
-            console.log('slide change');
-        };
         return {
+            filterOptions_salary,
             filterOptions_major,
             filterOptions_education,
             filterOptions_expRequire,
             filterOptions_workingType,
-            onSlideChange,
+            filterOptionsRefer_workingType,
+            filterOptionsRefer_education,
+            filterOptionsRefer_expRequire,
             filterSearchOption,
-            modules: [Navigation, Pagination, A11y],
+            modules: [Navigation, Pagination],
         };
     },
     data() {
@@ -430,9 +608,16 @@ export default {
             slides: 7,
             filter_education: false,
             filter_province: false,
-            filter_major: false,
+            filter_major: '',
             filter_expRequire: false,
             filter_workingType: false,
+            filterRefer_salary: '',
+            filter_salary: false,
+            filterRefer_expRequire: false,
+            filterRefer_province: false,
+            filterRefer_workingType: false,
+            filterRefer_education: false,
+            filterRefer_major: '',
             open: false,
             openMessage: false,
             selectedJob: false,
@@ -442,6 +627,7 @@ export default {
             provincesOptions: provinces,
             postsApplyable: [],
             referPosts: [],
+            suitableJobs: [],
             userLogin: false,
             isLogin: false,
             totalCount: 0,
@@ -459,6 +645,17 @@ export default {
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 this.clearOutDatePosts();
+            }
+        }
+        if (this.userLogin.cv) {
+            const danhsachtam = await $fetch('http://localhost:8000/posts/getSuitableJobs/' + this.isLogin);
+            for (let i = 0; i <= danhsachtam.posts.length - 1; i++) {
+                if (danhsachtam.posts[i].com_created) {
+                    // console.log(danhsachtam.posts[i].com_created) 
+                    let congty = await $fetch('http://localhost:8000/users/getUser/' + danhsachtam.posts[i].com_created);
+                    danhsachtam.posts[i].company = congty.com_name;
+                }
+                this.suitableJobs.push(danhsachtam.posts[i]);
             }
         }
         this.clearOutDatePosts();
@@ -496,7 +693,6 @@ export default {
         },
         async reloadPostApplyable() {
             const postData = await this.getFilterOptions();
-            console.log("reload", postData)
             this.postsApplyable = [];
             this.totalCount = postData.totalCount;
             for (let post of postData.posts) {
@@ -507,25 +703,24 @@ export default {
         },
         async reloadReferPost() {
             const referPostData = await this.getReferPostFilterOptions();
-            console.log("reload refer post,", referPostData)
             this.referPosts = referPostData.posts;
             this.totalReferCount = referPostData.totalReferCount;
         },
         async getFilterOptions() {
             try {
-                return await $fetch(`http://localhost:8000/posts/getPostByFilter?currentPage=${this.currentPage}&${this.filter_workingType && this.filter_workingType[0] ? '&workingType=' + this.filter_workingType[0] : ''}${this.filter_education && this.filter_education[0] ? '&educationRequire=' + this.filter_education[0] : ''}${this.filter_expRequire && this.filter_expRequire[0] ? '&expRequire=' + this.filter_expRequire[0] : ''}${this.filter_province && this.filter_province[0] ? '&province=' + this.filter_province[0] : ''}`);
+                return await $fetch(`http://localhost:8000/posts/getPostByFilter?currentPage=${this.currentPage}&salary=${this.filter_salary? this.filter_salary : ''}&major=${this.filter_major}${this.filter_workingType && this.filter_workingType[0] ? '&workingType=' + this.filter_workingType[0] : ''}${this.filter_education && this.filter_education[0] ? '&educationRequire=' + this.filter_education[0] : ''}${this.filter_expRequire && this.filter_expRequire[0] ? '&expRequire=' + this.filter_expRequire[0] : ''}${this.filter_province && this.filter_province[0] ? '&province=' + this.filter_province[0] : ''}`);
             } catch (error) {
                 console.log(error)
             }
         },
         async getReferPostFilterOptions() {
             try {
-                ``
-                return await $fetch(`http://localhost:8000/posts/getReferPostByFilter?currentReferPage=${this.currentReferPage}`);
+                return await $fetch(`http://localhost:8000/posts/getReferPostByFilter?currentReferPage=${this.currentReferPage}&linhvuc=${this.filterRefer_major}&mucluong=${this.filterRefer_salary ? this.filterRefer_salary : ''}${this.filterRefer_workingType && this.filterRefer_workingType[0] ? '&hinhthuc=' + this.filterRefer_workingType[0] : ''}${this.filterRefer_education && this.filterRefer_education[0] ? '&trinhdo=' + this.filterRefer_education[0] : ''}${this.filterRefer_province && this.filterRefer_province[0] ? '&thanhpho=' + this.filterRefer_province[0] : ''}${this.filterRefer_expRequire && this.filterRefer_expRequire[0] ? '&kinhnghiem=' + this.filterRefer_expRequire[0] : ''}`);
             } catch (error) {
                 console.log(error)
             }
         },
+
         goToJobLink(link) {
             window.open(link);
         },
@@ -604,6 +799,9 @@ export default {
         getReferPosts() {
             return this.referPosts;
         },
+        getSuitableJobs() {
+            return this.suitableJobs;
+        }
 
     }
 }
@@ -685,7 +883,7 @@ body {
 
 .job_type {
     margin-left: 2rem;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     color: rgb(41, 27, 167);
     width: 20rem;
 }

@@ -6,19 +6,19 @@
         <a-col :span="7"
           style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background-color: rgb(219, 213, 213);"
           class="gradient_item">
-          Số tin đã tạo
-          <b>{{ this.totalCount }}</b>
+          <span style="font-size: 1rem; font-weight: 600;">Số tin đã tạo</span>
+          {{ this.totalCount }}
           <img src="" alt="">
         </a-col>
         <a-col :span="7" @click="showAddModal"
           style="cursor: pointer; font-size: 1rem;color: #0c0606;  background: transparent linear-gradient(90deg,#41bfad,#3bd3e6) 0 0 no-repeat padding-box;"
           class="gradient_item">
-          Đăng tin mới +
+          <span style="font-size: 1rem; font-weight: 600;">Đăng tin mới +</span>
         </a-col>
         <a-col :span="7" @click="() => { navigateTo('/nhatuyendung/companyProfile') }"
           style="cursor: pointer; font-size: 1rem;color: #0c0606; background: transparent linear-gradient(90deg,#a1dc65,#66cc80) 0 0 no-repeat padding-box;"
           class="gradient_item">
-          Cập nhật thông tin
+          <span style="font-size: 1rem; font-weight: 600;">Cập nhật thông tin</span>
         </a-col>
       </a-row>
       <!-- Job list -->
