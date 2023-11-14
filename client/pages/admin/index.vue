@@ -14,22 +14,21 @@
                         style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background: transparent linear-gradient(90deg,#41bfad,#3bd3e6) 0 0 no-repeat padding-box;"
                         class="gradient_item">
                         Số lượng người dùng trên hệ thống
-                        <b>{{ allUserData.length }}</b>
                     </a-col>
                     <a-col :span="6"
                         style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column; background: transparent linear-gradient(90deg,#a1dc65,#66cc80) 0 0 no-repeat padding-box;"
-                        class="gradient_item">
+                        class="gradient_item" @click="navigateTo('./admin/posts/unApprovedPosts')">
                         <CarryOutOutlined />Tin chờ duyệt
-                        <!-- {{ console.log("aaaaaaa",this.pendingPostList) }} -->
-                        <!-- <b>{{ pendingPostList.length }}</b> -->
                     </a-col>
                 </a-row>
                 <div style="padding: 24px; background: #fff;"></div>
 
             </a-layout-content>
+
             <!-- Chart -->
             <a-layout-content>
-                <div id="main" style="width: 70%; height:30rem;"></div>
+                <Bar v-if="loaded" :data="chartData" :options="options" />
+                <!-- <div id="main" style="width: 70%; height:30rem;"></div> -->
             </a-layout-content>
         </div>
         <div v-else>
@@ -41,9 +40,21 @@
     </a-layout>
 </template>
 <script>
-import * as echarts from 'echarts';
-
+import {
+    Chart as ChartJS,
+    Title,
+    Tooltip,
+    Legend,
+    BarElement,
+    CategoryScale,
+    LinearScale
+} from 'chart.js'
+import { Bar } from 'vue-chartjs'
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 export default {
+    components: {
+        Bar
+    },
     setup() {
         definePageMeta({
             layout: 'admin'
@@ -51,16 +62,77 @@ export default {
     },
     data() {
         return {
+            chartData: {
+                labels: [
+                    'Tháng 1',
+                    'Tháng 2',
+                    'Tháng 3',
+                    'Tháng 4',
+                    'Tháng 5',
+                    'Tháng 6',
+                    'Tháng 7',
+                    'Tháng 8',
+                    'Tháng 9',
+                    'Tháng 10',
+                    'Tháng 11',
+                    'Tháng 12'
+                ],
+                datasets: [
+                    {
+                        label: 'Số tin tuyển dụng theo từng tháng tháng',
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(255, 159, 64, 0.2)',
+                            'rgba(255, 205, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(201, 203, 207, 0.2)',
+                            'rgba(255, 253, 99 , 0.2)',
+                            'rgba(99, 255, 128 , 0.2)',
+                            'rgba(115, 25, 25 , 0.2)',
+                            'rgba(85, 85, 85 , 0.2)',
+                            'rgba(0, 0, 85 , 0.2)',
+
+
+
+
+                        ],
+                        borderColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(255, 159, 64)',
+                            'rgb(255, 205, 86)',
+                            'rgb(75, 192, 192)',
+                            'rgb(54, 162, 235)',
+                            'rgb(153, 102, 255)',
+                            'rgb(201, 203, 207)',
+                            'rgb(255, 253, 99 )',
+                            'rgb(99, 255, 128)',
+                            'rgb(115, 25, 25)',
+                            'rgb(85, 85, 85)',
+                            'rgb(0, 0, 85)',
+                        ],
+                        borderWidth: 1,
+                        data: [40, 20, 12, 39, 10, 40, 39, 60, 40, 20, 12, 11]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            },
             isLogin: false,
             userLogin: {},
-            allUserData: false,
             allPostData: false,
+            loaded: false,
         }
     },
     methods: {
         getNumberOrPostEachMonth() {
             let temp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             this.allPostData.forEach(post => {
+                console.log(post.job_title)
+                console.log('=>>>>thang', post.deadline.slice(3, 5))
                 for (let i = 1; i <= 12; i++) {
                     if (Number(post.deadline.slice(3, 5)) == i) {
                         temp[i - 1] = temp[i - 1] + 1;
@@ -75,65 +147,17 @@ export default {
             this.isLogin = localStorage.getItem('loginUserID');
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
-                this.allUserData = await $fetch('http://localhost:8000/users/getAll');
                 this.allPostData = await $fetch('http://localhost:8000/posts/getAll');
+                let postPerMonth = this.getNumberOrPostEachMonth();
+                // bỏ dòng 151 để ra giá trị khởi tạo
+                this.chartData.datasets[0].data = postPerMonth;
+                this.loaded = true;
             }
 
         }
-        if (typeof document !== 'undefined') {
-            let data = this.getNumberOrPostEachMonth();
-            console.log(data);
-            let chartDom = document.getElementById('main');
-            var myChart = echarts.init(chartDom);
-            var option = {
-                title: {
-                    text: 'Số lượng tin tuyển dụng theo từng tháng'
-                },
-                tooltip: {},
-                legend: {
-                    data: ['Lượt đăng']
-                },
-                xAxis: {
-                    data: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
-                },
-                yAxis: {},
-                series: [
-                    {
-                        name: 'Tin tuyển dụng',
-                        type: 'bar',
-                        data: data
-                    }
-                ],
-
-            };
-            myChart.setOption(option);
-        }
-
 
     },
     computed: {
-        candidatesList() {
-            let cdList = []
-            if (this.allUserData) {
-                this.allUserData.forEach(element => {
-                    if (element.role == '1') {
-                        cdList.push(element)
-                    }
-                });
-            }
-
-            return cdList;
-        },
-        pendingPostList() {
-            let pendingList = []
-            this.allPostData.forEach(element => {
-                if (element.status == 0) {
-                    pendingList.push(element)
-                }
-            });
-            return pendingList;
-        },
-
     }
 }
 </script>
@@ -160,6 +184,8 @@ export default {
     }
 
     .gradient_item:hover {
+        cursor: pointer;
+        opacity: 0.75;
         background: #2e6edf;
     }
 }

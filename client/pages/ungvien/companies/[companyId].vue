@@ -70,7 +70,6 @@
                     <p v-else>
                         Chưa cập nhật
                     </p>
-                    <!-- {{ addBreakLine(selectCompany.about) }} -->
                 </a-tab-pane>
 
                 <template #rightExtra>
@@ -167,6 +166,7 @@
 </template>
 <script>
 import { notification } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 definePageMeta({
     layout: 'ungvien'
 })
@@ -175,7 +175,6 @@ export default {
     data() {
         return {
             activeKey: '1',
-            reviewContent: '',
             selectCompany: false,
             openMessage: false,
             companyActivePosts: [],
@@ -185,20 +184,6 @@ export default {
             selectedJob: false,
             totalCount: 0,
             currentPage: 1,
-            data: [
-                {
-                    "job_title": ["Nhân Viên Kinh Doanh"],
-                    "job_links": "https://vieclam24h.vn/kinh-doanh/nhan-vien-kinh-doanh-c13p131id200251664.html",
-                    "job_salary": "5 - 15 triệu",
-                    "logo": ["https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"],
-                    "company": ["Công Ty TNHH Gnh Tây Đô"],
-                    "job_description": ["- Giới thiệu và bán sản phẩm Dầu Nhớt", "- Tìm kiếm khách hàng tiềm năng.", "- Chăm sóc, quản lý, phát triển hệ thống khách hàng trong địa bàn phụ trách", "- Chăm sóc và hỗ trợ hệ thống Cửa Hàng, Đại lý", "- Cập nhật và cung cấp kịp thời thông tin thị trường cho ban lãnh đạo.", "- Cập nhật chương trình khuyến mãi, chiết khấu đến khách hàng trong khu vực.", "- Chi tiết công việc trao đổi khi phỏng vấn…"],
-                    "job_requirement": ["- Số lượng: 02 người", "- Tốt nghiệp trung cấp, cao đẳng chuyên ngành Quản Trị Kinh Doanh, Marketing, kỹ thuật hoặc các ngành liên quan thuộc khối kinh tế.", "- Khả năng tiếp thu và xử lý thông tin tốt, giọng nói dễ nghe.", "- Đam mê kinh doanh, năng động, nhạy bén.", "- Chịu được áp lực công việc, có khả năng làm việc độc lập, có khả năng giao tiếp và thuyết phục.", "- Thành thạo các kỹ năng vi tính văn phòng."],
-                    "job_benefit": ["- Nhân viên có năng lực tốt có thể ký hợp đồng chính thức khi chưa hết thời gian thử việc nêu trên.", "- Môi trường làm việc năng động, thân thiện.", "- Lương : Thỏa thuận", "- Thưởng doanh số bán hàng", "- Có nhiều cơ hội thăng tiến", "- Hỗ trợ tiền xăng, tiền điện thoại và các phụ cấp khác", "- Làm việc giờ hành chính từ Sáng 7h30 đến 11h00 - Chiều từ 13h30 đến 17h", "- Tăng lương theo hiệu quả công tác", "- Cam kết đầy đủ các chế độ dành cho người lao động theo như quy định pháp luật hiện hành (BHXH, BHYT, BHTN…).", "- Được nghỉ CN và các ngày lễ theo quy định."], "deadline_apply": "31/08/2023"
-                },
-                { "job_title": ["Nhân Viên Kinh Doanh"], "job_links": "https://vieclam24h.vn/kinh-doanh/nhan-vien-kinh-doanh-c13p131id200251664.html", "job_salary": "5 - 15 triệu", "logo": ["https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg"], "company": ["Công Ty TNHH Gnh Tây Đô"], "job_description": ["- Giới thiệu và bán sản phẩm Dầu Nhớt", "- Tìm kiếm khách hàng tiềm năng.", "- Chăm sóc, quản lý, phát triển hệ thống khách hàng trong địa bàn phụ trách", "- Chăm sóc và hỗ trợ hệ thống Cửa Hàng, Đại lý", "- Cập nhật và cung cấp kịp thời thông tin thị trường cho ban lãnh đạo.", "- Cập nhật chương trình khuyến mãi, chiết khấu đến khách hàng trong khu vực.", "- Chi tiết công việc trao đổi khi phỏng vấn…"], "job_requirement": ["- Số lượng: 02 người", "- Tốt nghiệp trung cấp, cao đẳng chuyên ngành Quản Trị Kinh Doanh, Marketing, kỹ thuật hoặc các ngành liên quan thuộc khối kinh tế.", "- Khả năng tiếp thu và xử lý thông tin tốt, giọng nói dễ nghe.", "- Đam mê kinh doanh, năng động, nhạy bén.", "- Chịu được áp lực công việc, có khả năng làm việc độc lập, có khả năng giao tiếp và thuyết phục.", "- Thành thạo các kỹ năng vi tính văn phòng."], "job_benefit": ["- Nhân viên có năng lực tốt có thể ký hợp đồng chính thức khi chưa hết thời gian thử việc nêu trên.", "- Môi trường làm việc năng động, thân thiện.", "- Lương : Thỏa thuận", "- Thưởng doanh số bán hàng", "- Có nhiều cơ hội thăng tiến", "- Hỗ trợ tiền xăng, tiền điện thoại và các phụ cấp khác", "- Làm việc giờ hành chính từ Sáng 7h30 đến 11h00 - Chiều từ 13h30 đến 17h", "- Tăng lương theo hiệu quả công tác", "- Cam kết đầy đủ các chế độ dành cho người lao động theo như quy định pháp luật hiện hành (BHXH, BHYT, BHTN…).", "- Được nghỉ CN và các ngày lễ theo quy định."], "deadline_apply": "31/08/2023" },
-
-            ],
         }
 
     },
@@ -236,13 +221,6 @@ export default {
                 console.log(error)
             }
         },
-        addBreakLine(data) {
-            return data.replaceAll("\\n", "\n")
-            // console.log("add br", Array.from(data.matchAll(/\n/gi)))
-        },
-        handleSubmitReview() {
-            console.log(this.reviewContent)
-        },
         checkIsFollowed(id) {
             let check = false
             if (this.userLogin.follow) {
@@ -264,7 +242,7 @@ export default {
                 });
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 console.log("huy theo doi", this.userLogin.follow.length)
-                alert("unfollow")
+                message.warning("Hủy theo dõi công ty, bạn sẽ không còn nhận thông báo từ công ty này.")
             } catch (error) {
                 console.log(error)
             }
@@ -280,8 +258,7 @@ export default {
                     }
                 })
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
-                console.log("theo doi", this.userLogin.follow)
-                alert("follow thanh cong")
+                message.success('Bắt đầu theo dõi công ty, bạn sẽ nhận được thông báo khi công ty này đăng tin tuyển dụng mới.');
             } catch (error) {
                 console.log(error)
             }
@@ -321,7 +298,7 @@ export default {
                 } else if (selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
                     return obj.userId === this.userLogin._id
                 }).length > 0) {
-                    alert("Đã nộp")
+                    message.warning("Đã nộp");
                 } else {
                     try {
                         await $fetch('http://localhost:8000/posts/applyJob/' + selectedJob._id, {
@@ -340,7 +317,7 @@ export default {
                     }
                 }
             } else {
-                alert("bạn cần đăng nhập với tài khoản ứng viên")
+                message.warning("Bạn cần đăng nhập với tài khoản ứng viên")
             }
 
             this.open = false;
@@ -377,7 +354,6 @@ export default {
     display: flex;
     justify-content: center;
     padding: 6px 0px;
-    // background-color: rgb(203, 191, 191);
 }
 
 .cls1 {

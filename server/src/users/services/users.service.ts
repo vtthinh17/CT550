@@ -92,7 +92,9 @@ export class UsersService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
       const date = new Date();
-      const temp = `${date.getDate()}/${date.getDate()}/${date.getFullYear()}`;
+      const temp = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
       const newUser = new this.userModel({
         username: createUserDto.username,
         password: createUserDto.password,

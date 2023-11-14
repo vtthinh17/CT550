@@ -10,7 +10,6 @@
                     <template #renderItem="{ item }">
                         <a-list-item class="hoverItem">
                             <a-row style="width: 80%;">
-                                <!-- {{ item.com_name }} -->
                                 <a-col :span="16">
                                     <a-row>
                                         <a-col :span="8">
@@ -22,7 +21,6 @@
                                         </a-col>
                                         <a-col :span="16">
                                             <div><b>{{ item.com_name }}</b></div>
-                                            <!-- <div>Địa chỉ: {{ item.com_phone }}</div> -->
                                         </a-col>
                                     </a-row>
                                 </a-col>

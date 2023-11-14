@@ -24,11 +24,12 @@
     "@novu/notification-center-vue": "^0.21.0",
     "@pinia/nuxt": "^0.4.11",
     "add-to-calendar-button": "^2.4.3",
-    "echarts": "^5.4.3",
+    "chart.js": "^4.4.0",
     "pinia": "^2.1.6",
     "sass": "^1.64.2",
     "swiper": "^10.2.0",
     "vue-carousel-3d": "^1.0.1",
+    "vue-chartjs": "^5.2.0",
     "vue-excel-xlsx": "^1.2.2",
     "vue3-carousel-nuxt": "^1.1.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"

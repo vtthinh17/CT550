@@ -104,13 +104,49 @@ export class PostsService {
     if (salary !== '') {
       if (salary === 'Th') {
         filterObject['job_salary'] = {
-          $regex: /(Th)|(Cạnh)/,
+          $regex: /(Th)|(Cạnh)|(Khác)|(Trao)/,
+          $options: 'i',
+        };
+      } else if (salary === '3 - 6') {
+        filterObject['job_salary'] = {
+          $regex:
+            /^([3-5](.[0-9])?( triệu)?( -)?)|(^[3-5]( triệu)?)|(^Trên [3-5]( triệu)?)|(Trên [3-5](.[0-9])?( triệu)?)|(- [3-6] triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === '6 - 10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([6-9](.[0-9])? triệu - 10 triệu)|([6-9](.[0-9])? - 10 triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === 'duoi10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([0-9] triệu - 10 triệu)|([0-9] triệu - [0-9] triệu)|([0-9].[0-9] triệu - [0-9].[0-9] triệu)|([0-9](.[0-9])? - 10 triệu)|([0-9](.[0-9])? - [0-9](.[0-9])? triệu)|([0-9](.[0-9])? triệu - 10 triệu)|([0-9](.[0-9])? triệu - [0-9](.[0-9])? triệu)/,
           $options: 'i',
         };
       } else if (salary === 'tren10') {
         filterObject['job_salary'] = {
           $regex:
-            /(1[0-9]( triệu)? -)|(^1[0-9]( triệu)?)|(Trên 1[0-9])|(2[0-9]  -)|(2[0-9]( triệu)? -)|(Trên 2[0-9])|(2[0-9]  -)/,
+            /([1-9][0-9] triệu - )|([1-9][0-9](.[0-9])? triệu - )|(Trên 1[0-9] triệu)|([1-9][0-9] - )|([1-9][0-9](.[0-9])? triệu - )/,
+          $options: 'i',
+        };
+      } else if (salary === '10 - 15') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[0-5] triệu - 1[1-5] triệu)|(1[0-5] - 1[0-5] triệu)|(Trên 1[0-4] triệu)|(1[0-5](.[0-9])? triệu - 1[1-5] triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === '15 - 20') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[5-9] triệu - 20 triệu)|(1[5-9] - 20 triệu)|(1[5-9] triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 20 triệu)|(1[5-9](.[0-9])? - 20 triệu)|(Trên 1[5-9] triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === 'tren20') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([2-9][0-9] triệu - )|([2-9][0-9](.[0-9])? triệu - )|(Trên 2[0-9] triệu)|([2-9][0-9] - )|([2-9][0-9](.[0-9])? triệu - )/,
           $options: 'i',
         };
       } else {
@@ -153,7 +189,6 @@ export class PostsService {
     linhvuc: string,
     mucluong: string,
   ) {
-    // console.log('muc luong', mucluong);
     const filterObject = {
       status: 1,
       job_link: { $exists: true },
@@ -197,22 +232,52 @@ export class PostsService {
     } else {
       filterObject['major'] = undefined;
     }
-    // console.log('muc luong', mucluong);
     if (mucluong !== '') {
       if (mucluong === 'Th') {
         filterObject['job_salary'] = {
-          $regex: /(Th)|(Cạnh)/,
+          $regex: /(Th)|(Cạnh)|(Khác)|(Trao)/,
+          $options: 'i',
+        };
+      } else if (mucluong === '3 - 6') {
+        filterObject['job_salary'] = {
+          $regex:
+            /^([3-5](.[0-9])?( triệu)?( -)?)|(^[3-5]( triệu)?)|(^Trên [3-5]( triệu)?)|(Trên [3-5](.[0-9])?( triệu)?)|(- [3-6] triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === '6 - 10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([6-9](.[0-9])? triệu - 10 triệu)|([6-9](.[0-9])? - 10 triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === 'duoi10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([0-9] triệu - 10 triệu)|([0-9] triệu - [0-9] triệu)|([0-9].[0-9] triệu - [0-9].[0-9] triệu)|([0-9](.[0-9])? - 10 triệu)|([0-9](.[0-9])? - [0-9](.[0-9])? triệu)|([0-9](.[0-9])? triệu - 10 triệu)|([0-9](.[0-9])? triệu - [0-9](.[0-9])? triệu)/,
           $options: 'i',
         };
       } else if (mucluong === 'tren10') {
         filterObject['job_salary'] = {
           $regex:
-            /(1[0-9]( triệu)? -)|(Trên 1[0-9])|(2[0-9]  -)|(2[0-9]( triệu)? -)|(Trên 2[0-9])|(2[0-9]  -)/,
+            /([1-9][0-9] triệu - )|([1-9][0-9](.[0-9])? triệu - )|(Trên 1[0-9] triệu)|([1-9][0-9] - )|([1-9][0-9](.[0-9])? triệu - )/,
+          $options: 'i',
+        };
+      } else if (mucluong === '10 - 15') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[0-5] triệu - 1[1-5] triệu)|(1[0-5] - 1[0-5] triệu)|(Trên 1[0-4] triệu)|(1[0-5](.[0-9])? triệu - 1[1-5] triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === '15 - 20') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[5-9] triệu - 20 triệu)|(1[5-9] - 20 triệu)|(1[5-9] triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 20 triệu)|(1[5-9](.[0-9])? - 20 triệu)|(Trên 1[5-9] triệu)/,
           $options: 'i',
         };
       } else if (mucluong === 'tren20') {
         filterObject['job_salary'] = {
-          $regex: /(2[0-9]( triệu)? -)|(Trên 2[0-9])|(2[0-9]  -)|/,
+          $regex:
+            /([2-9][0-9] triệu - )|([2-9][0-9](.[0-9])? triệu - )|(Trên 2[0-9] triệu)|([2-9][0-9] - )|([2-9][0-9](.[0-9])? triệu - )/,
           $options: 'i',
         };
       } else {
@@ -230,7 +295,6 @@ export class PostsService {
         delete filterObject[key];
       }
     });
-    // console.log('loc', filterObject);
     // limit 6 items each fetch
     const skipCount = (currentReferPage - 1) * 6;
     const post = await this.postModel
@@ -246,14 +310,6 @@ export class PostsService {
       posts: post,
       totalReferCount: totalCount,
     };
-  }
-  async getPostStatus1() {
-    return this.postModel
-      .find({ status: 1, com_created: { $exists: true } })
-      .then((post) => {
-        return post;
-      })
-      .catch((err) => console.log(err));
   }
   async getAllDisplayPosts(currentPage: number) {
     // limit 10
@@ -293,7 +349,6 @@ export class PostsService {
       })
       .catch((err) => console.log(err));
     const totalCount = await this.postModel.find(filterObject).countDocuments();
-    console.log(totalCount);
     return {
       posts: post,
       totalCount: totalCount,
@@ -320,13 +375,42 @@ export class PostsService {
       })
       .catch((err) => console.log(err));
     const totalCount = await this.postModel.find(filterObject).countDocuments();
-    console.log(totalCount);
     return {
       posts: post,
       totalReferCount: totalCount,
     };
   }
+  async getUnApprovedPosts(currentPage: number) {
+    const filterObject = {
+      status: 0,
+    };
+    // patch remove empty property
+    Object.keys(filterObject).forEach((key) => {
+      if (filterObject[key] === undefined) {
+        delete filterObject[key];
+      }
+    });
+    // limit 6 items each fetch
+    const skipCount = (currentPage - 1) * 6;
+    const post = await this.postModel
+      .find(filterObject)
+      .limit(6)
+      .skip(skipCount)
+      .then((post) => {
+        return post;
+      })
+      .catch((err) => console.log(err));
+    const totalCount = await this.postModel.find(filterObject).countDocuments();
+    return {
+      posts: post,
+      totalCount: totalCount,
+    };
+  }
   async createPost(createPostDto: CreatePostDto): Promise<Post> {
+    const date = new Date();
+    const temp = `${date.getDate()}/${
+      date.getMonth() + 1
+    }/${date.getFullYear()}`;
     try {
       const newPost = new this.postModel({
         major: createPostDto.major,
@@ -341,7 +425,7 @@ export class PostsService {
         job_salary: createPostDto.job_salary,
         deadline: createPostDto.deadline,
         province: createPostDto.province,
-        createdAt: new Date(),
+        createdAt: temp,
       });
       this.userService.increaseTotalPosts(createPostDto.com_created);
       await newPost.save();
@@ -392,7 +476,6 @@ export class PostsService {
       })
       .catch((err) => console.log(err));
     const totalCount = await this.postModel.find(filterObject).countDocuments();
-    console.log(totalCount);
     return {
       posts: post,
       totalCount: totalCount,
@@ -420,14 +503,12 @@ export class PostsService {
       })
       .catch((err) => console.log(err));
     const totalCount = await this.postModel.find(filterObject).countDocuments();
-    console.log(totalCount);
     return {
       posts: post,
       totalCount: totalCount,
     };
   }
   async changePostStatus(postId: string, updatePostDto: UpdatePostDto) {
-    console.log('new state', updatePostDto.status);
     const temp = await this.postModel.findById(postId);
     try {
       await this.postModel.findByIdAndUpdate(postId, {
@@ -499,13 +580,10 @@ export class PostsService {
 
   async removeInterview(userId: string, postId: string) {
     try {
-      // console.log('removeInterview from client:', userId);
       const ab = await this.postModel.findById(postId);
-      console.log(ab.interviewList.length);
       const newDegreeList = ab.interviewList.filter(
         (interviewItem) => interviewItem['candidateId'] !== userId,
       );
-      // console.log(newDegreeList.length);
       return await this.postModel.findByIdAndUpdate(postId, {
         $set: {
           interviewList: newDegreeList,
@@ -520,7 +598,6 @@ export class PostsService {
   async editInterview(addInterviewDto: AddInterviewDto, postId: string) {
     try {
       const ab = await this.postModel.findById(postId);
-      console.log(ab.interviewList);
       ab.interviewList.forEach((element) => {
         if (element.candidateId == addInterviewDto.candidateId) {
           element.location = addInterviewDto.location;
@@ -528,7 +605,6 @@ export class PostsService {
           element.time = addInterviewDto.time;
         }
       });
-      console.log('new list', ab.interviewList);
       return await this.postModel.findByIdAndUpdate(postId, {
         $set: {
           interviewList: ab.interviewList,
@@ -561,14 +637,12 @@ export class PostsService {
           'DD/MM/YYYY',
         ).toDate();
         if (elementDateValue < todayValue) {
-          console.log(`delete ${element}`);
           try {
             await this.postModel.findByIdAndUpdate(element._id, {
               $set: {
                 status: 2,
               },
             });
-            console.log('an bai dang', element);
           } catch (error) {
             console.log(error);
           }

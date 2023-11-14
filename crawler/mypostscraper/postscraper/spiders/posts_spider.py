@@ -21,21 +21,18 @@ class PostSpider(scrapy.Spider):
         items['status']=1
         items["job_title"] = response.css('.card .card-body >h6::text').extract()[0]
         items["job_link"] = response.url
-        dulieu = response.css(".card .card-body .card-list p:first-child::text").extract()
-        items["job_salary"] = dulieu[2]
+        items["job_salary"] = response.css(".card .card-body .card-list p:first-child::text").extract()[2].replace('  ','')
         items['logo'] = response.css('.card .card-avatar >a::attr(href)').extract()[0]
         items['company'] = response.css('.card .card-body p.card-text>a::text').extract()[0]
         items['job_description'] = ' '.join(response.css('.recruitment-content .recruitment-job .description-content::text').extract()).replace('  ','')
         items['job_requirement'] = ' '.join(response.css('.recruitment-content .recruitment-required-job .description-content::text').extract()).replace('  ','')
         items['job_benefit'] = ' '.join(response.css('.recruitment-content .recruitment-benefit .description-content > p::text').extract()).replace('  ','')
-        items['deadline'] = response.css('.recruitment-content .recruitment-apply .apply-contact div.apply-contact-item::text').extract()[0].replace('  ','').replace('\r\n','')
+        items['deadline'] = response.css(".card .card-body .card-list p:nth-child(2)::text").extract()[2].replace('  ','')
         items['com_location'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2 > div::text').extract()[0]
-        # if exist phone => item['com_phone] = response.css
-        # else => chưa cập nhật
         items['com_phone'] = response.css('.recruitment-content .recruitment-required-profile .description-content .mt-2:nth-child(3) > div > a::text').extract()[0]
         yeucaukinhnghiem =   response.css(".recruitment-body .recruitment-info > .row > .col-md-6:first-child").extract()
         items['expRequire']= yeucaukinhnghiem[0][yeucaukinhnghiem[0].rfind("</span>")+7:yeucaukinhnghiem[0].rfind("</div>")]
-        hinhthuc =   response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(6)").extract()
+        hinhthuc = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(6)").extract()
         items['workingType']= hinhthuc[0][hinhthuc[0].rfind("</span>")+7:hinhthuc[0].rfind("</div>")]
         items['major'] = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(7)> a::text").extract()[0]
         items['province'] = response.css(".recruitment-body .recruitment-info > .row > .col-md-6:nth-child(8)> a::text").extract()[0]
@@ -72,7 +69,7 @@ class PostSpider(scrapy.Spider):
             # crawl all post of 1 page
             yield  scrapy.Request("https://www.careerlink.vn/"+str(url), callback=self.parse2_attr)
             next_page = 'https://www.careerlink.vn/vieclam/list?order=posted_date&sort=desc&page='+str(PostSpider.pageCrawlOfCareerLink)
-            if PostSpider.pageCrawlOfCareerLink <= 4:
+            if PostSpider.pageCrawlOfCareerLink <= 6:
                 # cralw all page ---> PostSpider.pageCrawl <= totalPages:
                 PostSpider.pageCrawlOfCareerLink += 1
                 yield response.follow(next_page, callback=self.parse2)

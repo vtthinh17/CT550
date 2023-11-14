@@ -22,17 +22,12 @@ export class PostsController {
   getCompanyPosts(@Param('id') id: string, @Query('currentPage') currentPage: number) {
     return this.postService.getCompanyPosts(currentPage,id);
   }
-  @Get('getPostsStatus1')
-  get1() {
-    return this.postService.getPostStatus1();
-  }
   @Get('getCompanyActivePosts/:id')
   getCompanyActivePosts(@Param('id') id: string,@Query('currentPage') currentPage: number ) {
     return this.postService.getCompanyActivePosts(currentPage,id);
   }
 
   @Get('getPostByFilter')
-  // 
   getFilterPosts(@Query('currentPage') currentPage: number, @Query('workingType') workingType: string,@Query('salary') salary: string, @Query('expRequire') expRequire: string, @Query('major') major: string,  @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
     return this.postService.getPostByFilters(currentPage, workingType, educationRequire, expRequire, province, major,salary);
   }
@@ -41,7 +36,6 @@ export class PostsController {
   getReferPostByFilter(@Query('currentReferPage') currentReferPage: number, @Query('hinhthuc') hinhthuc: string, @Query('trinhdo') trinhdo: string, @Query('thanhpho') thanhpho: string, @Query('kinhnghiem') kinhnghiem: string, @Query('linhvuc') linhvuc: string, @Query('mucluong') mucluong: string) {
     return this.postService.getReferPostByFilter(currentReferPage, hinhthuc, trinhdo, thanhpho, kinhnghiem, linhvuc, mucluong);
   }
-  // ------------
   @Get('getSuitableJobs/:userId')
   getSuitableJobs(@Param('userId') userId: string) {
     return this.postService.getSuitableJobs(userId);
@@ -51,10 +45,16 @@ export class PostsController {
   getSysTemPosts(@Query('currentPage') currentPage: number) {
     return this.postService.getSysTemPosts(currentPage);
   }
+  
 
   @Get('getReferPosts')
   getReferPosts(@Query('currentReferPage') currentReferPage: number) {
     return this.postService.getReferPosts(currentReferPage);
+  }
+
+  @Get('getUnApprovedPosts')
+  getUnApprovedPosts(@Query('currentPage') currentPage: number) {
+    return this.postService.getUnApprovedPosts(currentPage);
   }
   
   @Get('isSubmit')

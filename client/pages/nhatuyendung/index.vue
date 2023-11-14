@@ -210,8 +210,6 @@
                   <a-select-option value="Làm việc từ xa/Remote">Làm việc từ xa/Remote</a-select-option>
                   <a-select-option value="Thực tập/Intern">Thực tập/Intern</a-select-option>
                 </a-select>
-                <!-- <a-input type="text" class="input" name="add_workingType" v-model:value="add_workingType"
-                  style="width: 100%;" /> -->
               </a-form-item>
             </a-col>
           </a-row>
@@ -244,7 +242,7 @@
             </a-col>
           </a-row>
           <a-form-item label="Mức lương">
-            <a-input type="text" class="input" name="add_jobSalary" v-model:value="add_jobSalary" />
+            <a-input type="text" class="input" name="add_jobSalary" v-model:value="add_jobSalary" placeholder="VD: 5 - 10 triệu"/>
           </a-form-item>
           <a-row>
             <a-col :span="12">
@@ -368,7 +366,6 @@ export default {
       add_jobSalary: '',
       add_deadline: '',
       add_province: '',
-      add_logo: '',
       provinceOption: provinces,
       open: false,
       modalEditOpen: false,
@@ -452,9 +449,6 @@ export default {
     viewAppiedCandidates(postID) {
       navigateTo('/nhatuyendung/post/' + postID)
     },
-    showDrawer() {
-      this.open = true;
-    },
     showAddModal() {
       this.open = true;
     },
@@ -516,9 +510,6 @@ export default {
       this.hannop = dayjs(this.selectedPost.data.deadline, 'DD/MM/YYYY')
       this.modalEditOpen = true;
     },
-    onChange(pagination, filters, sorter, extra) {
-      console.log('params', pagination, filters, sorter, extra);
-    },
   },
   computed: {
     getCompanyPosts() {
@@ -533,7 +524,6 @@ export default {
   display: flex;
   justify-content: center;
   padding: 6px 0px;
-  // background-color: rgb(203, 191, 191);
 }
 
 .xemhoso:hover {
@@ -542,18 +532,11 @@ export default {
   padding: 2px;
 }
 
-
-// background-color: rgb(67, 61, 61);
 .job_item {
-  // border: 1px solid black;
   background-color: rgb(255, 254, 254);
   margin: 1rem 0;
   box-shadow: rgba(3, 102, 214, 0.3) 0px 0px 0px 3px;
-
-
 }
-
-
 
 .message {
   height: 50vh;

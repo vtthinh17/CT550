@@ -2,7 +2,7 @@
     <a-layout :name="Ungvien">
         <div class="mainContent">
             <div>
-                <div v-if="isLogin && getSuitableJobs.length > 0">
+                <div v-if="userLogin && userLogin.role=='1' && getSuitableJobs.length > 0">
                     <h2 class="job_type">
                         <CaretRightOutlined />Việc làm gần bạn: {{ getSuitableJobs.length }}
                     </h2>
@@ -28,22 +28,22 @@
                         <p>Bộ lọc:</p>
                         <a-input type="text" :allowClear="true" v-model:value="filterRefer_major"
                             style="width: 12%; height: 2rem" placeholder="Lĩnh vực tìm kiếm" />
-                        <a-cascader class="filterOption" v-model:value="filterRefer_salary" style="width: 15%;  height: 2rem;"
+                        <a-cascader class="filterOption" v-model:value="filterRefer_salary" style="width: 15%;"
                             max-tag-count="responsive" :options="filterOptions_salary"
                             placeholder="Mức lương">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_education" style="width: 10%;  height: 2rem;"
+                        <a-cascader class="filterOption" v-model:value="filterRefer_education" style="width: 10%;"
                             max-tag-count="responsive" :options="filterOptionsRefer_education" placeholder="Trình độ">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_expRequire" style="width: 15%;  height: 2rem;"
+                        <a-cascader class="filterOption" v-model:value="filterRefer_expRequire" style="width: 15%;"
                             max-tag-count="responsive" :options="filterOptionsRefer_expRequire"
                             placeholder="Yêu cầu kinh nghiệm">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_workingType" style="width: 15%;  height: 2rem;"
+                        <a-cascader class="filterOption" v-model:value="filterRefer_workingType" style="width: 15%;"
                             max-tag-count="responsive" :options="filterOptionsRefer_workingType"
                             placeholder="Hình thức làm việc">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_province" style="width: 15%;  height: 2rem;"
+                        <a-cascader class="filterOption" v-model:value="filterRefer_province" style="width: 15%;"
                             max-tag-count="responsive" :options="provincesOptions" placeholder="Tỉnh/Thành phố">
                         </a-cascader>
                         <a-button style="background-color: yellow;" @click="reloadReferPost()">Lọc tin</a-button>
@@ -71,8 +71,7 @@
                     </a-col>
 
                 </a-row>
-                <a-result v-else title="Không có tin tuyển dụng nào thỏa yêu cầu tìm kiếm của bạn!"
-                    sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng.">
+                <a-result v-else title="Không tìm thấy tin tuyển dụng!">
                     <template #icon>
                         <FrownOutlined />
                     </template>
@@ -135,8 +134,7 @@
                     </a-col>
 
                 </a-row>
-                <a-result v-else title="Không có tin tuyển dụng nào thỏa yêu cầu tìm kiếm của bạn!"
-                    sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng.">
+                <a-result v-else title="Không tìm thấy tin tuyển dụng!">
                     <template #icon>
                         <FrownOutlined />
                     </template>
@@ -310,7 +308,6 @@
 <script >
 import { notification } from 'ant-design-vue';
 import 'swiper/css/navigation';
-import myData from '../../assets/data/data';
 import provinces from '../../assets/data/provinces';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -335,18 +332,18 @@ export default {
 
             },          
             {
-                label: '3 - 5 triệu',
-                value: '3 - 5',
+                label: '3 - 6 triệu',
+                value: '3 - 6',
 
             },
             {
-                label: '5 - 7 triệu',
-                value: '5 - 7',
+                label: '6 - 10 triệu',
+                value: '6 - 10',
 
             },
             {
-                label: '7 - 10 triệu',
-                value: '7 - 10',
+                label: 'Dưới 10 triệu',
+                value: 'duoi10',
 
             },
             {
@@ -355,18 +352,8 @@ export default {
 
             },
             {
-                label: '10 - 12 triệu',
-                value: '10 - 12',
-
-            },
-            {
-                label: '10 - 12 triệu',
-                value: '10 - 12',
-
-            },
-            {
-                label: '12 - 15 triệu',
-                value: '12 - 15',
+                label: '10 - 15 triệu',
+                value: '10 - 15',
 
             },
             {
@@ -379,16 +366,6 @@ export default {
                 value: 'tren20',
 
             },
-            // {
-            //     label: 'Từ 15 - 20 triệu',
-            //     value: '15 - 20',
-
-            // },
-            // {
-            //     label: 'Trên 20 triệu',
-            //     value: '20+',
-
-            // },
 
         ];
         const filterOptions_major = [
@@ -587,9 +564,6 @@ export default {
             },
 
         ];
-        const filterSearchOption = (input, option) => {
-            return option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0;
-        };
         return {
             filterOptions_salary,
             filterOptions_major,
@@ -599,7 +573,6 @@ export default {
             filterOptionsRefer_workingType,
             filterOptionsRefer_education,
             filterOptionsRefer_expRequire,
-            filterSearchOption,
             modules: [Navigation, Pagination],
         };
     },
@@ -622,8 +595,6 @@ export default {
             openMessage: false,
             selectedJob: false,
             companyInfo: false,
-            searchOptions: [],
-            data: [],
             provincesOptions: provinces,
             postsApplyable: [],
             referPosts: [],
@@ -634,7 +605,6 @@ export default {
             currentPage: 1,
             totalReferCount: 0,
             currentReferPage: 1,
-            temp: false
         }
 
     },
@@ -651,7 +621,6 @@ export default {
             const danhsachtam = await $fetch('http://localhost:8000/posts/getSuitableJobs/' + this.isLogin);
             for (let i = 0; i <= danhsachtam.posts.length - 1; i++) {
                 if (danhsachtam.posts[i].com_created) {
-                    // console.log(danhsachtam.posts[i].com_created) 
                     let congty = await $fetch('http://localhost:8000/users/getUser/' + danhsachtam.posts[i].com_created);
                     danhsachtam.posts[i].company = congty.com_name;
                 }
@@ -662,14 +631,6 @@ export default {
         console.log("clear outdate")
         this.reloadReferPost();
         this.reloadPostApplyable();
-        this.data = myData;
-        this.searchOptions = this.data.map((item) => {
-            return {
-                ...item,
-                label: item.job_title,
-                value: item._id
-            }
-        });
     },
     methods: {
         getKeyWordsSearch(value) {
@@ -773,7 +734,6 @@ export default {
                         })
                         this.openNotificationWithIcon('success')
                         this.reloadPostApplyable();
-                        // console.log("them cv vao selectedJob:", this.userLogin)
                         this.open = false
                     } catch (error) {
                         console.log(error)
@@ -813,7 +773,8 @@ export default {
 }
 
 .filterOption {
-    margin: 0 0.5rem;
+    margin: 0 0.5rem; 
+    height: 2rem;
 }
 
 .code-box-demo .ant-slider {

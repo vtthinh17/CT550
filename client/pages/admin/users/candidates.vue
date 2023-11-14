@@ -249,6 +249,5 @@ export default {
     display: flex;
     justify-content: center;
     padding: 6px 0px;
-    // background-color: rgb(203, 191, 191);
 }
 </style>

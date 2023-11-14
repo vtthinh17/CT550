@@ -311,9 +311,6 @@ export default {
             this.selectedCV = candidate
             this.viewInterviewOpen = true
         },
-        // handleEditInterview(){
-        //     console.log("edit interview by candidateId => find interviewList[i].candidateId = selectedInterview.candidateId", this.selectedInterview)
-        // },
         openNotificationWithIcon(type, mess, des) {
             notification[type]({
                 placement: "top",
@@ -432,48 +429,11 @@ export default {
             this.open = true;
             console.log("show", candidate)
         },
-        handleCreateExcelCandidatesList(candidatesList) {
-            // console.log(candidatesList)
-            let dataExport = []
-            candidatesList.forEach(element => {
-                dataExport.push(
-                    {
-                        Hoten: element.profile.fullName,
-                        NgaySinh: element.profile.birthday,
-                        TrinhDo: element.profile.level,
-                        SoDienThoai: element.profile.phone,
-                        DiaChi: element.profile.address,
-                    }
-                )
-            });
-            console.log((dataExport))
-
-
-            // const csvContent = this.convertToCSV(dataExport)
-            // const blob = new Blob([csvContent], { type: 'text/csv;charset-utf-8' })
-            // const url = URL.createObjectURL(blob);
-            // const link = document.createElement('a');
-            // link.href = url;
-            // link.setAttribute("download", 'export_data.csv');
-            // link.click();
-        },
-        convertToCSV(data) {
-            const headers = Object.keys(data[0]);
-            const rows = data.map(obj => headers.map(header => obj[header]));
-            const headerRow = headers.join(',');
-            const csvRows = [headerRow, ...rows.map(row => row.join(','))];
-            return csvRows.join('\n');
-        }
     }
 }
 </script>
   
 <style scoped>
-/* .hoverItem:hover {
-    opacity: 0.7;
-    cursor: pointer;
-} */
-
 .btnStyle {
     display: flex;
     align-items: center;

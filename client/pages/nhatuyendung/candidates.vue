@@ -43,7 +43,7 @@
           </a-card>
         </a-col>
       </a-row>
-      <a-result v-else title="Không có tin tuyển dụng nào thỏa yêu cầu tìm kiếm của bạn!"
+      <a-result v-else title="Không tìm thấy tin tuyển dụng!"
         sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng.">
         <template #icon>
           <FrownOutlined />

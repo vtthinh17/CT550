@@ -91,7 +91,6 @@ export default {
       fileBase64: null,
       isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
       userLogin: false,
-      addAbout: ''
     };
   },
   async mounted() {

@@ -31,9 +31,12 @@
                 <a-menu-item key="5">
                     <NuxtLink to="/admin/posts">Danh sách tin tuyển dụng</NuxtLink>
                 </a-menu-item>
+                <a-menu-item key="6">
+                    <NuxtLink to="/admin/posts/unApprovedPosts">Danh sách chờ duyệt</NuxtLink>
+                </a-menu-item>
                 <!-- <a-menu-item key="8">Team 2</a-menu-item> -->
             </a-sub-menu>
-            <a-menu-item key="6">
+            <a-menu-item key="7">
                 <template #icon>
                     <LockOutlined />
                 </template>
