@@ -2,7 +2,7 @@
   <a-layout :name="nhatuyendung">
 
     <div v-if="this && this.isLogin">
-      <a-row class="gradient_list">
+      <a-row class="gradient_list" v-if="loaded">
         <a-col :span="7"
           style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background-color: rgb(219, 213, 213);"
           class="gradient_item">
@@ -23,7 +23,7 @@
       </a-row>
       <!-- Job list -->
       <h1>Tin của tôi</h1>
-      <div v-if="this.totalCount > 0">
+      <div v-if="loaded && this.totalCount > 0">
         <div v-for="post in getCompanyPosts" class="job_item">
           <div style="display: flex; flex-direction: row; justify-content: space-around; margin-bottom: 1rem;">
 
@@ -375,6 +375,7 @@ export default {
       currentPage: 1,
       companyPost: [],
       selectedPost: {},
+      loaded : false,
     }
   },
   async mounted() {
@@ -385,6 +386,7 @@ export default {
         console.log("nha tuyen dung login profile:", this.userLogin);
         this.reloadCompanyPost();
         this.clearOutDatePosts();
+        this.loaded = true;
       }
     }
   },

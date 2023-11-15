@@ -34,6 +34,15 @@ export class UsersService {
       throw new HttpException('Error get user', HttpStatus.BAD_REQUEST);
     }
   }
+  getAllUsers(): any {
+    const ab = this.userModel
+      .find({})
+      .then((post) => {
+        return post;
+      })
+      .catch((err) => console.log(err));
+    return ab;
+  }
 
   getCandidates() {
     return this.userModel
@@ -46,7 +55,18 @@ export class UsersService {
       })
       .catch((err) => console.log(err));
   }
-
+  async getTodayCreatedAccount() {
+    let count = 0;
+    const today = new Date();
+    const allUser = await this.getAllUsers();
+    console.log(allUser);
+    allUser.forEach((user) => {
+      if (user.createdAt.slice(0, 2) == today.getDate()) {
+        count++;
+      }
+    });
+    return count;
+  }
   async login(loginUserDto: LoginUserDto): Promise<User> {
     try {
       const user = await this.userModel.findOne(loginUserDto);

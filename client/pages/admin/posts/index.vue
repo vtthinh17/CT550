@@ -4,7 +4,7 @@
 
             <h2>Quản lý tin tuyển dụng</h2>
 
-            <a-layout-content>
+            <a-layout-content v-if="loaded">
                 <a-card :tab-list="tabListNoTitle" :active-tab-key="noTitleKey" @tabChange="key => onTabChange(key)">
                     <!-- Tin được tạo trên hệ thống -->
                     <a-list v-if="noTitleKey === 'tab1'" size="large" bordered :data-source="getSystemPosts">
@@ -49,7 +49,7 @@
                                             style="background-color: rgb(240, 240, 132);"> Ẩn tin tuyển dụng
                                         </a-button>
                                         <a-button v-if="item.status == 0" @click="changePostStatus(item, 1)"
-                                            style="background-color: rgb(66, 243, 66);"> Duyệt/Hiển thị tin
+                                            style="background-color: rgba(91, 248, 119, 0.7)"> Duyệt/Hiển thị tin
                                         </a-button>
                                     </a-col>
                                 </a-row>
@@ -103,7 +103,7 @@
                                             style="background-color: rgb(240, 240, 132);"> Ẩn tin tuyển dụng
                                         </a-button>
                                         <a-button v-if="item.status == 0" @click="changePostStatus(item, 1)"
-                                            style="background-color: rgb(66, 243, 66);"> Duyệt/Hiển thị tin
+                                            style="background-color: rgba(91, 248, 119, 0.7)"> Duyệt/Hiển thị tin
                                         </a-button>
                                     </a-col>
                                 </a-row>
@@ -268,6 +268,7 @@ export default {
             referPosts: [],
             totalReferCount: 0,
             currentReferPage: 1,
+            loaded: false,
         }
     },
     methods: {
@@ -384,6 +385,7 @@ export default {
             }
             this.reloadSystemPosts();
             this.reloadReferPosts();
+            this.loaded = true;
         }
     },
     computed: {

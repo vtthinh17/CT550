@@ -1,7 +1,7 @@
 <template>
     <a-layout :name="Ungvien">
         <div class="mainContent">
-            <div>
+            <div v-if="loaded">
                 <div v-if="userLogin && userLogin.role=='1' && getSuitableJobs.length > 0">
                     <h2 class="job_type">
                         <CaretRightOutlined />Việc làm gần bạn: {{ getSuitableJobs.length }}
@@ -408,6 +408,16 @@ export default {
 
             },
             {
+                label: 'Phổ thông',
+                value: 'Phổ thông',
+
+            },
+            {
+                label: 'Cử nhân',
+                value: 'Cử nhân',
+
+            },
+            {
                 label: 'Đại học',
                 value: 'Đại học',
 
@@ -553,6 +563,16 @@ export default {
 
             },
             {
+                label: 'Phổ thông',
+                value: 'Phổ thông',
+
+            },
+            {
+                label: 'Cử nhân',
+                value: 'Cử nhân',
+
+            },
+            {
                 label: 'Trung cấp',
                 value: 'Trung',
 
@@ -605,6 +625,7 @@ export default {
             currentPage: 1,
             totalReferCount: 0,
             currentReferPage: 1,
+            loaded: false,
         }
 
     },
@@ -631,6 +652,7 @@ export default {
         console.log("clear outdate")
         this.reloadReferPost();
         this.reloadPostApplyable();
+        this.loaded = true;
     },
     methods: {
         getKeyWordsSearch(value) {

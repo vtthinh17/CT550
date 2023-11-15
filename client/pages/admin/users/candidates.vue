@@ -2,15 +2,15 @@
     <a-layout :name="admin">
         <div v-if="userLogin && userLogin.role == '3'">
             <h2>Quản lý danh sách ứng viên</h2>
-            <a-layout-content>
+            <a-layout-content v-if="loaded">
                 <a-list size="large" bordered :data-source="getCandidatesList">
                     <template #header>
                         <h1>Số lượng: {{ totalCount }}</h1>
                     </template>
                     <template #renderItem="{ item }">
                         <a-list-item class="hoverItem">
-                            <a-row style="width: 80%;">
-                                <a-col :span="16">
+                            <a-row style="width: 90%;">
+                                <a-col :span="14">
                                     <a-row>
                                         <a-col :span="8">
                                             <img v-if="item.cv.avatar" style="width: 30%; border-radius: 50%;"
@@ -37,7 +37,7 @@
                                         </a-col>
                                     </a-row>
                                 </a-col>
-                                <a-col :span="8">
+                                <a-col :span="10">
                                     <a-button type="primary" @click="showCandidateInfo(item)">Xem hồ sơ</a-button>
                                     <a-divider type="vertical" />
                                     <a-button danger @click="handleRemoveUser(item)">Xóa người dùng</a-button>
@@ -180,6 +180,7 @@ export default {
             selectedCV: false,
             totalCount: 0,
             currentPage: 1,
+            loaded: false,
         }
     },
     methods: {
@@ -234,6 +235,7 @@ export default {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
             }
             this.reloadCandidatesList()
+            this.loaded = true;
         }
     },
     computed: {

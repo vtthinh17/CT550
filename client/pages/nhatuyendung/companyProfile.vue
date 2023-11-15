@@ -1,7 +1,7 @@
 <template>
   <a-layout :name="nhatuyendung">
     <div v-if="isLogin != ''">
-      <div style="display: flex; flex-direction: row; margin-top: 2rem;">
+      <div v-if="loaded" style="display: flex; flex-direction: row; margin-top: 2rem;">
         <div style="flex:1"></div>
         <div style="flex:4">
           <a-card style="width: 80%">
@@ -91,6 +91,7 @@ export default {
       fileBase64: null,
       isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
       userLogin: false,
+      loaded: false,
     };
   },
   async mounted() {
@@ -99,7 +100,7 @@ export default {
       if (this.isLogin) {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
         this.fileBase64 = this.userLogin.com_logo;
-        console.log("123>>>  login:", this.userLogin);
+        this.loaded = true;
       }
     }
   },

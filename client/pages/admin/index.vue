@@ -3,32 +3,45 @@
         <div v-if="userLogin && userLogin.role == '3'">
             <h2>Hệ thống tuyển dụng việc làm</h2>
             <a-layout-content>
-                <a-row class="gradient_list" style="padding: 2rem;">
-                    <a-col :span="6"
+                <a-row v-if="loaded" class="gradient_list" style="padding: 2rem;" justify="space-around">
+                    <a-col :span="5"
                         style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background-color: rgb(219, 213, 213);"
                         class="gradient_item">
-                        Số tin tuyển dụng
-                        <b>1004</b>
+                        <FileSearchOutlined /><span style="font-weight: 370; font-size: 1rem;">Số tin tuyển dụng</span>
+                        <b>{{ getAllPostDataLength }}</b>
                     </a-col>
-                    <a-col :span="6"
-                        style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background: transparent linear-gradient(90deg,#41bfad,#3bd3e6) 0 0 no-repeat padding-box;"
+                    <a-col :span="5"
+                        style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column;background: rgba(255, 252, 86, 0.7) 0 0 no-repeat padding-box;"
                         class="gradient_item">
-                        Số lượng người dùng trên hệ thống
+                        <UserOutlined /><span style="font-weight: 370; font-size: 1rem;">Số người dùng</span>
+                        <b>{{ getAllUserDataLength }}</b>
                     </a-col>
-                    <a-col :span="6"
-                        style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column; background: transparent linear-gradient(90deg,#a1dc65,#66cc80) 0 0 no-repeat padding-box;"
-                        class="gradient_item" @click="navigateTo('./admin/posts/unApprovedPosts')">
-                        <CarryOutOutlined />Tin chờ duyệt
+                    <a-col :span="5"
+                        style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column; background: rgba(91, 248, 119, 0.7) 0 0 no-repeat padding-box;"
+                        class="gradient_item" @click="navigateTo('admin/posts/unApprovedPosts')">
+                        <CarryOutOutlined /><span style="font-weight: 370; font-size: 1rem;">Tin chờ duyệt</span>
+                        <b>{{ getTotalUnapprovedPosts }}</b>
+                    </a-col>
+                    <a-col :span="5"
+                        style="font-size: 1rem;color: #0c0606; display: flex; flex-direction: column; background: rgba(255, 205, 86, 0.7) 0 0 no-repeat padding-box;"
+                        class="gradient_item">
+                        <RiseOutlined /><span style="font-weight: 370; font-size: 1rem;">Người dùng mới</span>
+                        <!-- <CarryOutOutlined />Người dùng mới -->
+                        <b>{{ getToDayNewAccount }}</b>
                     </a-col>
                 </a-row>
-                <div style="padding: 24px; background: #fff;"></div>
-
+            </a-layout-content>
+            <!-- <a-divider></a-divider> -->
+            <div style="padding: 24px; background: #fff;"></div>
+            <!-- Chart -->
+            <a-layout-content style="display: flex; height: 20rem; justify-content: center; padding: 1rem;">
+                <Pie v-if="loaded" :data="pieData" />
             </a-layout-content>
 
-            <!-- Chart -->
+
+            <div style="padding: 24px; background: #fff;"></div>
             <a-layout-content>
                 <Bar v-if="loaded" :data="chartData" :options="options" />
-                <!-- <div id="main" style="width: 70%; height:30rem;"></div> -->
             </a-layout-content>
         </div>
         <div v-else>
@@ -47,13 +60,14 @@ import {
     Legend,
     BarElement,
     CategoryScale,
-    LinearScale
+    LinearScale,
+    ArcElement
 } from 'chart.js'
-import { Bar } from 'vue-chartjs'
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+import { Bar, Pie } from 'vue-chartjs'
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 export default {
     components: {
-        Bar
+        Bar, Pie
     },
     setup() {
         definePageMeta({
@@ -117,6 +131,21 @@ export default {
                     }
                 ]
             },
+            pieData: {
+                labels: [
+                    'Ứng viên',
+                    'Nhà tuyển dụng',
+                ],
+                datasets: [{
+                    label: 'Số lượng',
+                    data: [300, 50],
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                    ],
+                    hoverOffset: 4
+                }]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: false
@@ -124,15 +153,16 @@ export default {
             isLogin: false,
             userLogin: {},
             allPostData: false,
+            allUserData: false,
+            todayNewAccount: false,
+            totalUnapprovedPosts: 0,
             loaded: false,
         }
     },
     methods: {
-        getNumberOrPostEachMonth() {
+        getNumberOfPostEachMonth() {
             let temp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             this.allPostData.forEach(post => {
-                console.log(post.job_title)
-                console.log('=>>>>thang', post.deadline.slice(3, 5))
                 for (let i = 1; i <= 12; i++) {
                     if (Number(post.deadline.slice(3, 5)) == i) {
                         temp[i - 1] = temp[i - 1] + 1;
@@ -140,7 +170,29 @@ export default {
                 }
             })
             return temp
-        }
+        },
+        getNumberOfCandidates() {
+            let temp = [0, 0];
+            this.allUserData.forEach(user => {
+
+                if (user.role == 1) {
+                    temp[0] = temp[0] + 1;
+                } else if (user.role == 2) {
+                    temp[1] = temp[1] + 1;
+                } else {
+
+                }
+            })
+            return temp
+        },
+        getNumberOfUnApprovedPosts() {
+            this.allPostData.forEach(post => {
+                if (post.status === 0) {
+                    this.totalUnapprovedPosts++;
+                }
+            })
+        },
+
     },
     async mounted() {
         if (process.client) {
@@ -148,9 +200,14 @@ export default {
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 this.allPostData = await $fetch('http://localhost:8000/posts/getAll');
-                let postPerMonth = this.getNumberOrPostEachMonth();
-                // bỏ dòng 151 để ra giá trị khởi tạo
+                this.allUserData = await $fetch('http://localhost:8000/users/getAll');
+                this.todayNewAccount = await $fetch('http://localhost:8000/users/getTodayCreatedAccount');
+                console.log('all user', this.allUserData)
+                let postPerMonth = this.getNumberOfPostEachMonth();
                 this.chartData.datasets[0].data = postPerMonth;
+                // console.log('so luong ung vien vs nha tuyen dung', this.getNumberOfCandidates())
+                this.pieData.datasets[0].data = this.getNumberOfCandidates();
+                this.getNumberOfUnApprovedPosts();
                 this.loaded = true;
             }
 
@@ -158,6 +215,19 @@ export default {
 
     },
     computed: {
+        getAllUserDataLength() {
+            return this.allUserData.length - 1;
+        },
+        getAllPostDataLength() {
+            return this.allPostData.length;
+        },
+        getToDayNewAccount() {
+            return this.todayNewAccount;
+        },
+        getTotalUnapprovedPosts(){
+            return this.totalUnapprovedPosts;
+        },
+
     }
 }
 </script>

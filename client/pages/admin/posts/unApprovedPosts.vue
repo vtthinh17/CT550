@@ -4,7 +4,7 @@
 
             <h2>Danh sách tin đang chờ duyệt</h2>
 
-            <a-layout-content>
+            <a-layout-content v-if="loaded">
                 <a-list v-if="totalCount>0" size="large" bordered :data-source="getUnApprovedPosts">
                     <template #header>
                         <h1>Số lượng: {{ totalCount }}</h1>
@@ -24,7 +24,7 @@
 
                                         <p>Trạng thái:
                                             <span v-if="item.status == 0"
-                                                style="background-color: rgb(240, 224, 131); padding: 0.4rem;">
+                                                style="background-color: rgba(91, 248, 119, 0.7); padding: 0.4rem;">
                                                 Đang chờ duyệt
                                             </span>
                                             <span v-else-if="item.status == 1"
@@ -47,7 +47,7 @@
                                         style="background-color: rgb(240, 240, 132);"> Ẩn tin tuyển dụng
                                     </a-button>
                                     <a-button v-if="item.status == 0" @click="changePostStatus(item, 1)"
-                                        style="background-color: rgb(66, 243, 66);"> Duyệt/Hiển thị tin
+                                        style="background-color: rgba(91, 248, 119, 0.7)"> Duyệt/Hiển thị tin
                                     </a-button>
                                 </a-col>
                             </a-row>
@@ -200,6 +200,7 @@ export default {
             openJob: false,
             companyInfo: false,
             selectedJob: false,
+            loaded: false,
         }
     },
     methods: {
@@ -294,6 +295,7 @@ export default {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
             }
             this.reloadUnApprovedPosts();
+            this.loaded = true;
         }
     },
     computed: {

@@ -6,7 +6,7 @@
                 <h4>Danh sách ứng viên đã ứng tuyển cho việc làm này</h4>
             </div>
         </template>
-        <a-list size="large" bordered :data-source="Object.values(appliedPost)">
+        <a-list v-if="loaded" size="large" bordered :data-source="Object.values(appliedPost)">
             <template #renderItem="{ item }">
                 <a-list-item class="hoverItem">
                     <a-row style="width: 80%;">
@@ -120,6 +120,7 @@ export default {
             selectedJob: false,
             open:false,
             appliedPost: false,
+            loaded: false,
         }
 
     },
@@ -132,6 +133,7 @@ export default {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
             }
         }
+        this.loaded = true;
     },
     methods: {
         xemPhongVan(post) {

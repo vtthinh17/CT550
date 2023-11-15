@@ -1,6 +1,6 @@
 <template>
   <a-layout :name="nhatuyendung">
-    <div v-if="isLogin">
+    <div v-if="isLogin && loaded">
       <h1>Danh sách ứng viên</h1>
       <div style="background-color: #5b7fb4; padding: 1rem;">
         <div style="display: flex; justify-content: center;">
@@ -140,12 +140,14 @@
         </template>
       </a-modal>
     </div>
-    <div v-else>
-      <h3>Bạn cần đăng nhập với tài khoản của nhà tuyển dụng để xem danh sách ứng viên</h3>
-      <a-button type="primary" @click="navigateTo('./../login')">
-        Đăng nhập ngay
-      </a-button>
-    </div>
+    <a-result v-else title="Bạn cần đăng nhập với tài khoản của nhà tuyển dụng để xem danh sách ứng viên">
+      <template #icon>
+        <smile-twoTone />
+      </template>
+      <template #extra>
+        <a-button type="primary" @click="navigateTo('./../login')">Đăng nhập ngay</a-button>
+      </template>
+    </a-result>
   </a-layout>
 </template>
 
@@ -203,6 +205,7 @@ export default {
       selectedCV: null,
       totalCount: 0,
       currentPage: 1,
+      loaded: false,
     }
   },
   async mounted() {
@@ -212,6 +215,7 @@ export default {
         this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
       }
       this.reloadCandidatesList();
+      this.loaded = true;
     }
   },
   methods: {

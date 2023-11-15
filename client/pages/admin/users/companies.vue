@@ -2,15 +2,15 @@
     <a-layout :name="admin">
         <div v-if="userLogin && userLogin.role == '3'">
             <h2>Danh sách nhà tuyển dụng</h2>
-            <a-layout-content>
+            <a-layout-content v-if="loaded">
                 <a-list size="large" bordered :data-source="getCompanyList">
                     <template #header>
                         <h1>Số lượng: {{ totalCount }}</h1>
                     </template>
                     <template #renderItem="{ item }">
                         <a-list-item class="hoverItem">
-                            <a-row style="width: 80%;">
-                                <a-col :span="16">
+                            <a-row style="width: 90%;">
+                                <a-col :span="14">
                                     <a-row>
                                         <a-col :span="8">
                                             <img v-if="item.com_logo" style="width: 50%; border-radius: 10%;"
@@ -24,7 +24,7 @@
                                         </a-col>
                                     </a-row>
                                 </a-col>
-                                <a-col :span="8">
+                                <a-col :span="10">
                                     <a-button type="primary" @click="showCompanyInfo(item)">Xem thông tin công
                                         ty</a-button>
                                     <a-divider type="vertical" />
@@ -89,7 +89,7 @@
 
                             <template #renderItem="{ item }">
                                 <a-list-item>
-                                    <a-row style="width:90%">
+                                    <a-row style="width:100%">
                                         <a-col :span="14">
                                             <b>Tuyển dụng:</b> {{ item.job_title }}
                                             <div>
@@ -118,7 +118,6 @@
                                             </div>
                                         </a-col>
                                         <a-col :span="10">
-                                            <div style="display: flex; flex-direction: row;">
                                                 <a-button type="primary" @click="showModal(item)"> Xem tin tuyển dụng
                                                 </a-button>
                                                 <a-divider type="vertical" />
@@ -131,11 +130,8 @@
                                                 <a-button v-if="item.status == 0" @click="changePostStatus(item, 1)"
                                                     style="background-color: rgb(66, 243, 66);"> Duyệt/Hiển thị tin
                                                 </a-button>
-                                            </div>
                                         </a-col>
                                     </a-row>
-
-
                                 </a-list-item>
                             </template>
                         </a-list>
@@ -250,6 +246,7 @@ export default {
             selectCompanyPosts: [],
             selectedJob: false,
             companyInfo: false,
+            loaded: false,
         }
     },
     methods: {
@@ -390,6 +387,7 @@ export default {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
             }
             this.reloadCompanyList();
+            this.loaded = true;
         }
     },
     computed: {

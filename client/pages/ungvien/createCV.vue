@@ -4,7 +4,7 @@
         <div v-if="isLogin == ''">
             Bạn cần đăng nhập
         </div>
-        <div v-else-if="isLogin != '' && userLogin.cv !== undefined && userLogin.cv.avtar === undefined">
+        <div v-else-if="isLogin != '' && userLogin.cv !== undefined && userLogin.cv.avtar === undefined && loaded">
             <h1>Đăng ký thông tin cho tài khoản của bạn</h1>
             <hr>
             <div>
@@ -132,6 +132,7 @@ export default {
             exp: '',
             phone: '',
             certificates: '',
+            loaded: false
 
         }
 
@@ -143,6 +144,7 @@ export default {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 console.log("ung vien>>>  login:", this.userLogin);
             }
+            this.loaded = true;
         }
     },
     methods: {

@@ -1,9 +1,8 @@
 <template>
     <a-layout :name="nhatuyendung">
-        <!-- <h1>Danh sách hồ sơ ứng viên đã nộp cho bài postId:{{ useRoute().params.postId }}</h1> -->
-
-        <!-- Thông tin bài tuyển dụng -->
         <div>
+             <!-- Thông tin bài tuyển dụng -->
+        <div v-if="loaded">
             <h1>
                 Tuyển dụng: {{ postData.job_title }}
             </h1>
@@ -28,7 +27,6 @@
         </div>
         <a-divider />
         <!-- Danh sách ứng viên đã ứng tuyển -->
-
         <a-list size="large" bordered :data-source="postData.applied">
 
             <template #header>
@@ -84,8 +82,7 @@
 
 
         </a-list>
-
-
+        </div>
 
         <a-modal v-model:open="open" title="Hồ sơ cá nhân" width="100%" wrap-class-name="full-modal" @ok="handleOk">
             <div class="CV_header">
@@ -173,7 +170,6 @@
             </template>
         </a-modal>
         <!-- phong van -->
-
         <a-modal v-model:open="isOpen" title="Vui lòng chọn lịch hẹn" wrap-class-name="full-modal"
             @ok="this.isOpen = false">
             <div @click="this.isOpen = false">
@@ -285,7 +281,8 @@ export default {
             postData: false,
             isLogin: null,
             userLogin: {},
-            selectedInterview: false
+            selectedInterview: false,
+            loaded: false
 
         }
 
@@ -298,6 +295,7 @@ export default {
             if (this.isLogin !== '') {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
             }
+            this.loaded = true;
         }
     },
     methods: {

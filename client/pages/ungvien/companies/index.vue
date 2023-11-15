@@ -1,7 +1,7 @@
 <template>
   <a-layout :name="Ungvien">
     <h2>Danh sách công ty</h2>
-    <a-row justify="space-around" style="padding: 0px 20px;">
+    <a-row v-if="totalCount > 0" justify="space-around" style="padding: 0px 20px;">
       <a-col v-for="company in getCompanyList" :span="7">
         <a-card hoverable class="cardItem" @click="gotoCompanyInfo(company)">
           <div class="khungAvatar">
@@ -15,6 +15,11 @@
         </a-card>
       </a-col>
     </a-row>
+    <a-result v-else title="Không tìm thấy thông tin nhà tuyển dụng!">
+      <template #icon>
+        <FrownOutlined />
+      </template>
+    </a-result>
     <div class="pagination">
       <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" />
     </div>
@@ -102,11 +107,12 @@ export default {
 
 <style scoped lang="scss">
 .pagination {
-    display: flex;
-    justify-content: center;
-    padding: 6px 0px;
-    // background-color: rgb(203, 191, 191);
+  display: flex;
+  justify-content: center;
+  padding: 6px 0px;
+  // background-color: rgb(203, 191, 191);
 }
+
 :where(.css-dev-only-do-not-override-eq3tly).ant-modal-root .ant-modal-mask {
   background: rgba(0, 0, 0, 0.1) !important;
 }

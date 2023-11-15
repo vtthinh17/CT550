@@ -1,6 +1,6 @@
 <template>
     <a-layout :name="Ungvien">
-        <div v-if="isLogin != '' && userLogin.cv !== undefined && userLogin.cv.avatar !== undefined">
+        <div v-if="isLogin != '' && userLogin.cv !== undefined && userLogin.cv.avatar !== undefined && loaded">
             <a-row style="margin-top: 0.5rem;">
                 <a-col :span="14">
                     <!-- Avatar -->
@@ -244,7 +244,8 @@ export default {
             fileList: [],
             isLogin: localStorage.getItem('loginUserID') ? localStorage.getItem('loginUserID') : '',
             userLogin: false,
-            fileBase64: null
+            fileBase64: null,
+            loaded: false,
         }
 
     },
@@ -259,6 +260,7 @@ export default {
                 this.ngaysinh = dayjs(this.userLogin.cv.birthday, 'DD/MM/YY')
                 console.log("ung vien>>>  login:", this.userLogin);
             }
+            this.loaded = true;
         }
     },
     methods: {

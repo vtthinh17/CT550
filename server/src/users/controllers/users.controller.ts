@@ -13,9 +13,17 @@ export class UsersController {
     getUser(@Param('id') id: string) {
         return this.userService.getUser(id);
     }
+    @Get('getTodayCreatedAccount')
+    gettoday() {
+        return this.userService.getTodayCreatedAccount();
+    }
     @Get('getAllCompanies')
     getAllCompanies(@Query('currentPage') currentPage: number) {
         return this.userService.getAllCompanies(currentPage);
+    }
+    @Get('getAll')
+    getAll() {
+      return this.userService.getAllUsers();
     }
     @Get('getAllCandidates')
     getCandidates(@Query('currentPage') currentPage: number,@Query('gender') gender: number,  @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
