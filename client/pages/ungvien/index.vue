@@ -1,7 +1,7 @@
 <template>
     <a-layout :name="Ungvien">
         <div class="mainContent">
-            <div v-if="loaded">
+            <div>
                 <div v-if="userLogin && userLogin.role=='1' && getSuitableJobs.length > 0">
                     <h2 class="job_type">
                         <CaretRightOutlined />Việc làm gần bạn: {{ getSuitableJobs.length }}
@@ -147,7 +147,7 @@
                 </div>
 
                 <!-- Modal job info -->
-                <a-modal v-model:open="open" v-bind:title="'Tuyển dụng: ' + selectedJob.job_title" @ok="handleOk"
+                <a-modal v-model:open="open" v-bind:title="'Tuyển dụng: ' + selectedJob.job_title"
                     width="100%">
                     <div v-if="selectedJob.job_link">
                         <a-row>
@@ -262,19 +262,20 @@
                     </div>
                     <template #footer>
                         <div v-if="selectedJob.job_link">
+                            <a-button key="back" @click="this.open = false">Đóng</a-button>
                             <a-button danger :loading="loading" @click="goToJobLink(selectedJob.job_link)">
                                 Tham khảo
-                            </a-button>
+                            </a-button>                         
                         </div>
                         <div v-else>
                             <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
                                 return obj.userId === this.userLogin._id
                             }).length > 0">
-                                <a-button key="back" @click="handleCancel">Close</a-button>
+                                <a-button key="back" @click="handleCancel">Đóng</a-button>
                                 <a-button disabled danger>Đã nộp</a-button>
                             </div>
                             <div v-else>
-                                <a-button key="back" @click="handleCancel">Close</a-button>
+                                <a-button key="back" @click="handleCancel">Đóng</a-button>
                                 <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary"
                                     :loading="loading" @click="handleSubmitCV(selectedJob)">Ứng tuyển
                                 </a-button>
@@ -625,7 +626,6 @@ export default {
             currentPage: 1,
             totalReferCount: 0,
             currentReferPage: 1,
-            loaded: false,
         }
 
     },
@@ -638,7 +638,7 @@ export default {
                 this.clearOutDatePosts();
             }
         }
-        if (this.userLogin.cv) {
+        if (this.userLogin && this.userLogin.cv.province) {
             const danhsachtam = await $fetch('http://localhost:8000/posts/getSuitableJobs/' + this.isLogin);
             for (let i = 0; i <= danhsachtam.posts.length - 1; i++) {
                 if (danhsachtam.posts[i].com_created) {
@@ -729,16 +729,13 @@ export default {
 
             this.open = true;
         },
-        handleOk(job) {
-            this.openMessage = false;
-        },
         handleCreateCV() {
-            navigateTo('createCV')
+            navigateTo('ungvien/createCV')
         },
         async handleSubmitCV(selectedJob) {
             if (this.userLogin.role == '1') {
                 // Chưa có CV => open modal tạo CV
-                if (!this.userLogin.cv.avatar) {
+                if (!this.userLogin.cv.fullName && !this.userLogin.cv.address && !this.userLogin.cv.province) {
                     this.openMessage = true
                     // Có CV nhưng selectedJob muốn apply đã tồn tại userId => đã nộp 
                 } else if (selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
@@ -756,6 +753,15 @@ export default {
                         })
                         this.openNotificationWithIcon('success')
                         this.reloadPostApplyable();
+                        await $fetch('http://localhost:8000/notifications/create/', {
+                            method: 'POST',
+                            body: {
+                                fromUserID: this.userLogin._id,
+                                toUserID: selectedJob.com_created,
+                                postID: selectedJob._id,
+                                action: "applyJob"
+                            }
+                        })
                         this.open = false
                     } catch (error) {
                         console.log(error)

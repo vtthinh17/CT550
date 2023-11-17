@@ -234,9 +234,6 @@ export default {
             this.users = await useFetch('http://localhost:8000/users/getAll');
             console.log(this.users)
         },
-        handleOk() {
-            this.open = false;
-        }
     },
 
 }

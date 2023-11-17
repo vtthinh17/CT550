@@ -8,10 +8,6 @@ export class NotificationsController {
   async createNotify(@Body() createNotifyDto: CreateNotifyDto) {
     return this.notifyService.createNewNotify(createNotifyDto);
   }
-  @Post('sendNotiToSubScriber/:companyId')
-  async sendNotiToSubScriber(@Param('companyId') companyId: string) {
-    return this.notifyService.sendNotiToSubScriber(companyId);
-  }
   @Put('markSeenAllNotifies')
   async markSeen(@Body() data: Array<object>) {
     return this.notifyService.markSeenNotify(data);

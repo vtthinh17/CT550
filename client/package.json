@@ -26,6 +26,7 @@
     "add-to-calendar-button": "^2.4.3",
     "chart.js": "^4.4.0",
     "pinia": "^2.1.6",
+    "pusher-js": "^8.3.0",
     "sass": "^1.64.2",
     "swiper": "^10.2.0",
     "vue-carousel-3d": "^1.0.1",

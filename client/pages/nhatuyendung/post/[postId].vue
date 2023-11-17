@@ -1,87 +1,91 @@
 <template>
     <a-layout :name="nhatuyendung">
         <div>
-             <!-- Thông tin bài tuyển dụng -->
-        <div v-if="loaded">
-            <h1>
-                Tuyển dụng: {{ postData.job_title }}
-            </h1>
-            <div style="display: flex; flex-direction: row; justify-content: space-around;">
-                <p>Mức lương: {{ postData.job_salary }}</p>
-                <p>Hạn nộp: {{ postData.deadline }}</p>
-            </div>
-            <div>
-                <h3>Mô tả công việc</h3>
-                <a-textarea v-model:value="postData.job_description" rows="4" cols="30"></a-textarea>
-            </div>
-            <div>
-                <h3>Yêu cầu công việc</h3>
-                <a-textarea v-model:value="postData.job_requirement" rows="4" cols="30"></a-textarea>
-                <!-- <p style="background-color: white; padding: 1rem;">{{ postData.job_requirement }}</p> -->
-            </div>
-            <div>
-                <h3>Lợi ích được hưởng</h3>
-                <a-textarea v-model:value="postData.job_benefit" rows="4" cols="30"></a-textarea>
-                <!-- <p style="background-color: white; padding: 1rem;">{{ postData.job_benefit }}</p> -->
-            </div>
-        </div>
-        <a-divider />
-        <!-- Danh sách ứng viên đã ứng tuyển -->
-        <a-list size="large" bordered :data-source="postData.applied">
-
-            <template #header>
-                <div class="cls1">
-                    <h4>Danh sách ứng viên đã ứng tuyển cho việc làm này</h4>
+            <!-- Thông tin bài tuyển dụng -->
+            <div v-if="loaded">
+                <h1>
+                    Tuyển dụng: {{ postData.job_title }}
+                </h1>
+                <div style="display: flex; flex-direction: row; justify-content: space-around;">
+                    <p>Mức lương: {{ postData.job_salary }}</p>
+                    <p>Hạn nộp: {{ postData.deadline }}</p>
                 </div>
-            </template>
-            <template #renderItem="{ item }">
-                <a-list-item class="hoverItem">
-                    <a-row style="width: 80%;">
-                        <a-col :span="16">
-                            <a-row>
-                                <a-col :span="8">
-                                    <img style="width: 30%; border-radius: 50%;" v-bind:src="item.profile.avatar" alt="">
-                                </a-col>
-                                <a-col :span="16">
-                                    <div>Họ tên: {{ item.profile.fullName }}</div>
-                                    <div>Năm sinh: {{ item.profile.birthday.slice(6, 10) }}</div>
-                                    <div>Giới tính:
-                                        <span v-if="item.profile.sex == 1">Nam</span>
-                                        <span v-else>Nữ</span>
-                                    </div>
-                                    <div>Nơi sống: {{ item.profile.province }}</div>
-                                </a-col>
-                            </a-row>
-                        </a-col>
-                        <a-col :span="8">
-                            <a-button type="primary" @click="showCandidateInfo(item)">Xem hồ sơ</a-button>
-                            <a-divider type="vertical" />
-                            <a-button v-if="Object.values(postData.interviewList)
-                                .filter(obj => { return obj.candidateId === item.userId }).length > 0"
-                                @click="viewInterviewDate(item)">
-                                Xem lịch hẹn
-                            </a-button>
-                            <a-button v-else type="primary" @click="{ this.isOpen = true; this.selectedCV = item }">
-                                Hẹn phỏng vấn
-                            </a-button>
-
-                            <!-- <a-button type="primary" @click="console.log('hen pv', item)">Hẹn phỏng vấn</a-button> -->
-                        </a-col>
-                    </a-row>
-
-                </a-list-item>
-            </template>
-            <template #footer v-if="postData.applied && postData.applied.length > 0">
                 <div>
-                    <a-button type="primary" @click="taoExcel(postData.applied)">
-                        Xuất danh sách ứng viên ứng tuyển
-                    </a-button>
-
+                    <h3>Mô tả công việc</h3>
+                    <a-textarea v-model:value="postData.job_description" rows="4" cols="30"></a-textarea>
                 </div>
-            </template>
+                <div>
+                    <h3>Yêu cầu công việc</h3>
+                    <a-textarea v-model:value="postData.job_requirement" rows="4" cols="30"></a-textarea>
+                    <!-- <p style="background-color: white; padding: 1rem;">{{ postData.job_requirement }}</p> -->
+                </div>
+                <div>
+                    <h3>Lợi ích được hưởng</h3>
+                    <a-textarea v-model:value="postData.job_benefit" rows="4" cols="30"></a-textarea>
+                    <!-- <p style="background-color: white; padding: 1rem;">{{ postData.job_benefit }}</p> -->
+                </div>
+            </div>
+            <a-divider />
+            <!-- Danh sách ứng viên đã ứng tuyển -->
+            <a-list size="large" bordered :data-source="postData.applied">
+
+                <template #header>
+                    <div class="cls1">
+                        <h4>Danh sách ứng viên đã ứng tuyển cho việc làm này</h4>
+                    </div>
+                </template>
+                <template #renderItem="{ item }">
+                    <a-list-item class="hoverItem">
+                        <a-row style="width: 80%;">
+                            <a-col :span="16">
+                                <a-row>
+                                    <a-col :span="8">
+                                        <img v-if="item.profile.avatar" style="width: 30%; border-radius: 50%;"
+                                            v-bind:src="item.profile.avatar" alt="">
+                                        <img v-else style="width: 30%; border-radius: 50%;"
+                                            src="https://img.icons8.com/windows/32/user-male-circle.png" alt="">
+
+                                    </a-col>
+                                    <a-col :span="16">
+                                        <div>Họ tên: {{ item.profile.fullName }}</div>
+                                        <div>Năm sinh: {{ item.profile.birthday.slice(6, 10) }}</div>
+                                        <div>Giới tính:
+                                            <span v-if="item.profile.sex == 1">Nam</span>
+                                            <span v-else>Nữ</span>
+                                        </div>
+                                        <div>Nơi sống: {{ item.profile.province }}</div>
+                                    </a-col>
+                                </a-row>
+                            </a-col>
+                            <a-col :span="8">
+                                <a-button type="primary" @click="showCandidateInfo(item)">Xem hồ sơ</a-button>
+                                <a-divider type="vertical" />
+                                <a-button v-if="Object.values(postData.interviewList)
+                                    .filter(obj => { return obj.candidateId === item.userId }).length > 0"
+                                    @click="viewInterviewDate(item)">
+                                    Xem lịch hẹn
+                                </a-button>
+                                <a-button v-else type="primary" @click="{ this.isOpen = true; this.selectedCV = item }">
+                                    Hẹn phỏng vấn
+                                </a-button>
+
+                                <!-- <a-button type="primary" @click="console.log('hen pv', item)">Hẹn phỏng vấn</a-button> -->
+                            </a-col>
+                        </a-row>
+
+                    </a-list-item>
+                </template>
+                <template #footer v-if="postData.applied && postData.applied.length > 0">
+                    <div>
+                        <a-button type="primary" @click="taoExcel(postData.applied)">
+                            Xuất danh sách ứng viên ứng tuyển
+                        </a-button>
+
+                    </div>
+                </template>
 
 
-        </a-list>
+            </a-list>
         </div>
 
         <a-modal v-model:open="open" title="Hồ sơ cá nhân" width="100%" wrap-class-name="full-modal" @ok="handleOk">
@@ -94,7 +98,10 @@
                 <a-row>
                     <!-- Thông tin ứng viên -->
                     <a-col :span="6">
-                        <img style="width: 30%; border-radius: 10%;" v-bind:src="selectedCV.avatar" alt="">
+                        <img v-if="selectedCV.avatar" style="width: 30%; border-radius: 10%;" v-bind:src="selectedCV.avatar"
+                            alt="">
+                        <img v-else style="width: 30%; border-radius: 10%;"
+                            src="https://img.icons8.com/windows/32/user-male-circle.png" alt="">
                         <div>
                             <h2>{{ selectedCV.fullName }}</h2>
                             <a-divider />
@@ -249,6 +256,7 @@
 <script>
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
+import { message } from 'ant-design-vue';
 import { read, utils, writeFile } from 'xlsx';
 import 'add-to-calendar-button';
 import { Modal } from 'ant-design-vue';
@@ -328,6 +336,16 @@ export default {
                         message: this.interviewMessage,
                     }
                 })
+                await $fetch('http://localhost:8000/notifications/create/', {
+                    method: 'POST',
+                    body: {
+                        fromUserID: this.isLogin,
+                        toUserID: this.selectedCV.userId,
+                        postID: useRoute().params.postId,
+                        action: "newInterview"
+                    }
+                })
+                message.success('Thêm lịch hẹn thành công');
                 this.postData = await $fetch('http://localhost:8000/posts/getPost/' + useRoute().params.postId);
             } catch (error) {
                 console.log(error)
@@ -346,7 +364,7 @@ export default {
                     try {
                         await $fetch('http://localhost:8000/posts/removeInterview/' + useRoute().params.postId, {
                             method: 'PUT',
-                            body: 
+                            body:
                             {
                                 candidateId: app.selectedCV.userId,
                             }
@@ -453,5 +471,4 @@ export default {
     align-items: center;
     justify-content: center;
     color: #121417;
-}
-</style>
+}</style>

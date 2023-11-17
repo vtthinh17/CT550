@@ -6,11 +6,11 @@
 
         <h1>Bạn là</h1>
         <br>
-        <NuxtLink to="./nhatuyendung/">
+        <NuxtLink to="./nhatuyendung">
             <button class="nut">Nhà tuyển dụng</button>
         </NuxtLink>
         <br>
-        <NuxtLink to="./ungvien/">
+        <NuxtLink to="./ungvien">
             <button class="nut">
                 Ứng viên tìm việc
             </button>

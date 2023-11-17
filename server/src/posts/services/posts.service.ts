@@ -17,6 +17,7 @@ import {
 } from '../dto/posts.dto';
 import { UsersService } from 'src/users/services/users.service';
 import { NotificationsService } from 'src/notifications/services/notifications.service';
+import { PusherService } from 'src/pusher/pusher.service';
 import * as moment from 'moment';
 
 // import * as dayjs from 'dayjs';
@@ -27,6 +28,7 @@ export class PostsService {
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
     private readonly notifyService: NotificationsService,
+    private pusherService: PusherService,
   ) {}
   async getPost(id: string): Promise<Post> {
     try {
@@ -408,8 +410,12 @@ export class PostsService {
   }
   async createPost(createPostDto: CreatePostDto): Promise<Post> {
     const date = new Date();
-    const temp = `${date.getDate()}/${
-      date.getMonth() + 1
+    const temp = `${
+      date.getDate() > 10 ? date.getDate() : '0' + date.getDate()
+    }/${
+      date.getMonth() + 1 > 10
+        ? date.getMonth() + 1
+        : '0' + (date.getMonth() + 1)
     }/${date.getFullYear()}`;
     try {
       const newPost = new this.postModel({
@@ -429,7 +435,6 @@ export class PostsService {
       });
       this.userService.increaseTotalPosts(createPostDto.com_created);
       await newPost.save();
-      await this.notifyService.sendNotiToSubScriber(createPostDto.com_created);
       return newPost;
     } catch (error) {
       throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
@@ -517,6 +522,22 @@ export class PostsService {
       if (updatePostDto.status == 1) {
         try {
           await this.userService.increaseTotalDisplayPost(temp.com_created);
+          // tạo thông báo trong DB và trigger realtime notify trong hàm sendNotiToSubScriber
+          await this.notifyService.sendNotiToSubScriber(
+            temp.com_created,
+            postId,
+          );
+          // tạo thông báo
+          await this.notifyService.sendNotiApprovedPostToCompany(
+            temp.com_created,
+            postId,
+          );
+          // trigger realtime notify
+          await this.pusherService.trigger(
+            'recruitment-system',
+            `approvedPost-${temp.com_created}`,
+            'trigger notify approvedPost',
+          );
         } catch (error) {
           console.log(error);
           throw new HttpException('Error hide post', HttpStatus.BAD_REQUEST);
@@ -533,9 +554,10 @@ export class PostsService {
       throw new HttpException('Error hide post', HttpStatus.BAD_REQUEST);
     }
   }
-  async applyJob(applyJobDto: ApplyJobDto, id: string): Promise<Post> {
+  async applyJob(applyJobDto: ApplyJobDto, postId: string) {
     try {
-      return await this.postModel.findByIdAndUpdate(id, {
+      const post = await this.postModel.findById(postId);
+      await this.postModel.findByIdAndUpdate(postId, {
         $push: {
           applied: {
             userId: applyJobDto.userId,
@@ -543,6 +565,11 @@ export class PostsService {
           },
         },
       });
+      await this.pusherService.trigger(
+        'recruitment-system',
+        `applyJob-${post.com_created}`,
+        'trigger applyJob',
+      );
     } catch (error) {
       throw new HttpException('Error apply', HttpStatus.BAD_REQUEST);
     }
@@ -562,7 +589,7 @@ export class PostsService {
   }
   async addInterview(addInterviewDto: AddInterviewDto, postId: string) {
     try {
-      return await this.postModel.findByIdAndUpdate(postId, {
+      await this.postModel.findByIdAndUpdate(postId, {
         $push: {
           interviewList: {
             time: addInterviewDto.time,
@@ -572,6 +599,11 @@ export class PostsService {
           },
         },
       });
+      await this.pusherService.trigger(
+        'recruitment-system',
+        `newInterview-${addInterviewDto.candidateId}`,
+        'trigger notify newInterview',
+      );
       // add Notify to candidate about this interview
     } catch (error) {
       throw new HttpException('Error apply', HttpStatus.BAD_REQUEST);

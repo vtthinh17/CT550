@@ -30,6 +30,7 @@ export class UpdatePostDto {
   job_description: string;
   job_benefit: string;
   job_salary: string;
+  com_created: string;
   com_location: string;
   com_phone: string;
   deadline: string;

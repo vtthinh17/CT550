@@ -17,12 +17,50 @@ import {
 import { User } from '../interfaces/user.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostsService } from 'src/posts/services/posts.service';
+import { PusherService } from 'src/pusher/pusher.service';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<User>,
     @Inject(forwardRef(() => PostsService)) private postService: PostsService,
+    private pusherService: PusherService,
   ) {}
+  async follow(fromUserID: string, toUserID: string) {
+    try {
+      await this.userModel.findByIdAndUpdate(fromUserID, {
+        $push: { follow: toUserID },
+      });
+      await this.userModel.findByIdAndUpdate(toUserID, {
+        $push: { subscriber: fromUserID },
+      });
+      await this.pusherService.trigger(
+        'recruitment-system',
+        `follow-${toUserID}`,
+        {
+          userId: fromUserID,
+          companyId: toUserID,
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        'Error handle follow user',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  async unfollow(userId: string, unfollowId: string) {
+    try {
+      await this.userModel.findByIdAndUpdate(userId, {
+        $pull: { follow: { $eq: unfollowId } },
+      });
+      await this.userModel.findByIdAndUpdate(unfollowId, {
+        $pull: { subscriber: { $eq: userId } },
+      });
+    } catch (error) {
+      throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+    }
+  }
   async getUser(id: string): Promise<User> {
     try {
       const user = await this.userModel.findById(id);
@@ -59,7 +97,6 @@ export class UsersService {
     let count = 0;
     const today = new Date();
     const allUser = await this.getAllUsers();
-    console.log(allUser);
     allUser.forEach((user) => {
       if (user.createdAt.slice(0, 2) == today.getDate()) {
         count++;
@@ -126,7 +163,6 @@ export class UsersService {
         createdAt: temp,
         cv: createUserDto.cv,
       });
-      console.log('tao user', newUser);
       return await newUser.save();
     } catch (error) {
       throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
@@ -197,18 +233,6 @@ export class UsersService {
     }
   }
 
-  async follow(fromUserID: string, toUserID: string) {
-    try {
-      await this.userModel.findByIdAndUpdate(fromUserID, {
-        $push: { follow: toUserID },
-      });
-      await this.userModel.findByIdAndUpdate(toUserID, {
-        $push: { subscriber: fromUserID },
-      });
-    } catch (error) {
-      throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
-    }
-  }
   async insertEducation(insertCVDto: InsertCVDto, id: string): Promise<User> {
     try {
       const userModel = await this.userModel.findById(id);
@@ -251,7 +275,7 @@ export class UsersService {
         },
       });
     } catch (error) {
-      console.log('loi>', error);
+      console.log(error);
       throw new HttpException('Error remove edu', HttpStatus.BAD_REQUEST);
     }
   }
@@ -295,7 +319,7 @@ export class UsersService {
         },
       });
     } catch (error) {
-      console.log('loi>', error);
+      console.log(error);
       throw new HttpException('Error remove edu', HttpStatus.BAD_REQUEST);
     }
   }
@@ -367,7 +391,6 @@ export class UsersService {
       })
       .catch((err) => console.log(err));
     const totalCount = await this.userModel.find(filterObject).countDocuments();
-    console.log(totalCount);
     return {
       users: data,
       totalCount: totalCount,
@@ -403,7 +426,6 @@ export class UsersService {
       })
       .catch((err) => console.log(err));
     const totalCount = await this.userModel.find(filterObject).countDocuments();
-    console.log(totalCount);
     return {
       users: data,
       totalCount: totalCount,
@@ -417,18 +439,6 @@ export class UsersService {
     try {
       return await this.userModel.findByIdAndUpdate(id, {
         $set: { password: changePasswordDto.password },
-      });
-    } catch (error) {
-      throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
-    }
-  }
-  async unfollow(userId: string, unfollowId: string) {
-    try {
-      await this.userModel.findByIdAndUpdate(userId, {
-        $pull: { follow: { $eq: unfollowId } },
-      });
-      await this.userModel.findByIdAndUpdate(unfollowId, {
-        $pull: { subscriber: { $eq: userId } },
       });
     } catch (error) {
       throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);

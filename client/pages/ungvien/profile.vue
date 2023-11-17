@@ -102,7 +102,7 @@
 
                         </div>
                         <!-- Form thêm học vấn -->
-                        <a-modal v-model:open="isAddEducation" title="Thêm thông tin học vấn" @ok="handleOk">
+                        <a-modal v-model:open="isAddEducation" title="Thêm thông tin học vấn">
                             <div class="education_item">
                                 <div>Trường:</div>
                                 <a-input style="width: 80%;" type="text" class="input" name="fullName"
@@ -158,7 +158,7 @@
                             </a-row>
                         </div>
                         <!-- Form thêm chứng chỉ -->
-                        <a-modal v-model:open="isAddDegree" title="Thêm thông tin bằng cấp/chứng chỉ" @ok="handleOk">
+                        <a-modal v-model:open="isAddDegree" title="Thêm thông tin bằng cấp/chứng chỉ">
                             <a-row class="info_fields">
                                 <a-col :span="15">
                                     <div>Tên chứng chỉ/bằng cấp:</div>
@@ -375,11 +375,6 @@ export default {
         showModal(job) {
             this.selectedJob = job
             this.open = true;
-        },
-
-        handleOk() {
-            console.log("ok")
-            this.open = false;
         },
 
         handleCancel() {
