@@ -18,8 +18,8 @@ export class UsersController {
         return this.userService.getTodayCreatedAccount();
     }
     @Get('getAllCompanies')
-    getAllCompanies(@Query('currentPage') currentPage: number) {
-        return this.userService.getAllCompanies(currentPage);
+    getAllCompanies(@Query('currentPage') currentPage: number, @Query('companyName') companyName: string) {
+        return this.userService.getAllCompanies(currentPage, companyName);
     }
     @Get('getAll')
     getAll() {

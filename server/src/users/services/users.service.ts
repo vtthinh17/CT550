@@ -370,16 +370,26 @@ export class UsersService {
     }
   }
 
-  async getAllCompanies(currentPage: number) {
+  async getAllCompanies(currentPage: number, companyName: string) {
+    console.log('from client,', companyName);
     const filterObject = {
       role: '2',
     };
+    if (companyName !== '') {
+      filterObject['com_name'] = {
+        $regex: companyName,
+        $options: 'i',
+      };
+    } else {
+      filterObject['com_name'] = undefined;
+    }
     // patch remove empty property
     Object.keys(filterObject).forEach((key) => {
       if (filterObject[key] === undefined) {
         delete filterObject[key];
       }
     });
+    console.log('filter,', filterObject);
     // limit 6 items each fetch
     const skipCount = (currentPage - 1) * 6;
     const data = await this.userModel

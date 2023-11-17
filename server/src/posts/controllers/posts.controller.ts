@@ -28,28 +28,32 @@ export class PostsController {
   }
 
   @Get('getPostByFilter')
-  getFilterPosts(@Query('currentPage') currentPage: number, @Query('workingType') workingType: string,@Query('salary') salary: string, @Query('expRequire') expRequire: string, @Query('major') major: string,  @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
-    return this.postService.getPostByFilters(currentPage, workingType, educationRequire, expRequire, province, major,salary);
+  getFilterPosts(@Query('currentPage') currentPage: number, @Query('workingType') workingType: string,@Query('title') title: string,@Query('salary') salary: string, @Query('expRequire') expRequire: string, @Query('major') major: string,  @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
+    return this.postService.getPostByFilters(currentPage, workingType, educationRequire, expRequire, province, major,salary,title);
   }
 
   @Get('getReferPostByFilter')
-  getReferPostByFilter(@Query('currentReferPage') currentReferPage: number, @Query('hinhthuc') hinhthuc: string, @Query('trinhdo') trinhdo: string, @Query('thanhpho') thanhpho: string, @Query('kinhnghiem') kinhnghiem: string, @Query('linhvuc') linhvuc: string, @Query('mucluong') mucluong: string) {
-    return this.postService.getReferPostByFilter(currentReferPage, hinhthuc, trinhdo, thanhpho, kinhnghiem, linhvuc, mucluong);
+  getReferPostByFilter(@Query('currentReferPage') currentReferPage: number, @Query('hinhthuc') hinhthuc: string, @Query('tieude') tieude: string, @Query('trinhdo') trinhdo: string, @Query('thanhpho') thanhpho: string, @Query('kinhnghiem') kinhnghiem: string, @Query('linhvuc') linhvuc: string, @Query('mucluong') mucluong: string) {
+    return this.postService.getReferPostByFilter(currentReferPage, hinhthuc, trinhdo, thanhpho, kinhnghiem, linhvuc, mucluong, tieude);
   }
   @Get('getSuitableJobs/:userId')
   getSuitableJobs(@Param('userId') userId: string) {
     return this.postService.getSuitableJobs(userId);
   }
   
+  // @Get('getSysTemPosts')
+  // getSysTemPosts(@Query('currentPage') currentPage: number) {
+  //   return this.postService.getSysTemPosts(currentPage);
+  // }
   @Get('getSysTemPosts')
-  getSysTemPosts(@Query('currentPage') currentPage: number) {
-    return this.postService.getSysTemPosts(currentPage);
+  getSysTemPosts(@Query('currentPage') currentPage: number,@Query('trangthai') trangthai: string, @Query('workingType') workingType: string,@Query('title') title: string,@Query('salary') salary: string, @Query('expRequire') expRequire: string, @Query('major') major: string,  @Query('educationRequire') educationRequire: string, @Query('province') province: string) {
+    return this.postService.getSysTemPosts(currentPage, workingType, educationRequire, expRequire, province, major,salary,title,trangthai);
   }
   
 
   @Get('getReferPosts')
-  getReferPosts(@Query('currentReferPage') currentReferPage: number) {
-    return this.postService.getReferPosts(currentReferPage);
+  getReferPosts(@Query('currentReferPage') currentReferPage: number,@Query('trangthai') trangthai: string,@Query('hinhthuc') hinhthuc: string, @Query('tieude') tieude: string, @Query('trinhdo') trinhdo: string, @Query('thanhpho') thanhpho: string, @Query('kinhnghiem') kinhnghiem: string, @Query('linhvuc') linhvuc: string, @Query('mucluong') mucluong: string) {
+    return this.postService.getReferPosts(currentReferPage, hinhthuc, trinhdo, thanhpho, kinhnghiem, linhvuc, mucluong, tieude, trangthai);
   }
 
   @Get('getUnApprovedPosts')

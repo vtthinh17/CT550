@@ -9,11 +9,14 @@
         <li>
           <NuxtLink to="/nhatuyendung/candidates">Tìm kiếm ứng viên</NuxtLink>
         </li>
+        <li v-if="this && this.isLogin && userLogin.role == '2'">
+          <NuxtLink to="/nhatuyendung/companyProfile">Cập nhật thông tin</NuxtLink>
+        </li>
       </ul>
       <div class="account_setting">
         <!-- navigation -->
         <span>
-          <NuxtLink style=" font-weight: 300;color: goldenrod; text-decoration: none;" to="/ungvien/">Ứng viên</NuxtLink>
+          <NuxtLink style=" font-weight: 300;color: goldenrod; text-decoration: none;" to="/ungvien/"><SwapOutlined /> Ứng viên</NuxtLink>
         </span>
         <span v-if="isLogin" class="notifyBell">
           <a-dropdown :open="isOpenNotify">
@@ -497,7 +500,7 @@ export default {
   display: flex;
   align-items: center;
   // background-color: blue;
-  width: 20rem;
+  width: 25rem;
   justify-content: space-evenly;
 
 }

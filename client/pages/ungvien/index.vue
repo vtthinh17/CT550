@@ -26,24 +26,26 @@
                 <div style="background-color: #5b7fb4; padding: 1rem;">
                     <div style="display: flex; justify-content: center;">
                         <p>Bộ lọc:</p>
+                        <a-input type="text" :allowClear="true" v-model:value="filterRefer_jobTitle"
+                            style="width: 12%; height: 2rem; margin-right: 0.5rem;" placeholder="Tên tiêu đề" />
                         <a-input type="text" :allowClear="true" v-model:value="filterRefer_major"
                             style="width: 12%; height: 2rem" placeholder="Lĩnh vực tìm kiếm" />
-                        <a-cascader class="filterOption" v-model:value="filterRefer_salary" style="width: 15%;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filterRefer_salary" style="width: 15%;"
                             max-tag-count="responsive" :options="filterOptions_salary"
                             placeholder="Mức lương">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_education" style="width: 10%;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filterRefer_education" style="width: 10%;"
                             max-tag-count="responsive" :options="filterOptionsRefer_education" placeholder="Trình độ">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_expRequire" style="width: 15%;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filterRefer_expRequire" style="width: 15%;"
                             max-tag-count="responsive" :options="filterOptionsRefer_expRequire"
                             placeholder="Yêu cầu kinh nghiệm">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_workingType" style="width: 15%;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filterRefer_workingType" style="width: 15%;"
                             max-tag-count="responsive" :options="filterOptionsRefer_workingType"
                             placeholder="Hình thức làm việc">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filterRefer_province" style="width: 15%;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filterRefer_province" style="width: 15%;"
                             max-tag-count="responsive" :options="provincesOptions" placeholder="Tỉnh/Thành phố">
                         </a-cascader>
                         <a-button style="background-color: yellow;" @click="reloadReferPost()">Lọc tin</a-button>
@@ -89,24 +91,26 @@
                 <div style="background-color: #5b7fb4; padding: 1rem;">
                     <div style="display: flex; justify-content: center;">
                         <p>Bộ lọc:</p>
+                        <a-input type="text" :allowClear="true" v-model:value="filter_jobTitle"
+                            style="width: 12%; height: 2rem; margin-right: 0.5rem;" placeholder="Tên tiêu đề" />
                         <a-input type="text" :allowClear="true" v-model:value="filter_major"
                             style="width: 20%; height: 2rem" placeholder="Nhập từ khóa lĩnh vực tìm kiếm" />
-                            <a-cascader class="filterOption" v-model:value="filter_salary" style="width: 15%; height: 2rem;"
+                            <a-cascader :allowClear="true" class="filterOption" v-model:value="filter_salary" style="width: 15%; height: 2rem;"
                             max-tag-count="responsive" :options="filterOptions_salary"
                             placeholder="Mức lương">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filter_education" style="width: 10%;  height: 2rem;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filter_education" style="width: 10%;  height: 2rem;"
                             max-tag-count="responsive" :options="filterOptions_education" placeholder="Trình độ">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filter_expRequire" style="width: 15%;  height: 2rem;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filter_expRequire" style="width: 15%;  height: 2rem;"
                             max-tag-count="responsive" :options="filterOptions_expRequire"
                             placeholder="Yêu cầu kinh nghiệm">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filter_workingType" style="width: 15%;  height: 2rem;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filter_workingType" style="width: 15%;  height: 2rem;"
                             max-tag-count="responsive" :options="filterOptions_workingType"
                             placeholder="Hình thức làm việc">
                         </a-cascader>
-                        <a-cascader class="filterOption" v-model:value="filter_province" style="width: 15%;  height: 2rem;"
+                        <a-cascader :allowClear="true" class="filterOption" v-model:value="filter_province" style="width: 15%;  height: 2rem;"
                             max-tag-count="responsive" :options="provincesOptions" placeholder="Tỉnh/Thành phố">
                         </a-cascader>
                         <a-button style="background-color: yellow;" @click="reloadPostApplyable()">Lọc tin</a-button>
@@ -369,29 +373,6 @@ export default {
             },
 
         ];
-        const filterOptions_major = [
-            {
-                label: 'Kế toán',
-                value: 'kt',
-
-            },
-            {
-                label: 'Công nghệ thông tin',
-                value: 'cntt',
-
-            },
-            {
-                label: 'Du lịch',
-                value: 'dulich',
-
-            },
-            {
-                label: 'Sức khỏe',
-                value: 'suckhoe',
-
-            },
-
-        ];
         const filterOptions_education = [
             {
                 label: 'Không yêu cầu',
@@ -489,8 +470,7 @@ export default {
         const filterOptionsRefer_expRequire = [
             {
                 label: 'Không yêu cầu',
-                value: '0',
-
+                value: 'Không yêu cầu',
             },
             {
                 label: 'Dưới 1 năm',
@@ -587,7 +567,6 @@ export default {
         ];
         return {
             filterOptions_salary,
-            filterOptions_major,
             filterOptions_education,
             filterOptions_expRequire,
             filterOptions_workingType,
@@ -607,11 +586,13 @@ export default {
             filter_workingType: false,
             filterRefer_salary: '',
             filter_salary: false,
+            filter_jobTitle: '',
             filterRefer_expRequire: false,
             filterRefer_province: false,
             filterRefer_workingType: false,
             filterRefer_education: false,
             filterRefer_major: '',
+            filterRefer_jobTitle: '',          
             open: false,
             openMessage: false,
             selectedJob: false,
@@ -691,14 +672,14 @@ export default {
         },
         async getFilterOptions() {
             try {
-                return await $fetch(`http://localhost:8000/posts/getPostByFilter?currentPage=${this.currentPage}&salary=${this.filter_salary? this.filter_salary : ''}&major=${this.filter_major}${this.filter_workingType && this.filter_workingType[0] ? '&workingType=' + this.filter_workingType[0] : ''}${this.filter_education && this.filter_education[0] ? '&educationRequire=' + this.filter_education[0] : ''}${this.filter_expRequire && this.filter_expRequire[0] ? '&expRequire=' + this.filter_expRequire[0] : ''}${this.filter_province && this.filter_province[0] ? '&province=' + this.filter_province[0] : ''}`);
+                return await $fetch(`http://localhost:8000/posts/getPostByFilter?currentPage=${this.currentPage}&title=${this.filter_jobTitle}&salary=${this.filter_salary? this.filter_salary : ''}&major=${this.filter_major}${this.filter_workingType && this.filter_workingType[0] ? '&workingType=' + this.filter_workingType[0] : ''}${this.filter_education && this.filter_education[0] ? '&educationRequire=' + this.filter_education[0] : ''}${this.filter_expRequire && this.filter_expRequire[0] ? '&expRequire=' + this.filter_expRequire[0] : ''}${this.filter_province && this.filter_province[0] ? '&province=' + this.filter_province[0] : ''}`);
             } catch (error) {
                 console.log(error)
             }
         },
         async getReferPostFilterOptions() {
             try {
-                return await $fetch(`http://localhost:8000/posts/getReferPostByFilter?currentReferPage=${this.currentReferPage}&linhvuc=${this.filterRefer_major}&mucluong=${this.filterRefer_salary ? this.filterRefer_salary : ''}${this.filterRefer_workingType && this.filterRefer_workingType[0] ? '&hinhthuc=' + this.filterRefer_workingType[0] : ''}${this.filterRefer_education && this.filterRefer_education[0] ? '&trinhdo=' + this.filterRefer_education[0] : ''}${this.filterRefer_province && this.filterRefer_province[0] ? '&thanhpho=' + this.filterRefer_province[0] : ''}${this.filterRefer_expRequire && this.filterRefer_expRequire[0] ? '&kinhnghiem=' + this.filterRefer_expRequire[0] : ''}`);
+                return await $fetch(`http://localhost:8000/posts/getReferPostByFilter?currentReferPage=${this.currentReferPage}&tieude=${this.filterRefer_jobTitle}&linhvuc=${this.filterRefer_major}&mucluong=${this.filterRefer_salary ? this.filterRefer_salary : ''}${this.filterRefer_workingType && this.filterRefer_workingType[0] ? '&hinhthuc=' + this.filterRefer_workingType[0] : ''}${this.filterRefer_education && this.filterRefer_education[0] ? '&trinhdo=' + this.filterRefer_education[0] : ''}${this.filterRefer_province && this.filterRefer_province[0] ? '&thanhpho=' + this.filterRefer_province[0] : ''}${this.filterRefer_expRequire && this.filterRefer_expRequire[0] ? '&kinhnghiem=' + this.filterRefer_expRequire[0] : ''}`);
             } catch (error) {
                 console.log(error)
             }

@@ -3,6 +3,25 @@
         <div v-if="userLogin && userLogin.role == '3'">
             <h2>Quản lý danh sách ứng viên</h2>
             <a-layout-content v-if="loaded">
+                <div style="background-color: #5b7fb4; padding: 1rem;">
+                    <div style="display: flex; justify-content: center;">
+                        <a-cascader class="filterOption" v-model:value="filter_gender" style="width: 10%"
+                            max-tag-count="responsive" :options="filterOptions_gender" placeholder="Giới tính">
+                        </a-cascader>
+
+                        <a-divider type="vertical"></a-divider>
+                        <a-cascader class="filterOption" v-model:value="filter_education" style="width: 10%"
+                            max-tag-count="responsive" :options="filterOptions_education" placeholder="Trình độ">
+                        </a-cascader>
+                        <a-divider type="vertical"></a-divider>
+                        <a-cascader class="filterOption" v-model:value="filter_province" style="width: 20%"
+                            max-tag-count="responsive" :options="provincesOptions" placeholder="Tỉnh/Thành phố">
+                        </a-cascader>
+                        <a-divider type="vertical"></a-divider>
+                        <a-button style="background-color: yellow;" @click="reloadCandidatesList()">Lọc danh sách ứng
+                            viên</a-button>
+                    </div>
+                </div>
                 <a-list size="large" bordered :data-source="getCandidatesList">
                     <template #header>
                         <h1>Số lượng: {{ totalCount }}</h1>
@@ -162,6 +181,7 @@ import { message } from 'ant-design-vue';
 import { Modal } from 'ant-design-vue';
 import { createVNode } from 'vue';
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import provinces from '../../assets/data/provinces';
 export default {
     setup() {
         definePageMeta({
@@ -173,6 +193,45 @@ export default {
     },
     data() {
         return {
+            filter_education: false,
+            filter_province: false,
+            filter_gender: false,
+            provincesOptions: provinces,
+            filterOptions_education: [
+                {
+                    label: 'Không yêu cầu',
+                    value: 'Không yêu cầu',
+
+                },
+                {
+                    label: 'Cao đẳng',
+                    value: 'Cao đẳng',
+
+                },
+                {
+                    label: 'Trung cấp',
+                    value: 'Trung cấp',
+
+                },
+                {
+                    label: 'Đại học',
+                    value: 'Đại học',
+
+                },
+
+            ],
+            filterOptions_gender: [
+                {
+                    label: 'Nam',
+                    value: 1,
+
+                },
+                {
+                    label: 'Nữ',
+                    value: 2,
+
+                },
+            ],
             isLogin: false,
             userLogin: {},
             candidatesList: [],
@@ -195,7 +254,7 @@ export default {
         },
         async getFilterOptions() {
             try {
-                return await $fetch(`http://localhost:8000/users/getAllCandidates?currentPage=${this.currentPage}`);
+                return await $fetch(`http://localhost:8000/users/getAllCandidates?currentPage=${this.currentPage}${this.filter_gender && this.filter_gender[0] ? '&gender=' + this.filter_gender[0] : ''}${this.filter_education && this.filter_education[0] ? '&educationRequire=' + this.filter_education[0] : ''}${this.filter_province && this.filter_province[0] ? '&province=' + this.filter_province[0] : ''}`);
             } catch (error) {
                 console.log(error)
             }

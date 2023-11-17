@@ -26,7 +26,7 @@
           </p>
         </a-modal>
         <span>
-          <span style=" font-weight: 300; color: goldenrod; text-decoration: none; cursor: pointer;" @click="gotoNTD">Nhà
+          <span style=" font-weight: 300; color: goldenrod; text-decoration: none; cursor: pointer;" @click="gotoNTD"><SwapOutlined /> Nhà
             tuyển dụng</span>
         </span>
         <span v-if="isLogin" class="notifyBell">
@@ -491,7 +491,7 @@ export default {
   display: flex;
   align-items: center;
   // background-color: blue;
-  width: 20rem;
+  width: 25rem;
   justify-content: space-between;
 }
 </style>

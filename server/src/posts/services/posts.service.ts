@@ -86,6 +86,7 @@ export class PostsService {
     province: string,
     major: string,
     salary: string,
+    title: string,
   ) {
     const filterObject = {
       workingType: workingType,
@@ -102,6 +103,14 @@ export class PostsService {
       };
     } else {
       filterObject['major'] = undefined;
+    }
+    if (title !== '') {
+      filterObject['job_title'] = {
+        $regex: title,
+        $options: 'i',
+      };
+    } else {
+      filterObject['job_title'] = undefined;
     }
     if (salary !== '') {
       if (salary === 'Th') {
@@ -190,6 +199,7 @@ export class PostsService {
     kinhnghiem: string,
     linhvuc: string,
     mucluong: string,
+    tieude: string,
   ) {
     const filterObject = {
       status: 1,
@@ -233,6 +243,14 @@ export class PostsService {
       };
     } else {
       filterObject['major'] = undefined;
+    }
+    if (tieude !== '') {
+      filterObject['job_title'] = {
+        $regex: tieude,
+        $options: 'i',
+      };
+    } else {
+      filterObject['job_title'] = undefined;
     }
     if (mucluong !== '') {
       if (mucluong === 'Th') {
@@ -330,10 +348,128 @@ export class PostsService {
       totalCount: totalCount,
     };
   }
-  async getSysTemPosts(currentPage: number) {
+  // async getSysTemPosts(currentPage: number) {
+  //   const filterObject = {
+  //     com_created: { $exists: true },
+  //   };
+  //   // patch remove empty property
+  //   Object.keys(filterObject).forEach((key) => {
+  //     if (filterObject[key] === undefined) {
+  //       delete filterObject[key];
+  //     }
+  //   });
+  //   // limit 6 items each fetch
+  //   const skipCount = (currentPage - 1) * 6;
+  //   const post = await this.postModel
+  //     .find(filterObject)
+  //     .limit(6)
+  //     .skip(skipCount)
+  //     .then((post) => {
+  //       return post;
+  //     })
+  //     .catch((err) => console.log(err));
+  //   const totalCount = await this.postModel.find(filterObject).countDocuments();
+  //   return {
+  //     posts: post,
+  //     totalCount: totalCount,
+  //   };
+  // }
+  async getSysTemPosts(
+    currentPage: number,
+    workingType: string,
+    educationRequire: string,
+    expRequire: string,
+    province: string,
+    major: string,
+    salary: string,
+    title: string,
+    trangthai: string,
+  ) {
     const filterObject = {
+      workingType: workingType,
+      educationRequire: educationRequire,
+      expRequire: expRequire,
+      province: province,
       com_created: { $exists: true },
+      status: trangthai,
     };
+    if (trangthai === '3') {
+      delete filterObject['status'];
+      console.log(filterObject);
+    }
+    if (major !== '') {
+      filterObject['major'] = {
+        $regex: major,
+        $options: 'i',
+      };
+    } else {
+      filterObject['major'] = undefined;
+    }
+    if (title !== '') {
+      filterObject['job_title'] = {
+        $regex: title,
+        $options: 'i',
+      };
+    } else {
+      filterObject['job_title'] = undefined;
+    }
+    if (salary !== '') {
+      if (salary === 'Th') {
+        filterObject['job_salary'] = {
+          $regex: /(Th)|(Cạnh)|(Khác)|(Trao)/,
+          $options: 'i',
+        };
+      } else if (salary === '3 - 6') {
+        filterObject['job_salary'] = {
+          $regex:
+            /^([3-5](.[0-9])?( triệu)?( -)?)|(^[3-5]( triệu)?)|(^Trên [3-5]( triệu)?)|(Trên [3-5](.[0-9])?( triệu)?)|(- [3-6] triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === '6 - 10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([6-9](.[0-9])? triệu - 10 triệu)|([6-9](.[0-9])? - 10 triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === 'duoi10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([0-9] triệu - 10 triệu)|([0-9] triệu - [0-9] triệu)|([0-9].[0-9] triệu - [0-9].[0-9] triệu)|([0-9](.[0-9])? - 10 triệu)|([0-9](.[0-9])? - [0-9](.[0-9])? triệu)|([0-9](.[0-9])? triệu - 10 triệu)|([0-9](.[0-9])? triệu - [0-9](.[0-9])? triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === 'tren10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([1-9][0-9] triệu - )|([1-9][0-9](.[0-9])? triệu - )|(Trên 1[0-9] triệu)|([1-9][0-9] - )|([1-9][0-9](.[0-9])? triệu - )/,
+          $options: 'i',
+        };
+      } else if (salary === '10 - 15') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[0-5] triệu - 1[1-5] triệu)|(1[0-5] - 1[0-5] triệu)|(Trên 1[0-4] triệu)|(1[0-5](.[0-9])? triệu - 1[1-5] triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === '15 - 20') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[5-9] triệu - 20 triệu)|(1[5-9] - 20 triệu)|(1[5-9] triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 20 triệu)|(1[5-9](.[0-9])? - 20 triệu)|(Trên 1[5-9] triệu)/,
+          $options: 'i',
+        };
+      } else if (salary === 'tren20') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([2-9][0-9] triệu - )|([2-9][0-9](.[0-9])? triệu - )|(Trên 2[0-9] triệu)|([2-9][0-9] - )|([2-9][0-9](.[0-9])? triệu - )/,
+          $options: 'i',
+        };
+      } else {
+        filterObject['job_salary'] = {
+          $regex: salary,
+          $options: 'i',
+        };
+      }
+    } else {
+      filterObject['job_salary'] = undefined;
+    }
     // patch remove empty property
     Object.keys(filterObject).forEach((key) => {
       if (filterObject[key] === undefined) {
@@ -356,10 +492,129 @@ export class PostsService {
       totalCount: totalCount,
     };
   }
-  async getReferPosts(currentReferPage: number) {
+  async getReferPosts(
+    currentReferPage: number,
+    hinhthuc: string,
+    trinhdo: string,
+    thanhpho: string,
+    kinhnghiem: string,
+    linhvuc: string,
+    mucluong: string,
+    tieude: string,
+    trangthai: string,
+  ) {
+    console.log('trang thai lọc', trangthai);
     const filterObject = {
       job_link: { $exists: true },
+      status: trangthai,
     };
+    if (trangthai === '3') {
+      delete filterObject['status'];
+    }
+    if (hinhthuc !== undefined) {
+      filterObject['workingType'] = {
+        $regex: hinhthuc,
+        $options: 'i',
+      };
+    }
+    if (trinhdo !== undefined) {
+      filterObject['educationRequire'] = {
+        $regex: trinhdo,
+        $options: 'i',
+      };
+    }
+    if (thanhpho !== undefined) {
+      filterObject['province'] = {
+        $regex: thanhpho,
+        $options: 'i',
+      };
+    }
+    if (kinhnghiem !== undefined) {
+      if (kinhnghiem === '0') {
+        filterObject['expRequire'] = {
+          $regex: /(Không)|(Chưa)|(0)/,
+          $options: 'i',
+        };
+      } else {
+        filterObject['expRequire'] = {
+          $regex: kinhnghiem,
+          $options: 'i',
+        };
+      }
+    }
+    if (linhvuc !== '') {
+      filterObject['major'] = {
+        $regex: linhvuc,
+        $options: 'i',
+      };
+    } else {
+      filterObject['major'] = undefined;
+    }
+    if (tieude !== '') {
+      filterObject['job_title'] = {
+        $regex: tieude,
+        $options: 'i',
+      };
+    } else {
+      filterObject['job_title'] = undefined;
+    }
+    if (mucluong !== '') {
+      if (mucluong === 'Th') {
+        filterObject['job_salary'] = {
+          $regex: /(Th)|(Cạnh)|(Khác)|(Trao)/,
+          $options: 'i',
+        };
+      } else if (mucluong === '3 - 6') {
+        filterObject['job_salary'] = {
+          $regex:
+            /^([3-5](.[0-9])?( triệu)?( -)?)|(^[3-5]( triệu)?)|(^Trên [3-5]( triệu)?)|(Trên [3-5](.[0-9])?( triệu)?)|(- [3-6] triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === '6 - 10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([6-9](.[0-9])? triệu - 10 triệu)|([6-9](.[0-9])? - 10 triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === 'duoi10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([0-9] triệu - 10 triệu)|([0-9] triệu - [0-9] triệu)|([0-9].[0-9] triệu - [0-9].[0-9] triệu)|([0-9](.[0-9])? - 10 triệu)|([0-9](.[0-9])? - [0-9](.[0-9])? triệu)|([0-9](.[0-9])? triệu - 10 triệu)|([0-9](.[0-9])? triệu - [0-9](.[0-9])? triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === 'tren10') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([1-9][0-9] triệu - )|([1-9][0-9](.[0-9])? triệu - )|(Trên 1[0-9] triệu)|([1-9][0-9] - )|([1-9][0-9](.[0-9])? triệu - )/,
+          $options: 'i',
+        };
+      } else if (mucluong === '10 - 15') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[0-5] triệu - 1[1-5] triệu)|(1[0-5] - 1[0-5] triệu)|(Trên 1[0-4] triệu)|(1[0-5](.[0-9])? triệu - 1[1-5] triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === '15 - 20') {
+        filterObject['job_salary'] = {
+          $regex:
+            /(1[5-9] triệu - 20 triệu)|(1[5-9] - 20 triệu)|(1[5-9] triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 20 triệu)|(1[5-9](.[0-9])? - 20 triệu)|(Trên 1[5-9] triệu)/,
+          $options: 'i',
+        };
+      } else if (mucluong === 'tren20') {
+        filterObject['job_salary'] = {
+          $regex:
+            /([2-9][0-9] triệu - )|([2-9][0-9](.[0-9])? triệu - )|(Trên 2[0-9] triệu)|([2-9][0-9] - )|([2-9][0-9](.[0-9])? triệu - )/,
+          $options: 'i',
+        };
+      } else {
+        filterObject['job_salary'] = {
+          $regex: mucluong,
+          $options: 'i',
+        };
+      }
+    } else {
+      filterObject['job_salary'] = undefined;
+    }
     // patch remove empty property
     Object.keys(filterObject).forEach((key) => {
       if (filterObject[key] === undefined) {

@@ -2,6 +2,14 @@
     <a-layout :name="admin">
         <div v-if="userLogin && userLogin.role == '3'">
             <h2>Danh sách nhà tuyển dụng</h2>
+            <div style="background-color: #5b7fb4; padding: 1rem;">
+                    <div style="display: flex; justify-content: center;">
+                        <a-input type="text" :allowClear="true" v-model:value="filter_companyName"
+                            style="width: 20%; height: 2rem; margin-right: 0.5rem;" placeholder="Tên công ty" />
+                       
+                        <a-button style="background-color: yellow;" @click="reloadCompanyList()">Tìm kiếm</a-button>
+                    </div>
+                </div>
             <a-layout-content v-if="loaded">
                 <a-list size="large" bordered :data-source="getCompanyList">
                     <template #header>
@@ -236,6 +244,7 @@ export default {
             isLogin: false,
             userLogin: {},
             companyList: [],
+            filter_companyName: '',
             totalCount: 0,
             currentPage: 1,
             totalSelectedCompanyPostsCount: 0,
@@ -247,6 +256,7 @@ export default {
             selectedJob: false,
             companyInfo: false,
             loaded: false,
+
         }
     },
     methods: {
@@ -261,11 +271,12 @@ export default {
         },
         async getFilterOptions() {
             try {
-                return await $fetch(`http://localhost:8000/users/getAllCompanies?currentPage=${this.currentPage}`);
+                return await $fetch(`http://localhost:8000/users/getAllCompanies?currentPage=${this.currentPage}&companyName=${this.filter_companyName}`);
             } catch (error) {
                 console.log(error)
             }
         },
+
         onChangeSelectedCompanyPostsPagination() {
             this.reloadSelectedCompanyPosts();
         },
