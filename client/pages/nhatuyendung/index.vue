@@ -242,7 +242,8 @@
             </a-col>
           </a-row>
           <a-form-item label="Mức lương">
-            <a-input type="text" class="input" name="add_jobSalary" v-model:value="add_jobSalary" placeholder="VD: 5 - 10 triệu"/>
+            <a-input type="text" class="input" name="add_jobSalary" v-model:value="add_jobSalary"
+              placeholder="VD: 5 - 10 triệu" />
           </a-form-item>
           <a-row>
             <a-col :span="12">
@@ -345,7 +346,7 @@ export default {
   setup() {
     definePageMeta({
       layout: 'nhatuyendung'
-    })
+    });
   },
   data() {
     return {
@@ -375,7 +376,7 @@ export default {
       currentPage: 1,
       companyPost: [],
       selectedPost: {},
-      loaded : false,
+      loaded: false,
     }
   },
   async mounted() {

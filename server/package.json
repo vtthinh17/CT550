@@ -30,6 +30,7 @@
     "dayjs": "^1.11.10",
     "moment": "^2.29.4",
     "mongoose": "^7.4.3",
+    "pusher": "^5.2.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },

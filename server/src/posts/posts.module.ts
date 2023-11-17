@@ -5,9 +5,10 @@ import { PostSchema } from './models/post.model';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from 'src/users/users.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { PusherService } from 'src/pusher/pusher.service';
 @Module({
   controllers: [PostsController],
-  providers: [PostsService],
+  providers: [PostsService, PusherService],
   imports: [
     UsersModule,
     NotificationsModule,

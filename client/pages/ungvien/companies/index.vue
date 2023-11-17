@@ -60,8 +60,6 @@ export default {
   async mounted() {
     if (process.client) {
       this.data = myData;
-      // this.companies = await $fetch('http://localhost:8000/users/getAllCompanies');
-      // console.log("getAllCompanies:", this.companies);
       this.reloadCompanyList();
     }
 

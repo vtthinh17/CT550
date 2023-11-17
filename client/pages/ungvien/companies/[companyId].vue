@@ -11,7 +11,7 @@
             </a-col>
             <a-col :span="16">
                 <h2 style="color:blue">{{ selectCompany.com_name }}</h2>
-                <b>MST: {{ selectCompany.taxNumber ? selectCompany.taxNumber : 'Chưa cập nhật'}}</b>
+                <b>MST: {{ selectCompany.taxNumber ? selectCompany.taxNumber : 'Chưa cập nhật' }}</b>
                 <p v-if="selectCompany && selectCompany.com_location">
                     <PushpinOutlined /><b> Địa chỉ:</b> {{ selectCompany.com_location }}
                 </p>
@@ -72,7 +72,7 @@
                     </p>
                 </a-tab-pane>
 
-                <template #rightExtra>
+                <template #rightExtra v-if="userLogin">
                     <a-button v-if="selectCompany && checkIsFollowed(selectCompany._id)" danger
                         @click="handleUnFollowCV(selectCompany._id)">Hủy theo dõi</a-button>
                     <a-button v-else type="primary" @click="handleFollowCV(selectCompany._id)">Theo dõi</a-button>
@@ -81,7 +81,7 @@
 
         </div>
         <!-- Modal selectjob info -->
-        <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" @ok="handleOk" width="90%">
+        <a-modal v-model:open="open" v-bind:title="selectedJob.job_title" width="90%">
             <a-row>
                 <a-col :span="8">
                     <div v-if="selectCompany.com_logo" style="display: flex;justify-content: center;">
@@ -134,11 +134,11 @@
                 <div v-if="selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
                     return obj.userId === this.userLogin._id
                 }).length > 0">
-                    <a-button key="back" @click="handleCancel">Close</a-button>
+                    <a-button key="back" @click="handleCancel">Đóng</a-button>
                     <a-button disabled danger>Đã nộp</a-button>
                 </div>
                 <div v-else>
-                    <a-button key="back" @click="handleCancel">Close</a-button>
+                    <a-button key="back" @click="handleCancel">Đóng</a-button>
                     <a-button v-if="selectedJob.job_links == undefined" key="submit" type="primary" :loading="loading"
                         @click="handleSubmitCV(selectedJob)">Ứng tuyển
                     </a-button>
@@ -155,7 +155,7 @@
                 Tạo cv mới?+
             </div>
             <template #footer>
-                <a-button key="back" @click="handleCancel">Close</a-button>
+                <a-button key="back" @click="this.openMessage = false">Đóng</a-button>
                 <a-button key="submit" type="primary" :loading="loading" @click="handleCreateCV">Tạo
                     CV
                 </a-button>
@@ -172,6 +172,8 @@ definePageMeta({
 })
 export default {
     layout: 'ungvien',
+    setup() {
+    },
     data() {
         return {
             activeKey: '1',
@@ -193,7 +195,7 @@ export default {
             if (this.isLogin) {
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
                 console.log("ung vien>>>  login:", this.userLogin);
-                
+
             }
             console.log(this.getCompanyId);
             console.log();
@@ -211,7 +213,7 @@ export default {
         async reloadCompanyActivePost() {
             const postData = await this.getFilterOptions();
             this.companyActivePosts = postData.posts;
-            console.log("reload active post",postData )
+            console.log("reload active post", postData)
             this.totalCount = postData.totalCount;
         },
         async getFilterOptions() {
@@ -241,7 +243,6 @@ export default {
                     }
                 });
                 this.userLogin = await $fetch('http://localhost:8000/users/getUser/' + this.isLogin);
-                console.log("huy theo doi", this.userLogin.follow.length)
                 message.warning("Hủy theo dõi công ty, bạn sẽ không còn nhận thông báo từ công ty này.")
             } catch (error) {
                 console.log(error)
@@ -292,7 +293,7 @@ export default {
         async handleSubmitCV(selectedJob) {
             if (this.userLogin.role == '1') {
                 // Chưa có CV => open modal tạo CV
-                if (!this.userLogin.cv) {
+                if (!this.userLogin.cv.fullName || !this.userLogin.cv.address) {
                     this.openMessage = true
                     // Có CV nhưng selectedJob muốn apply đã tồn tại userId => đã nộp 
                 } else if (selectedJob.applied && Object.values(selectedJob.applied).filter(obj => {
@@ -310,7 +311,15 @@ export default {
                         })
                         this.reloadPosts()
                         this.openNotificationWithIcon('success')
-                        console.log("them cv vao selectedJob:", this.userLogin)
+                        await $fetch('http://localhost:8000/notifications/create/', {
+                            method: 'POST',
+                            body: {
+                                fromUserID: this.userLogin._id,
+                                toUserID: selectedJob.com_created,
+                                postID: selectedJob._id,
+                                action: "applyJob"
+                            }
+                        })
                         this.open = false
                     } catch (error) {
                         console.log(error)
@@ -326,12 +335,6 @@ export default {
             this.selectedJob = job
             this.reloadCompanyActivePost();
             this.open = true;
-        },
-
-        handleOk() {
-            this.openMessage = false;
-            console.log("ok")
-            this.open = false;
         },
 
         handleCancel() {
