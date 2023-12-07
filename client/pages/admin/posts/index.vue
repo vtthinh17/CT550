@@ -53,7 +53,7 @@
                                         </a-cascader>
                                     </a-col>
                                     <a-col class="filterItem" :span="5">
-                                        <a-select ref="select" v-model:value="filter_postStatus">
+                                        <a-select ref="select" v-model:value="filter_postStatus" style="width: 95%;">
                                             <a-select-option :value="0">Chờ duyệt</a-select-option>
                                             <a-select-option :value="1">Đang hiển thị</a-select-option>
                                             <a-select-option :value="2">Đã ẩn</a-select-option>
@@ -118,7 +118,7 @@
                             </template>
                             <div class="pagination">
                                 <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
-                                    :total="totalCount" />
+                                    :total="totalCount" :showSizeChanger=false />
                             </div>
                         </a-list>
                     </div>
@@ -169,7 +169,7 @@
                                         </a-cascader>
                                     </a-col>
                                     <a-col class="filterItem" :span="5">
-                                        <a-select ref="select" v-model:value="filterRefer_postStatus"  style="width: 90%;">
+                                        <a-select ref="select" v-model:value="filterRefer_postStatus"  style="width: 95%;">
                                             <a-select-option :value="0">Chờ duyệt</a-select-option>
                                             <a-select-option :value="1">Đang hiển thị</a-select-option>
                                             <a-select-option :value="2">Đã ẩn</a-select-option>
@@ -234,7 +234,7 @@
                             </template>
                             <div class="pagination">
                                 <a-pagination @change="onChangeReferPagination" v-model:current="currentReferPage"
-                                    :pageSize="6" :total="totalReferCount" />
+                                    :pageSize="6" :total="totalReferCount" :showSizeChanger=false />
                             </div>
                         </a-list>
                     </div>

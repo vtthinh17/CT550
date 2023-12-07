@@ -78,8 +78,10 @@ export default {
                         navigateTo('/ungvien')
                     } else if (res.role == '2') {
                         navigateTo('/nhatuyendung')
-                    } else {
+                    } else if (res.role == '3'){
                         navigateTo('/admin')
+                    } else {
+                        this.openNotification('Đã có lỗi xảy ra','Thông tin tài khoản hoặc mật khẩu bạn cung cấp không chính xác!')
                     }
 
                 } catch (error) {

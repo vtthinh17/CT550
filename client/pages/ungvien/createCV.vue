@@ -182,9 +182,9 @@ export default {
                 message.error('Bạn chỉ có thể upload file ảnh có định dạng JPEG hoặc PNG !');
                 return false;
             }
-            const isLt2M = file.size / 1024 / 1024 < 2;
+            const isLt2M = file.size / 1024 /1024 < 5;
             if (!isLt2M) {
-                message.error('Ảnh phải có dung lượng nhỏ hơn 2MB!');
+                message.error('Ảnh phải có dung lượng nhỏ hơn 5MB!');
                 return false;
             }
             message.success('Upload successfully');

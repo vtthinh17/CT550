@@ -1,6 +1,14 @@
 <template>
   <a-layout :name="Ungvien">
     <h2>Danh sách công ty</h2>
+    <div style="background-color: #5b7fb4; padding: 1rem;">
+                    <div style="display: flex; justify-content: center;">
+                        <a-input type="text" :allowClear="true" v-model:value="filter_companyName"
+                            style="width: 20%; height: 2rem; margin-right: 0.5rem;" placeholder="Tên công ty" />
+                       
+                        <a-button style="background-color: yellow;" @click="reloadCompanyList()">Tìm kiếm</a-button>
+                    </div>
+                </div>
     <a-row v-if="totalCount > 0" justify="space-around" style="padding: 0px 20px;">
       <a-col v-for="company in getCompanyList" :span="7">
         <a-card hoverable class="cardItem" @click="gotoCompanyInfo(company)">
@@ -21,7 +29,7 @@
       </template>
     </a-result>
     <div class="pagination">
-      <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" />
+      <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" :showSizeChanger=false />
     </div>
   </a-layout>
 </template>
@@ -53,6 +61,7 @@ export default {
       options: [],
       totalCount: 0,
       currentPage: 1,
+      filter_companyName: '',
     }
 
   },
@@ -83,7 +92,7 @@ export default {
 
     async getFilterOptions() {
       try {
-        return await $fetch(`http://localhost:8000/users/getAllCompanies?currentPage=${this.currentPage}`);
+        return await $fetch(`http://localhost:8000/users/getAllCompanies?currentPage=${this.currentPage}&companyName=${this.filter_companyName}`);
       } catch (error) {
         console.log(error)
       }

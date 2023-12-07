@@ -43,14 +43,13 @@
           </a-card>
         </a-col>
       </a-row>
-      <a-result v-else title="Không tìm thấy tin tuyển dụng!"
-        sub-title="Hãy thử tìm kiếm với các lựa chọn khác hoặc xóa bỏ tất cả lựa chọn để làm mới danh sách tin tuyển dụng.">
+      <a-result v-else title="Đang tìm ứng viên... Nếu chờ đợi quá lâu, có thể ứng viên bạn tìm không tồn tại, vui lòng thử lại sau!">
         <template #icon>
           <FrownOutlined />
         </template>
       </a-result>
       <div class="pagination">
-        <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" />
+        <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" :showSizeChanger=false />
       </div>
       <!-- modal show candidate CV -->
       <a-modal v-model:open="open" title="Hồ sơ cá nhân" width="100%" wrap-class-name="full-modal" @ok="handleOk">
@@ -77,7 +76,7 @@
                   <img width="30" height="30" src="https://img.icons8.com/ios/50/contact-card.png" alt="contact-card" />
                 </h3>
                 <div>Địa chỉ: {{ selectedCV.cv.address ? selectedCV.cv.address : "Chưa cập nhật" }}</div>
-                <div>Email: {{ selectedCV.username ? selectedCV.cv.username : "Chưa cập nhật" }}</div>
+                <div>Email: {{ selectedCV.username ? selectedCV.username : "Chưa cập nhật" }}</div>
                 <div>Số điện thoại: {{ selectedCV.cv.phone ? selectedCV.cv.phone : "Chưa cập nhật" }}</div>
               </div>
             </a-col>

@@ -1,7 +1,7 @@
 <template>
     <a-layout :name="admin">
         <div v-if="userLogin && userLogin.role == '3'">
-            <h2>Hệ thống tuyển dụng việc làm</h2>
+            <h2>Hệ thống phần mềm tuyển dụng việc làm</h2>
             <a-layout-content>
                 <a-row v-if="loaded" class="gradient_list" style="padding: 2rem;" justify="space-around">
                     <a-col :span="5"

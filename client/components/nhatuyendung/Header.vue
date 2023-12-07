@@ -336,6 +336,7 @@ export default {
           this.unSeenNotifies = await $fetch('http://localhost:8000/notifications/getUnseenNotifies/' + this.isLogin);
         }))
         channel.bind(`applyJob-${this.userLogin._id}`, (async () => {
+          console.log('apply job')
           this.unSeenNotifies = await $fetch('http://localhost:8000/notifications/getUnseenNotifies/' + this.isLogin);
         }))
         channel.bind(`approvedPost-${this.userLogin._id}`, (async () => {
@@ -434,7 +435,7 @@ export default {
               password: this.newPassword,
             }
           });
-          alert("cap nhat thanh cong, vui long dang nhap lai")
+          alert("Bạn đã thay đổi mật khẩu thành công, vui lòng đăng nhập nhập lại!")
           this.currentPass = '';
           this.newPassword = '';
           this.confirm_newPassword = '';

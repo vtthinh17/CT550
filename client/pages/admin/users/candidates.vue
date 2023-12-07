@@ -68,7 +68,7 @@
                 </a-list>
                 <div class="pagination">
                     <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
-                        :total="totalCount" />
+                        :total="totalCount" :showSizeChanger=false />
                 </div>
                 <a-modal v-model:open="open" title="Hồ sơ cá nhân" width="100%" wrap-class-name="full-modal" @ok="handleOk">
                     <div class="CV_header">

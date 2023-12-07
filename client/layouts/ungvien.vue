@@ -1,7 +1,7 @@
 <template>
   <client-only placeholder="Loading...">
      <Head>
-      <Title>Việc làm Cần Thơ tổng hợp </Title>
+      <Title>Hệ thống phần mềm tuyển dụng việc làm</Title>
     </Head> 
     <ungvienHeader />
     <slot />

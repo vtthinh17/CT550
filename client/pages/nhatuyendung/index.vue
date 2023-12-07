@@ -25,16 +25,16 @@
       <h1>Tin của tôi</h1>
       <div v-if="loaded && this.totalCount > 0">
         <div v-for="post in getCompanyPosts" class="job_item">
-          <div style="display: flex; flex-direction: row; justify-content: space-around; margin-bottom: 1rem;">
+          <!-- <div style="display: flex; flex-direction: row; justify-content: space-around; margin-bottom: 1rem;">
 
-          </div>
-          <div>
-            <b>Tuyển dụng: {{ post.job_title }}</b>
+          </div> -->
+          <div style="padding: 0.5rem;">
+            Tuyển dụng: <b><span style="background-color: rgba(119, 157, 240, 0.348); font-size: 0.9rem; padding: 3px">{{ post.job_title }}</span></b>
           </div>
           <div style="display: flex;">
             <div style="flex:2; display: flex;justify-content: center;">
               <div>
-                <img v-if="userLogin.com_logo" style="width:90%;" v-bind:src="userLogin.com_logo" alt="">
+                <img v-if="userLogin.com_logo" style="width:60%;" v-bind:src="userLogin.com_logo" alt="">
                 <img v-else style="width:80%;" src="https://vieclam24h.vn/img/vieclam24h_logo_customer.jpg" alt="">
               </div>
             </div>
@@ -57,16 +57,16 @@
               <p v-else-if="post.job_salary.includes('h')">Mức lương: {{ post.job_salary }}</p>
               <p v-else>Mức lương: {{ post.job_salary }} triệu</p>
 
-              <span v-if="post.status == 1" class="xemhoso" @click="viewAppiedCandidates(post._id)">
+              <span v-if="post.status !== 0" class="xemhoso" @click="viewAppiedCandidates(post._id)">
                 <a-tooltip>
-                  <template #title>Xem danh sách hồ sơ</template>
+                  <template #title>Xem danh sách ứng viên ứng tuyển</template>
                   <UserOutlined /> Hồ sơ đã nộp: {{ post.applied.length }}
                 </a-tooltip>
               </span>
             </div>
             <div style="flex: 6;">
-              <a-button v-if="post.status != 2" key="submit" type="primary" @click="handleEdit(post._id)">
-                <EditOutlined />Xem/Chỉnh sửa bài đăng
+              <a-button v-if="post.status != 1" key="submit" type="primary" @click="handleEdit(post._id)" style="width:15rem">
+                <EditOutlined />{{ post.status == 0 ? 'Xem/Chỉnh sửa bài đăng': 'Xem tin' }}
               </a-button>
               <a-divider type="vertical" v-if="post.status == 1" />
               <a-button danger v-if="post.status == 1" @click="hidePost(post._id)">
@@ -77,7 +77,7 @@
 
         </div>
         <div class="pagination">
-          <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" />
+          <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6" :total="totalCount" :showSizeChanger=false />
         </div>
       </div>
       <div v-else>
@@ -182,7 +182,7 @@
         </a-form>
         <template #footer>
           <a-button key="back" @click="this.modalEditOpen = false">Đóng</a-button>
-          <a-button type="primary" @click="changeInfo">Cập nhật</a-button>
+          <a-button v-if="selectedPost.data.status != 2" type="primary" @click="changeInfo">Cập nhật</a-button>
         </template>
       </a-modal>
 
@@ -516,7 +516,7 @@ export default {
   },
   computed: {
     getCompanyPosts() {
-      return this.companyPost;
+      return this.companyPost !== undefined ? this.companyPost.reverse() : [];
     }
   }
 }

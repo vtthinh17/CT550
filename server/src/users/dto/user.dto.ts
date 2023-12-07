@@ -76,4 +76,5 @@ export class LoginUserDto {
 export class ChangePasswordDto {
   id: string;
   password: string;
+  currentPass: string;
 }

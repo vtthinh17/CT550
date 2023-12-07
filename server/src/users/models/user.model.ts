@@ -19,7 +19,6 @@ export const UserSchema = new mongoose.Schema({
     avatar: { type: String },
     fullName: { type: String },
     province: { type: String },
-    exp: { type: String },
     brief_intro: { type: String },
     birthday: { type: String },
     sex: { type: Number, default: 1 },
@@ -42,6 +41,5 @@ export const UserSchema = new mongoose.Schema({
     major: { type: String },
     address: { type: String },
     phone: { type: String },
-    certificates: { type: String },
   },
 });

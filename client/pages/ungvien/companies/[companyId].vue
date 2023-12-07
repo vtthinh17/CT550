@@ -60,7 +60,7 @@
                     </a-list>
                     <div class="pagination">
                         <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
-                            :total="totalCount" />
+                            :total="totalCount" :showSizeChanger=false />
                     </div>
                 </a-tab-pane>
                 <a-tab-pane key="2" tab="Thông tin công ty">

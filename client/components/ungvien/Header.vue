@@ -404,29 +404,25 @@ export default {
       navigateTo('/login')
     },
     async changePassword(id) {
-      console.log("abc:", this.currentPass)
-      if (this.currentPass != this.userLogin.password) {
-        alert("Mật khẩu hiện tại không trùng khớp")
-      } else if (this.newPassword != this.confirm_newPassword) {
-        alert("Nhập lại mật khẩu mới không trùng khớp")
-      }
-      else {
+      if (this.newPassword == this.confirm_newPassword){
         try {
           await $fetch('http://localhost:8000/users/changePassword/' + id, {
             method: 'PUT',
             body: {
+              currentPass: this.currentPass,
               password: this.newPassword,
             }
           });
-          alert("cap nhat thanh cong, vui long dang nhap lai")
+          alert("Bạn đã thay đổi mật khẩu thành công, vui lòng đăng nhập nhập lại!")
           this.open = false;
           this.logout()
         } catch (error) {
           console.log(error)
-          this.errorMsg = 'Register failed, please try again!'
+          alert("Mật khẩu không hợp lệ, vui lòng nhập lại!")
         }
+      } else {
+        alert("Nhập lại mật khẩu mới không trùng khớp")
       }
-
     },
     showDrawer() {
       this.openDrawer = true;

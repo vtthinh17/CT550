@@ -82,7 +82,7 @@
                 <!-- Pagination -->
                 <div class="pagination">
                     <a-pagination @change="onChangeReferPagination" v-model:current="currentReferPage" :pageSize="6"
-                        :total="totalReferCount" />
+                        :total="totalReferCount" :showSizeChanger=false />
                 </div>
 
                 <h2 class="job_type">
@@ -147,7 +147,7 @@
                 <!-- Pagination -->
                 <div class="pagination">
                     <a-pagination @change="onChangePagination" v-model:current="currentPage" :pageSize="6"
-                        :total="totalCount" />
+                        :total="totalCount" :showSizeChanger=false />
                 </div>
 
                 <!-- Modal job info -->
@@ -168,7 +168,6 @@
                                 <h2>{{ selectedJob.company }}</h2>
                                 <a-row>
                                     <a-col :span="6"><b> Lĩnh vực:</b></a-col>
-                                    {{ console.log("linh vuc", selectedJob) }}
                                     <a-col :span="10">{{ selectedJob.major }}</a-col>
                                 </a-row>
                                 <a-row>
@@ -204,10 +203,8 @@
                         <h4>Yêu cầu công việc:</h4>
                         <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea>
                         <!-- {{ selectedJob.job_requirement }} -->
-
-
-                        <h4 v-if="selectedJob.job_benefit">Lợi ích:</h4>
-                        <a-textarea v-if="selectedJob.job_benefit" v-model:value="selectedJob.job_benefit"
+                        <h4 v-if="selectedJob.job_benefit.length > 0">Lợi ích:</h4>
+                        <a-textarea v-if="selectedJob.job_benefit.length > 0" v-model:value="selectedJob.job_benefit"
                             rows="5"></a-textarea>
                         <!-- {{ selectedJob.job_benefit }} -->
 
@@ -261,8 +258,8 @@
                         <a-textarea v-model:value="selectedJob.job_description" rows="5"></a-textarea>
                         <h4>Yêu cầu công việc:</h4>
                         <a-textarea v-model:value="selectedJob.job_requirement" rows="5"></a-textarea>
-                        <h4>Lợi ích:</h4>
-                        <a-textarea v-model:value="selectedJob.job_benefit" rows="5"></a-textarea>
+                        <h4 v-if="selectedJob.job_benefit.length > 0">Lợi ích:</h4>
+                        <a-textarea v-if="selectedJob.job_benefit.length > 0" v-model:value="selectedJob.job_benefit" rows="5"></a-textarea>
                     </div>
                     <template #footer>
                         <div v-if="selectedJob.job_link">

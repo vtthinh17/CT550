@@ -96,6 +96,7 @@ export class PostsService {
       status: 1,
       com_created: { $exists: true },
     };
+    console.log('filter salary', salary);
     if (major !== '') {
       filterObject['major'] = {
         $regex: major,
@@ -133,13 +134,12 @@ export class PostsService {
       } else if (salary === 'duoi10') {
         filterObject['job_salary'] = {
           $regex:
-            /([0-9] triệu - 10 triệu)|([0-9] triệu - [0-9] triệu)|([0-9].[0-9] triệu - [0-9].[0-9] triệu)|([0-9](.[0-9])? - 10 triệu)|([0-9](.[0-9])? - [0-9](.[0-9])? triệu)|([0-9](.[0-9])? triệu - 10 triệu)|([0-9](.[0-9])? triệu - [0-9](.[0-9])? triệu)/,
+            /(^[1-9]{1} triệu)|^([0-9] triệu - 10 triệu)|(^[0-9]{1} triệu - [0-9]{1} triệu)/,
           $options: 'i',
         };
       } else if (salary === 'tren10') {
         filterObject['job_salary'] = {
-          $regex:
-            /([1-9][0-9] triệu - )|([1-9][0-9](.[0-9])? triệu - )|(Trên 1[0-9] triệu)|([1-9][0-9] - )|([1-9][0-9](.[0-9])? triệu - )/,
+          $regex: /(^[1-9]{2} triệu)|(^[1-9]{2} triệu - )/,
           $options: 'i',
         };
       } else if (salary === '10 - 15') {
@@ -151,13 +151,12 @@ export class PostsService {
       } else if (salary === '15 - 20') {
         filterObject['job_salary'] = {
           $regex:
-            /(1[5-9] triệu - 20 triệu)|(1[5-9] - 20 triệu)|(1[5-9] triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 20 triệu)|(1[5-9](.[0-9])? - 20 triệu)|(Trên 1[5-9] triệu)/,
+            /(^1[5-9]{1} triệu)|(1[5-9] - 20 triệu)|(1[5-9] triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 1[5-9] triệu)|(1[5-9] - 1[5-9] triệu)|(1[5-9](.[0-9])? triệu - 20 triệu)|(1[5-9](.[0-9])? - 20 triệu)|(Trên 1[5-9] triệu)/,
           $options: 'i',
         };
       } else if (salary === 'tren20') {
         filterObject['job_salary'] = {
-          $regex:
-            /([2-9][0-9] triệu - )|([2-9][0-9](.[0-9])? triệu - )|(Trên 2[0-9] triệu)|([2-9][0-9] - )|([2-9][0-9](.[0-9])? triệu - )/,
+          $regex: /(^[2-9]{2} triệu)|(^[2-9]{2} triệu - )/,
           $options: 'i',
         };
       } else {
@@ -176,6 +175,7 @@ export class PostsService {
       }
     });
     // limit 6 items each fetch
+    console.log('filter object', filterObject);
     const skipCount = (currentPage - 1) * 6;
     const post = await this.postModel
       .find(filterObject)
@@ -348,32 +348,6 @@ export class PostsService {
       totalCount: totalCount,
     };
   }
-  // async getSysTemPosts(currentPage: number) {
-  //   const filterObject = {
-  //     com_created: { $exists: true },
-  //   };
-  //   // patch remove empty property
-  //   Object.keys(filterObject).forEach((key) => {
-  //     if (filterObject[key] === undefined) {
-  //       delete filterObject[key];
-  //     }
-  //   });
-  //   // limit 6 items each fetch
-  //   const skipCount = (currentPage - 1) * 6;
-  //   const post = await this.postModel
-  //     .find(filterObject)
-  //     .limit(6)
-  //     .skip(skipCount)
-  //     .then((post) => {
-  //       return post;
-  //     })
-  //     .catch((err) => console.log(err));
-  //   const totalCount = await this.postModel.find(filterObject).countDocuments();
-  //   return {
-  //     posts: post,
-  //     totalCount: totalCount,
-  //   };
-  // }
   async getSysTemPosts(
     currentPage: number,
     workingType: string,
@@ -930,6 +904,11 @@ export class PostsService {
                 status: 2,
               },
             });
+            if (element.com_created) {
+              await this.userService.decreaseTotalDisplayPost(
+                element.com_created,
+              );
+            }
           } catch (error) {
             console.log(error);
           }

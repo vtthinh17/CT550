@@ -5,7 +5,7 @@
     </NuxtLink>
   </span>
   <div class="register">
-    
+
     <h1>Bạn muốn đăng ký tài khoản?</h1>
     <div>
       <a-radio-group v-model:value="formRole" button-style="solid">
@@ -69,13 +69,13 @@
         </div>
       </div>
       <div class="field">
-        <label class="label">Tên công ty</label>
+        <label class="label">Tên công ty(<span style="color: red;">*</span>)</label>
         <div class="control">
           <input type="text" class="input" name="com_name" v-model="com_name">
         </div>
       </div>
       <div class="field">
-        <label class="label">Mã số thuế</label>
+        <label class="label">Mã số thuế(<span style="color: red;">*</span>)</label>
         <div class="control">
           <input type="text" class="input" name="taxNumber" v-model="taxNumber">
         </div>
@@ -114,14 +114,14 @@ export default {
   },
 
   methods: {
-    openNotificationWithIcon(type,mess,des) {
-            notification[type]({
-                placement: "top",
-                message: mess,
-                description:des,
-            })
+    openNotificationWithIcon(type, mess, des) {
+      notification[type]({
+        placement: "top",
+        message: mess,
+        description: des,
+      })
 
-        },
+    },
     async dangky() {
       if (this.formRole == '1') {
         // check confirm password is matched?
@@ -145,19 +145,29 @@ export default {
             this.cf_password = '';
             // navigateTo('/login')
           } catch (error) {
-            this.openNotificationWithIcon(
+            // console.log(error.response._data.message)
+            if (error.response._data.message == 'User existed') {
+              this.openNotificationWithIcon(
+                'error',
+                'Đã có lỗi xảy ra',
+                'Tên tài khoản đã được đăng ký!'
+              )
+            }else{
+              this.openNotificationWithIcon(
               'error',
               'Đã có lỗi xảy ra',
               'Vui lòng cung cấp đầy đủ thông tin!'
             )
+            }
+            
           }
         }
         else {
           this.openNotificationWithIcon(
-              'error',
-              'Đã có lỗi xảy ra',
-              'Xác minh mật khẩu không trùng khớp. Vui lòng nhập lại!'
-            )
+            'error',
+            'Đã có lỗi xảy ra',
+            'Xác minh mật khẩu không trùng khớp. Vui lòng nhập lại!'
+          )
         }
       }
 
@@ -184,22 +194,30 @@ export default {
             this.email = '';
             this.password = '';
             this.cf_password = '';
-            this.com_name = ''; 
+            this.com_name = '';
             this.taxNumber = '';
           } catch (error) {
-            this.openNotificationWithIcon(
+            if (error.response._data.message == 'User existed') {
+              this.openNotificationWithIcon(
+                'error',
+                'Đã có lỗi xảy ra',
+                'Tên tài khoản đã được đăng ký!'
+              )} else{
+                this.openNotificationWithIcon(
               'error',
               'Đã có lỗi xảy ra',
               'Vui lòng cung cấp đầy đủ thông tin!'
             )
+              }
+           
           }
-        } 
+        }
         else {
           this.openNotificationWithIcon(
-              'error',
-              'Đã có lỗi xảy ra',
-              'Xác minh mật khẩu không trùng khớp. Vui lòng nhập lại!'
-            )
+            'error',
+            'Đã có lỗi xảy ra',
+            'Xác minh mật khẩu không trùng khớp. Vui lòng nhập lại!'
+          )
         }
       }
 

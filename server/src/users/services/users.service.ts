@@ -7,6 +7,8 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { compare } from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -106,11 +108,20 @@ export class UsersService {
   }
   async login(loginUserDto: LoginUserDto): Promise<User> {
     try {
-      const user = await this.userModel.findOne(loginUserDto);
-      if (!user) {
+      const user = await this.userModel.findOne({
+        username: loginUserDto.username,
+      });
+      if (user) {
+        const isPasswordCorrect = await compare(
+          loginUserDto.password,
+          user.password,
+        );
+        if (isPasswordCorrect) {
+          return user;
+        }
+      } else {
         throw new NotFoundException('Could not find user.');
       }
-      return user;
     } catch (error) {
       throw new HttpException('Error get user', HttpStatus.BAD_REQUEST);
     }
@@ -147,25 +158,35 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    try {
-      const date = new Date();
-      const temp = `${date.getDate()}/${
-        date.getMonth() + 1
-      }/${date.getFullYear()}`;
-      const newUser = new this.userModel({
-        username: createUserDto.username,
-        password: createUserDto.password,
-        role: createUserDto.role,
-        com_name: createUserDto.com_name,
-        com_location: createUserDto.com_location,
-        com_phone: createUserDto.com_phone,
-        taxNumber: createUserDto.taxNumber,
-        createdAt: temp,
-        cv: createUserDto.cv,
-      });
-      return await newUser.save();
-    } catch (error) {
-      throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
+    const checkUserNameExist = await this.userModel.find({
+      username: createUserDto.username,
+    });
+    if (checkUserNameExist.length === 0) {
+      try {
+        const date = new Date();
+        const temp = `${date.getDate()}/${
+          date.getMonth() + 1
+        }/${date.getFullYear()}`;
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(createUserDto.password, salt);
+        const newUser = new this.userModel({
+          username: createUserDto.username,
+          password: hash,
+          role: createUserDto.role,
+          com_name: createUserDto.com_name,
+          com_location: createUserDto.com_location,
+          com_phone: createUserDto.com_phone,
+          taxNumber: createUserDto.taxNumber,
+          createdAt: temp,
+          cv: createUserDto.cv,
+        });
+        return await newUser.save();
+      } catch (error) {
+        console.log(error);
+        throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
+      }
+    } else {
+      throw new HttpException('User existed', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -414,6 +435,7 @@ export class UsersService {
     province: string,
   ) {
     const filterObject = {
+      'cv.fullName': { $exists: true },
       role: '1',
       'cv.sex': gender,
       'cv.province': province,
@@ -446,12 +468,29 @@ export class UsersService {
     changePasswordDto: ChangePasswordDto,
     id: string,
   ): Promise<User> {
-    try {
-      return await this.userModel.findByIdAndUpdate(id, {
-        $set: { password: changePasswordDto.password },
-      });
-    } catch (error) {
-      throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+    const user = await this.userModel.findById(id);
+    const isPasswordCorrect = await compare(
+      changePasswordDto.currentPass,
+      user.password,
+    );
+    if (isPasswordCorrect) {
+      try {
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(changePasswordDto.password, salt);
+        return await this.userModel.findByIdAndUpdate(id, {
+          $set: { password: hash },
+        });
+      } catch (error) {
+        throw new HttpException(
+          'Confirm password not match',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } else {
+      throw new HttpException(
+        'Confirm password not match',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }
